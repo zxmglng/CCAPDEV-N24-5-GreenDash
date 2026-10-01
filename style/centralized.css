@@ -5,3 +5,138 @@
     If you think the style can be reused by the whole application, please put it 
     here! =)
 */
+
+/* 
+    IMPORTANT THINGS TO NOTE:
+    - Background color: #ffffff
+    - Body font: Inter; body includes:
+        - paragraph text
+        - product name (it would just be in BOLD)
+        - product information
+        - button text
+    - Header font: League Spartan; header includes:
+        - section titles
+        - section subtitles (ex. Under Orders -> Ongoing orders will have League Spartan as the font)
+        - page titles (stalls directory, orders, transactions, etc.)
+        - buttons in header (ex. Profile, Stalls directory, Orders in the header for user)
+        - Store name (ex. Starbucks)
+*/
+
+/* importing the inter & league spartan fonts from Google fonts as the base font for the application */
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=League+Spartan:wght@100..900&display=swap');
+
+
+/* Prevents the default box-sizing behavior of the browser, which can cause layout issues. */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;        /* default to inter */
+    background-color: #ffffff;             /* default to white */
+    margin: 0;
+}
+
+/* --- HEADER & NAVIGATION BAR --- */
+
+header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+nav {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    background-color: #ffffff;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+}
+
+.main-header {
+    display: flex;
+    font-family: 'League Spartan', 'Inter';   /* default to league spartan */
+    background-color: #d5e6cb;
+    margin: 0 auto;
+    padding: 10px 0 10px 20px;
+    width: 100%;
+    height: auto;
+}
+
+#logo {
+    width: 400px;
+    height: auto;
+    padding: 10px 20px;
+}
+
+.nav-links {
+    font-family: 'League Spartan', 'Inter';   /* default to league spartan */
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    color: #006937;
+    margin-top: 0;
+}
+
+.nav-links a {
+    font-family: 'League Spartan', 'Inter';   /* default to league spartan */
+    color: #006937;
+    font-weight: bold;
+    font-size: 1.15rem;
+    padding: 5px 20px;
+}
+
+.icon-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 10px;
+    color: #006937;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+}
+
+.icon-button#eclipse {
+    margin-right: 50px;
+    margin-left: 0;
+}
+
+.icon-button#cart {
+    align-items: left;
+    margin-right: 50px;
+    margin-left: auto;
+}
+
+.icon-button svg {
+    width: 26px;
+    height: 26px;
+}
+
+.location {
+    font-family: 'League Spartan', 'Inter';   /* default to league spartan */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    color: #006937;
+    padding: 5px 20px 5px 20px;
+    margin-top: 0;
+    margin-right: 0;
+    margin-left: auto;
+    margin-bottom: 0;
+}
+
+.location strong {
+    font-size: 1.75rem;
+}
+/* --- HEADER & NAVIGATION BAR ENDS HERE --- */
+
+/* --- ANIMATIONS --- */
+
+/* default view transition for all pages */
+@view-transition {
+    navigation: auto;
+}
