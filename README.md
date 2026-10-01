@@ -68,7 +68,7 @@ All significant changes to this project will be logged in this section
 - Prevent scheduled pickup before current time/outside open hours
 - Order note (OPTIONAL)
 
-## Person 3 — Orders + Vendor Order Management
+## Rinoa — Orders + Vendor Order Management
 ### User side
 - Orders page
 - Ongoing orders
@@ -86,7 +86,7 @@ All significant changes to this project will be logged in this section
 - Order status progression (pending, preparing, ready, etc)
 
 
-## Person 4 — Vendor Store + Admin
+## Raph — Vendor Store + Admin
 ### Vendor
 - Vendor Sign Up
 - Account Details
@@ -106,7 +106,7 @@ All significant changes to this project will be logged in this section
 - Admin can request details before approval/denial
 
 ---
-### Backend
+## Task Distribution -- Backend
 AS OF 2026-09-30: No backend needed yet
 
 ## Implementation Notes
