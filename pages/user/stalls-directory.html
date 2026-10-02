@@ -15,20 +15,20 @@
     <body>
         <!-- INCLUDE EVERYTHING FOR THE MAIN HEADER FOR ALL PAGES FROM HERE-->
         <header>
-            <div class="main-header">
+            <div id="main-header">
                 <img id="logo" src="../../assets/main/GreenDash_LOGO.png" alt="GreenDash Logo">
-                <div class="location">
+                <div id="location">
                     <span>Your Location:</span>
                     <strong>Gokongwei</strong>
                 </div>
-                <button class="icon-button" id="eclipse" aria-label="Toggle dark mode">
+                <button class="icon-button" id="eclipse" onclick="toggleNightMode()" aria-label="Toggle Eclipse Mode">
                     <i data-lucide="eclipse"></i>
                 </button>
             </div>
 
             <!-- CHANGE THE NAVIGATION LINKS IF NEEDED ACCDG TO USER ROLE HERE-->
             <nav>
-                <div class="nav-links">
+                <div id="nav-links">
                     <a href="../../pages/user/profile.html">Profile</a>
                     <a href="../../pages/user/stores.html">Stalls directory</a>
                     <a href="../../pages/user/orders.html">Orders</a>
@@ -41,9 +41,29 @@
         </header>
         <!-- TO HERE!-->
 
-        <h2 class="section-headers"> Stalls Directory </h2>
+        <div id="search-container">
+            <input type="text" id="search-bar" placeholder="What are you in the mood for?">
+            <button class="icon-button" id="search" aria-label="Search">
+                <i data-lucide="search"></i> 
+            </button>
+        </div>
+
+        <h2 id="stalls-directory" class="section-headers"> Stalls Directory </h2>
+
+        <div id="stalls-container" class="containers">
+            <!-- Stalls will be dynamically generated here -->
+            <img id="stall-logo" src="../../assets/mock-data/starbucks.jpg" alt="Starbucks Logo">
+            <div id="stall-details">
+                <h2 id="stall-name">Starbucks</h2>
+                <div id="stall-meta">
+                    <p id="stall-location">Green Court (Fidel A. Reyes Street)</p>
+                    <p id="stall-hours">Operating hours: 10:00 AM to 10:00 PM</p>
+                </div>
+                <p id="stall-description">Enjoy your meal with us!</p>
+            </div>
+        </div>
 
         <script type="module" src="../../js/centralized.js"></script>
-        
+        <script type="module" src="../../js/user.js"></script>
     </body>
 </html>

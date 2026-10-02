@@ -39,6 +39,12 @@ body {
     margin: 0;
 }
 
+/* Dark Mode Overrides */
+body.dark-mode {
+  --background-color: #121212;
+  --text-color: #f5f5f5;
+}
+
 /* --- HEADER & NAVIGATION BAR --- */
 
 header {
@@ -55,7 +61,7 @@ nav {
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
 }
 
-.main-header {
+#main-header {
     display: flex;
     font-family: 'League Spartan', 'Inter';   /* default to league spartan */
     background-color: #d5e6cb;
@@ -71,21 +77,20 @@ nav {
     padding: 10px 20px;
 }
 
-.nav-links {
+#nav-links {
     font-family: 'League Spartan', 'Inter';   /* default to league spartan */
     display: flex;
     align-items: center;
-    padding: 10px 20px;
     color: #006937;
     margin-top: 0;
 }
 
-.nav-links a {
+#nav-links a {
     font-family: 'League Spartan', 'Inter';   /* default to league spartan */
     color: #006937;
     font-weight: bold;
     font-size: 1.15rem;
-    padding: 5px 20px;
+    padding: 5px 10px;
 }
 
 .icon-button {
@@ -115,7 +120,7 @@ nav {
     height: 26px;
 }
 
-.location {
+#location {
     font-family: 'League Spartan', 'Inter';   /* default to league spartan */
     display: flex;
     flex-direction: column;
@@ -129,10 +134,108 @@ nav {
     margin-bottom: 0;
 }
 
-.location strong {
+#location strong {
     font-size: 1.75rem;
 }
 /* --- HEADER & NAVIGATION BAR ENDS HERE --- */
+
+
+/* --- SEARCH BAR & ICON --- */
+#search-container {
+    position: relative;
+    width: 85%;
+    margin: 20px auto 0;
+}
+
+#search-bar {
+    height: 40px;
+    display: block;
+    width: 100%;
+    margin: 0;
+    border: 1px solid #ccc;
+    background-color: #f5f5f5;
+    border-radius: 10px;
+    padding: 15px 15px 15px 60px;
+    color: #000000;         /* text color */
+}
+
+/* Search icon button */
+#search {
+    position: absolute;
+    top: 50%;
+    left: 10px;
+    transform: translateY(-50%);
+    padding: 8px 10px;
+    color:#000000;
+}
+/* --- SEARCH BAR ENDS HERE --- */
+
+.section-headers {
+    font-family: 'League Spartan', 'Inter';   /* default to league spartan */
+    font-weight: bold;
+    font-size: 6.7vh;
+    color:#006937;
+    padding: 10px 10px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    margin-left: 15vh;
+}
+
+/* --- CONTAINER CUSTOMIZATION --- */
+.containers {
+    width: 85%;
+    height: auto;
+    display: flex;
+    align-items: center;
+    background-color: #f5f5f5;
+    margin: 0 auto;
+    padding: 20px 5px 20px 20px;
+    border-radius: 10px;
+}
+
+#stall-logo {
+    width: 20vh;
+    height: 20vh;
+    object-fit: contain;
+}
+
+#stall-details {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-left: 25px;
+}
+
+#stall-name {
+    font-family: 'Inter', sans-serif;        /* default to inter */
+    font-weight: bold;
+    font-size: 5vh;
+    color:#000000;
+    margin: 0 0 8px;
+}
+
+#stall-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#stall-hours {
+    text-align: right;
+    padding-left: 100px;
+}
+
+#stall-location,
+#stall-hours,
+#stall-description {
+    margin: 0;
+    font-size: 2.3vh;
+    color: #5d5d5d;
+}
+
+#stall-description {
+    margin-top: 8px;
+}
 
 /* --- ANIMATIONS --- */
 
