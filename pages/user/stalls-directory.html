@@ -3,19 +3,23 @@
 <!DOCTYPE html lang="en">
     <head>
         <title>GreenDash - Stalls</title>
-        <link rel="stylesheet" href="../../style/centralized.css">
-        <link rel="stylesheet" href="../../style/user.css">
-        
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
         <!-- website icon -->
         <link rel="icon" type="image/png" href="../../assets/main/GreenDash_CIRCLE.png">
 
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!-- stylesheets-->
+        <!-- bootstrap -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+        <!-- own stylesheet -->
+        <link rel="stylesheet" href="../../style/centralized.css">
+        <link rel="stylesheet" href="../../style/user.css">
 
     </head>
     <body>
         <!-- INCLUDE EVERYTHING FOR THE MAIN HEADER FOR ALL PAGES FROM HERE-->
         <header>
-            <div id="main-header">
+            <div class="container" id="main-header">
                 <img id="logo" src="../../assets/main/GreenDash_LOGO.png" alt="GreenDash Logo">
                 <div id="location">
                     <span>Your Location:</span>
@@ -27,42 +31,58 @@
             </div>
 
             <!-- CHANGE THE NAVIGATION LINKS IF NEEDED ACCDG TO USER ROLE HERE-->
-            <nav>
-                <div id="nav-links">
-                    <a href="../../pages/user/profile.html">Profile</a>
-                    <a href="../../pages/user/stores.html">Stalls directory</a>
-                    <a href="../../pages/user/orders.html">Orders</a>
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container-fluid">
+                    <div class="navbar-header">
+                        
+                    </div>
+                    <ul class="navbar-nav">
+                    <li class="nav-item"> <a class="nav-link" href="../../pages/user/profile.html">Profile</a> </li>
+                    <li class="nav-item"> <a class="nav-link active" aria-current="page" href="../../pages/user/stores.html">Stalls directory</a> </li>
+                    <li class="nav-item"> <a class="nav-link" href="../../pages/user/orders.html">Orders</a> </li>
+                    <li class="nav-item" id ="cart-button"> 
+                        <button class="icon-button" id="cart" aria-label="View cart">
+                            <i data-lucide="shopping-cart"></i>
+                        </button>
+                    </li>
+                    </ul>
                 </div>
-
-                <button class="icon-button" id="cart" aria-label="View cart">
-                    <i data-lucide="shopping-cart"></i>
-                </button>
             </nav>
+
         </header>
         <!-- TO HERE!-->
 
-        <div id="search-container">
-            <input type="text" id="search-bar" placeholder="What are you in the mood for?">
-            <button class="icon-button" id="search" aria-label="Search">
-                <i data-lucide="search"></i> 
-            </button>
-        </div>
-
-        <h2 id="stalls-directory" class="section-headers"> Stalls Directory </h2>
-
-        <div id="stalls-container" class="containers">
-            <!-- Stalls will be dynamically generated here -->
-            <img id="stall-logo" src="../../assets/mock-data/starbucks.jpg" alt="Starbucks Logo">
-            <div id="stall-details">
-                <h2 id="stall-name">Starbucks</h2>
-                <div id="stall-meta">
-                    <p id="stall-location">Green Court (Fidel A. Reyes Street)</p>
-                    <p id="stall-hours">Operating hours: 10:00 AM to 10:00 PM</p>
-                </div>
-                <p id="stall-description">Enjoy your meal with us!</p>
+        <div class="container" id="search-container">
+        <div class="row">
+            <div class="col-md-12">
+                <form class="d-flex">
+                    <div class="input-group">
+                        <input class="form-control form-control-lg" type="search" placeholder="Search" aria-label="Search">
+                        <button class="btn btn-primary px-4" id="search" type="submit">
+                            <i data-lucide="search"></i> 
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
 
+        <div class="container" id="stalls-directory">
+            <div class="row">
+                <h5 class="section-headers">Stalls Directory</h5>
+                <div class="col-11 mx-auto">
+                    <div class="card" id="stalls-card">
+                        <div class="card-body">
+                            <!-- stalls will be generated via js/jquery w/ mock data -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- scripts -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/lucide@0.244.0/dist/lucide.min.js"></script>
         <script type="module" src="../../js/centralized.js"></script>
         <script type="module" src="../../js/user.js"></script>
     </body>
