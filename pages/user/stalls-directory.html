@@ -1,10 +1,12 @@
 <!-- Home would immediately be the Stalls Directory section -->
  
-<!DOCTYPE html lang="en">
+<!DOCTYPE html>
+<html lang="en">
     <head>
         <title>GreenDash - Stalls</title>
         <link rel="stylesheet" href="../../style/centralized.css">
         <link rel="stylesheet" href="../../style/user.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
         
         <!-- website icon -->
         <link rel="icon" type="image/png" href="../../assets/main/GreenDash_CIRCLE.png">
@@ -41,7 +43,104 @@
         </header>
         <!-- TO HERE!-->
 
-        <h2 class="section-headers"> Stalls Directory </h2>
+        <main class="user-main">
+            <!-- SEARCH BAR -->
+             <div class="search-container">
+                <i data-lucide="search"></i>
+                <input type="text" id="searchInput" placeholder="What are you in the mood for?">
+             </div>
+
+             <!-- PAGE TITLE -->
+             <h2 class="section-headers"> Stalls Directory </h2>
+
+             <!-- LIST OF THE STALLS -->
+              <div class="stall-list">
+
+                <!-- STALL 1 - Starbucka -->
+                 <div class="stall-card" data-name="starbucks" data-tags="coffee pastries drinks">
+                    <img class="stall-logo" src="../../assets/stalls/starbucks.png" alt="Logo of Starbucks">
+                    <div class="stall-info">
+
+                        <div class="stall-title-row">
+                            <h3>Starbucks</h3>
+                            <div class="stall-tags">
+                                <span>#coffee</span>
+                                <span>#pastries</span>
+                                <span>#drinks</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stall-details">
+                            <p>Location: Green Court</p>
+                            <p>9:00 AM - 11:00 PM</p>
+                        </div>
+                        <p class="stall-description">
+                            Enjoy your handcrafted coffee, refreshing beverages, delicious pastries, and savory bites.
+                        </p>
+
+                        <div class="stall-bottom">
+                            <div class="rating">
+                                <span class="fa fa-star checked"></span>
+                                <span class="fa fa-star checked"></span>
+                                <span class="fa fa-star checked"></span>
+                                <span class="fa fa-star checked"></span>
+                                <span class="fa fa-star"></span>
+                            </div>
+                            <span class="status open">OPEN</span>
+                        </div>
+
+                        <a class="view-stall-button" href="store-info.html">View Stall</a>
+                    </div>
+                 </div>
+
+                 <!-- STALL 2 - DQ -->
+                <div class="stall-card" data-name="dq" data-tags="icecream blizzard freeze">
+                    <img class="stall-logo" src="../../assets/stalls/dq.png" alt="Logo of DQ">
+                    <div class="stall-info">
+
+                        <div class="stall-title-row">
+                            <h3>Dairy Queen</h3>
+                            <div class="stall-tags">
+                                <span>#icecream</span>
+                                <span>#bilzzard</span>
+                                <span>#freeze</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stall-details">
+                            <p>Location: Agno</p>
+                            <p>8:00 AM - 5:00 PM</p>
+                        </div>
+                        <p class="stall-description">
+                            Treat yourself to creamy soft-serve ice cream, irresistible Blizzard treats, and delightful frozen desserts.
+                        </p>
+
+                        <div class="stall-bottom">
+                            <div class="rating">
+                                <span class="fa fa-star checked"></span>
+                                <span class="fa fa-star checked"></span>
+                                <span class="fa fa-star checked"></span>
+                                <span class="fa fa-star checked"></span>
+                                <span class="fa fa-star"></span>
+                            </div>
+                            <span class="status closed">CLOSED</span>
+                        </div>
+
+                        <a class="view-stall-button" href="store-info.html">View Stall</a>
+                    </div>
+                 </div>
+
+
+                 
+
+
+              </div>
+
+
+
+        </main>
+
+        
 
         <script type="module" src="../../js/centralized.js"></script>
         
