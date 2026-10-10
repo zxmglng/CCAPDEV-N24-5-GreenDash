@@ -3,10 +3,12 @@
     Please make sure to implement the styles in their respective .css file 
 */
 
+
 /* User pages */
 .user-main {
     padding: 35px 45px 60px;
 }
+
 
 /* Search bar */
 .search-container {
@@ -22,7 +24,7 @@
 #searchInput {
     width: 100%;
     font-family: 'Inter', sans-serif;
-    font-size: 15px;
+    font-size: 16px;
     border: none;
     outline: none;
     background-color: transparent;
@@ -31,4 +33,169 @@
 #searchInput::placeholder {
     color: #3a3a3a;
 }
+
+
+/* Main page heading */
+.section-headers {
+    font-family: 'League Spartan', 'Inter', sans-serif;
+    font-size: 50px;
+    font-weight: bold;
+    color: #006937;
+    margin: 0 0 25px 10px;
+}
+
+
+/* List of stalls */
+.stall-list {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+
+/* Stall cards */
+.stall-card {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    background-color: #f4f4f4;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    transition: 0.5s;
+
+}
+
+.stall-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+
+}
+
+
+/* Logos */
+.stall-logo {
+    width: 190px;
+    object-fit: contain;
+    border-radius: 15px;
+    padding: 2px;
+    flex-shrink: 0;
+}
+
+/* Stall info */
+.stall-info {
+    flex: 1;
+    padding-left: 25px;
+}
+
+.stall-title-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.stall-title-row h3 {
+    font-family: 'League Spartan', 'Inter', sans-serif;
+    font-size: 30px;
+    margin: 0;
+    color: #000000;
+}
+
+.stall-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.stall-tags span {
+    background-color: #dbdedc;
+    color: #1b1b1b;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+
+}
+
+.stall-details {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    margin-top: 12px;
+}
+
+.stall-details p {
+    margin: 0px;
+    color: #404040;
+    font-size: 18px;
+}
+
+.stall-details p:first-child {
+    padding-right: 30px;
+    border-right: 2px solid #5f5f5f;
+}
+
+.stall-description {
+    margin: 10px 0;
+    color: #404040;
+    font-size: 16px;
+    line-height: 1.5;
+
+}
+
+.stall-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 8px;
+}
+
+.rating {
+    font-size: 18px;
+}
+
+.checked {
+    color: #fcc42c;
+}
+
+.rating .fa-star:not(.checked) {
+    color: #bebebe;
+}
+
+.status {
+    font-family: 'League Spartan', 'Inter', sans-serif;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 7px 14px;
+    border-radius: 20px;
+}
+
+.status.open {
+    background-color: #d9e5d2;
+    color: #006937
+}
+
+.status.closed {
+    background-color: #e0bebe;
+    color: #6b1809;
+}
+
+/* Stall button */
+.view-stall-button {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 8px 16px;
+    background-color: #006937;
+    color: #ffffff;
+    text-decoration: none;
+    border-radius: 10px;
+    font-weight: bold;
+    transition: 0.5s;
+}
+
+.view-stall-button:hover {
+    background-color: #013e21;
+}
+
+
 
