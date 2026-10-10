@@ -2,3 +2,33 @@
     This file contains the CSS for the USER side ONLY 
     Please make sure to implement the styles in their respective .css file 
 */
+
+/* User pages */
+.user-main {
+    padding: 35px 45px 60px;
+}
+
+/* Search bar */
+.search-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    background-color: #f4f4f4;
+    border-radius: 12px;
+    padding: 15px 20px;
+    margin-bottom: 30px;
+}
+
+#searchInput {
+    width: 100%;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    border: none;
+    outline: none;
+    background-color: transparent;
+}
+
+#searchInput::placeholder {
+    color: #3a3a3a;
+}
+
