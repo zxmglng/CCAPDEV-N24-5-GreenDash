@@ -39,7 +39,7 @@
 /* Main page heading */
 .section-headers {
     font-family: 'League Spartan', 'Inter', sans-serif;
-    font-size: 50px;
+    font-size: 45px;
     font-weight: bold;
     color: #006937;
     margin: 0 0 25px 10px;
@@ -77,10 +77,8 @@
 /* Logos */
 .stall-logo {
     width: 180px;
-    object-fit: contain;
     border-radius: 15px;
-    padding: 2px;
-    flex-shrink: 0;
+    padding: 1px;
 }
 
 /* Stall info */
