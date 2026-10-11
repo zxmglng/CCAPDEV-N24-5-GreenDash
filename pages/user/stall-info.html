@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>GreenDash - Starbucks</title>
+        <link rel="stylesheet" href="../../style/centralized.css">
+        <link rel="stylesheet" href="../../style/user.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        
+        <!-- website icon -->
+        <link rel="icon" type="image/png" href="../../assets/main/GreenDash_CIRCLE.png">
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    </head>
+    <body>
+        <!-- INCLUDE EVERYTHING FOR THE MAIN HEADER FOR ALL PAGES FROM HERE-->
+        <header>
+            <div class="main-header">
+                <img id="logo" src="../../assets/main/GreenDash_LOGO.png" alt="GreenDash Logo">
+                <div class="location">
+                    <span>Your Location:</span>
+                    <strong>Gokongwei</strong>
+                </div>
+                <button class="icon-button" id="eclipse" aria-label="Toggle dark mode">
+                    <i data-lucide="eclipse"></i>
+                </button>
+            </div>
+
+            <!-- CHANGE THE NAVIGATION LINKS IF NEEDED ACCDG TO USER ROLE HERE-->
+            <nav>
+                <div class="nav-links">
+                    <a href="../../pages/user/profile.html">Profile</a>
+                    <a href="../../pages/user/stalls-directory.html">Stalls directory</a>
+                    <a href="../../pages/user/orders.html">Orders</a>
+                </div>
+
+                <button class="icon-button" id="cart" aria-label="View cart">
+                    <i data-lucide="shopping-cart"></i>
+                </button>
+            </nav>
+        </header>
+        <!-- TO HERE!-->
+
+        <!-- STALL 1- Starbucks -->
+        <main class="stall-page">
+            <section class="stall-header">
+                <img class="stall-banner" src="../../assets/stalls/starbucks-banner.png" alt="Banner for Starbucks">
+                <img class="stall-info-logo" src="../../assets/stalls/starbucks.png" alt="Logo of Starbucks">
+
+                <!-- STALL MAIN INFORMATION -->
+                 <div class="stall-header-info">
+                    <h1>Starbucks</h1>
+                    <p>Green Court (Fidel A. Reyes Street)</p>
+                    <p>9:00 AM - 11:00 PM</p>
+                    <span class="status open">OPEN</span>
+                 </div>
+            </section>
+
+            
+            <section class="stall-menu-section">
+                <!-- SEARCH BAR -->
+                <div class="menu-search">
+                    <i data-lucide="search"></i>
+                    <input type="text" id="menuSearch" placeholder="Search Starbucks">
+                    <button type="button" id="filterButton" class="filterButton">
+                        <i data-lucide="sliders-horizontal"></i>
+                        Filters
+                    </button>
+                </div>
+                <!-- FILTER PANEL -->
+                <div class="filter-panel" id="filterPanel">
+                    <h3>Filter Menu</h3>
+                    <div class="filter-section">
+                        <label for="priceRange">Maximum Price: &#8369; <span id="priceValue">1000</span></label>
+                        <input type="range" id="priceRange" min="0" max="1000" value="1000" step="50">
+                    </div>
+                    <div class="filter-section">
+                        <p>Category</p>
+                            <input type="checkbox" id="drinks" class="category-filter" value="drinks">
+                            <label for="drinks">Drinks</label>
+                            <input type="checkbox" id="food" class="category-filter" value="food">
+                            <label for="food">Food</label>
+                            <input type="checkbox" id="snacks" class="category-filter" value="snacks">
+                            <label for="snacks">Snacks</label>
+                            <input type="checkbox" id="desserts" class="category-filter" value="desserts">
+                            <label for="desserts">Desserts</label>
+                    </div>
+                    <div class="filter-section">
+                        <input type="checkbox" id="availableOnly">
+                        <label for="availableOnly">Available Items Only</label>
+                    </div>
+                    <!-- RESET FILTER BUTTON -->
+                    <button type="button" id="resetFilters" class="reset-filter-button">
+                        Reset Filters
+                    </button>
+                </div>
+
+                <!-- CATEGORY TABS -->
+                 <div class="menu-categories">
+                    <button class="category-button-active" data-category="all">Popular</button>
+                    <button class="category-button" data-category="drinks">Featured Drinks</button>
+                    <button class="category-button" data-category="food">Featured Food</button>
+                    <button class="category-button" data-category="refreshers">Starbucks Refreshers</button>
+                    <button class="category-button" data-category="coffee">Brewed Coffee</button>
+                 </div>
+
+                 <!-- INSERT MENU ITEMS HERE -->
+
+                
+
+
+            </section>
+        </main>
+        <script type="module" src="../../js/centralized.js"></script>
+    </body>
+</html>
