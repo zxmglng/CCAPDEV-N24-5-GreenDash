@@ -241,7 +241,137 @@
     font-size: 16px;
 }
 
-.stall-header-info .status {
-    display: inline-block;
-    margin-top: 8px;
+
+/* Menu section */
+.stall-menu-section {
+    background-color: #ffffff;
+    margin-top: 20px;
+    border-radius: 18px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+}
+
+
+/* Search bar */
+.menu-search {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 30px 20px 20px;
+}
+
+#menuSearch {
+    flex: 1;
+    border: none;
+    outline: none;
+    background-color: #f4f4f4;
+    padding: 12px 15px;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+}
+
+
+/* Filter button */
+.filterButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 110px;
+    height: 42px;
+    border-radius: 8px;
+    border: none;
+    background-color: #006937;
+    color: #ffffff;
+    font-family: 'Inter', sans-serif;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.filterButton:hover {
+    background-color: #013e21;
+}
+
+
+/* Filter panel */
+.filter-panel {
+    padding: 20px;
+    background-color: #ffffff;
+}
+
+.filter-panel h3 {
+    font-family: 'League Spartan', 'Inter', sans-serif;
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 28px;
+    color: #006937;
+}
+
+.filter-section {
+    margin-bottom: 18px;
+}
+
+.filter-section p {
+    margin-bottom: 8px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.filter-section label {
+    margin-right: 15px;
+    font-size: 16px;
+}
+
+
+/* Price rainge */
+#priceRange {
+    width: 100%;
+    margin-top: 10px;
+}
+
+
+/* Reset filter button */
+.reset-filter-button {
+    padding: 7px 14px;
+    border: 1px solid #006937;
+    border-radius: 8px;
+    color: #006937;
+    background-color: #ffffff;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+
+/* Category tabs */
+.menu-categories {
+    display: flex;
+    justify-content: space-around;
+    gap: 10px;
+    padding: 0 20px;
+    border-bottom: 1px solid #ffffff;
+    overflow-x: auto;
+}
+
+.category-button, .category-button-active {
+    border: none;
+    background-color: transparent;
+    padding: 14px 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 18px;
+    font-weight: bold;
+    color: #888888;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.category-button:hover, .category-button-active:hover {
+    color: #006937;
+}
+
+.category-button-active {
+    color: #000000;
+    border-bottom: 3px solid #006937;
 }
