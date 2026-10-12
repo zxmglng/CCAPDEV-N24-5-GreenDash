@@ -229,6 +229,7 @@
 .stall-header-info h1 {
     font-family: 'League Spartan', 'Inter', sans-serif;
     font-size: 38px;
+    font-weight: bold;
     margin-top: 50px;
     margin-bottom: 5px;
     color: #111111;
@@ -305,6 +306,7 @@
     margin-top: 0;
     margin-bottom: 10px;
     font-size: 28px;
+    font-weight: bold;
     color: #006937;
 }
 
@@ -375,5 +377,54 @@
     border-bottom: 3px solid #006937;
 }
 
-/* Menu Grid */
-/* Menu item */
+/* Menu */
+.menu-items-wrapper {
+    padding: 10px 15px 15px;
+}
+
+.menu-item {
+    width: 100%;
+}
+
+.menu-item h3 {
+    font-family: 'Inter', sans-serif;
+    font-size: 20px;
+    font-weight: bold;
+    margin: 10px 0 2px;
+}
+
+.menu-item p {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    margin: 0;
+    color: #1b1b1b;
+}
+
+.menu-image-container {
+    position: relative;
+    width: 100%;
+}
+
+.menu-image-container img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    border-radius: 20px;
+    display: block;
+}
+
+.add-item-button {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    width: 42px;
+    height: 42px;
+    border: none;
+    border-radius: 50%;
+    background-color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
