@@ -1,7 +1,34 @@
 // stall-info filter button
-$("#filterButton").click(function () {
-    $("#filterPanel").slideToggle();
-});const orderSearchInput = document.querySelector('#orderSearchInput');
+if (window.jQuery) {
+    window.jQuery('#filterButton').click(function () {
+        window.jQuery('#filterPanel').slideToggle();
+    });
+}
+
+const stallSearchInput = document.querySelector('#searchInput');
+
+if (stallSearchInput) {
+    const stallCards = document.querySelectorAll('.stall-card');
+    const noStallsMessage = document.querySelector('#noStallsFound');
+
+    stallSearchInput.addEventListener('input', () => {
+        const searchTerm = stallSearchInput.value.trim().toLowerCase();
+        let visibleStallCount = 0;
+
+        stallCards.forEach((card) => {
+            const searchContent = `${card.dataset.name || ''} ${card.dataset.tags || ''} ${card.textContent}`;
+            const matches = searchContent.toLowerCase().includes(searchTerm);
+            card.hidden = !matches;
+            visibleStallCount += Number(matches);
+        });
+
+        if (noStallsMessage) {
+            noStallsMessage.hidden = visibleStallCount > 0;
+        }
+    });
+}
+
+const orderSearchInput = document.querySelector('#orderSearchInput');
 
 if (orderSearchInput) {
     const orderSections = document.querySelectorAll('.orders-section');
@@ -34,15 +61,7 @@ const orderInfoModal = document.querySelector('#orderInfoModal');
 if (orderInfoModal) {
     const orders = {
         '6767HI': {
-            store: 'Starbucks',
-            location: 'Green Court',
-            logo: '../../assets/stalls/starbucks.png',
-            date: 'October 12, 2026',
-            status: 'Preparing, pickup by 2:15 PM',
-            statusClass: 'preparing',
-            paymentMethod: 'Online payment',
             paymentStatus: 'Paid',
-            total: 555,
             reviewable: false,
             items: [
                 { name: 'Caffè Latte', detail: 'Grande', quantity: 2, total: 480 },
@@ -50,15 +69,7 @@ if (orderInfoModal) {
             ]
         },
         '1N2C7T': {
-            store: 'Dairy Queen',
-            location: 'Agno',
-            logo: '../../assets/stalls/dq.png',
-            date: 'October 10, 2026',
-            status: 'Order collected at 3:43 PM',
-            statusClass: 'completed',
-            paymentMethod: 'Cash',
             paymentStatus: 'Paid',
-            total: 317,
             reviewable: true,
             items: [
                 { name: 'Oreo Blizzard', detail: 'Regular', quantity: 1, total: 179 },
@@ -66,15 +77,7 @@ if (orderInfoModal) {
             ]
         },
         '8B4K2M': {
-            store: 'Belgian Waffle',
-            location: 'Gokongwei Hall',
-            logo: '../../assets/stalls/belgian.png',
-            date: 'October 8, 2026',
-            status: 'Order cancelled',
-            statusClass: 'cancelled',
-            paymentMethod: 'Cash',
             paymentStatus: 'Not charged',
-            total: 435,
             reviewable: false,
             items: [
                 { name: 'Chocolate Waffle', detail: 'Classic', quantity: 1, total: 145 },
@@ -90,10 +93,27 @@ if (orderInfoModal) {
 
     orderInfoModal.addEventListener('show.bs.modal', (event) => {
         const trigger = event.relatedTarget;
-        const order = orders[trigger?.dataset.orderId];
+        const orderId = trigger?.dataset.orderId;
+        const card = trigger?.closest('.order-card');
+        const order = orders[orderId];
 
-        if (!order) {
-            console.error('Unable to show order details: the selected order was not found.');
+        if (!order || !card) {
+            console.error('Unable to show order details: the selected order preview was not found.');
+            event.preventDefault();
+            return;
+        }
+
+        const store = card.querySelector('.order-title-line h3')?.textContent.trim();
+        const logo = card.querySelector('.order-stall-logo');
+        const location = card.querySelector('.order-location')?.textContent.replace(/^Location:\s*/i, '').trim();
+        const status = card.querySelector('.order-status');
+        const date = card.querySelector('.order-date')?.textContent.trim();
+        const paymentPreview = card.querySelector('.order-payment')?.textContent.trim() || '';
+        const totalMatch = paymentPreview.match(/[\d,]+(?:\.\d{1,2})?/);
+        const total = totalMatch ? Number(totalMatch[0].replace(/,/g, '')) : NaN;
+
+        if (!store || !logo || !location || !status || !date || !Number.isFinite(total)) {
+            console.error('Unable to show order details: the selected order preview is incomplete.');
             event.preventDefault();
             return;
         }
@@ -102,16 +122,20 @@ if (orderInfoModal) {
         const itemList = orderInfoModal.querySelector('#orderModalItems');
         const reviewLink = orderInfoModal.querySelector('#reviewOrderLink');
 
-        orderInfoModal.querySelector('#orderStoreLogo').src = order.logo;
-        orderInfoModal.querySelector('#orderStoreName').textContent = order.store;
-        orderInfoModal.querySelector('#orderStoreLocation').textContent = order.location;
-        orderInfoModal.querySelector('#orderModalId').textContent = `ORDER ID: ${trigger.dataset.orderId}`;
-        orderStatus.textContent = order.status;
-        orderStatus.className = `order-status ${order.statusClass}`;
-        orderInfoModal.querySelector('#orderModalDate').textContent = order.date;
-        orderInfoModal.querySelector('#orderSubtotal').textContent = currency.format(order.total);
-        orderInfoModal.querySelector('#orderTotal').textContent = currency.format(order.total);
-        orderInfoModal.querySelector('#orderPaymentMethod').textContent = order.paymentMethod;
+        const orderLogo = orderInfoModal.querySelector('#orderStoreLogo');
+        orderLogo.src = logo.src;
+        orderLogo.alt = `${store} logo`;
+        orderInfoModal.querySelector('#orderStoreName').textContent = store;
+        orderInfoModal.querySelector('#orderStoreLocation').textContent = location;
+        orderInfoModal.querySelector('#orderModalId').textContent = `ORDER ID: ${orderId}`;
+        orderStatus.textContent = status.textContent.trim();
+        orderStatus.className = status.className;
+        orderInfoModal.querySelector('#orderModalDate').textContent = date;
+        orderInfoModal.querySelector('#orderSubtotal').textContent = currency.format(total);
+        orderInfoModal.querySelector('#orderTotal').textContent = currency.format(total);
+        orderInfoModal.querySelector('#orderPaymentMethod').textContent = /^ONLINE:/i.test(paymentPreview)
+            ? 'Online payment'
+            : 'Cash';
         orderInfoModal.querySelector('#orderPaymentStatus').textContent = order.paymentStatus;
         reviewLink.hidden = !order.reviewable;
         itemList.replaceChildren();
