@@ -297,6 +297,7 @@
 
 /* Filter panel */
 .filter-panel {
+    display: none;
     padding: 5px 30px;
     background-color: #ffffff;
 }
@@ -379,7 +380,11 @@
 
 /* Menu */
 .menu-items-wrapper {
-    padding: 10px 15px 15px;
+    padding: 20px 15px 15px;
+}
+
+.menu-column {
+    margin-bottom: 20px;
 }
 
 .menu-item {
