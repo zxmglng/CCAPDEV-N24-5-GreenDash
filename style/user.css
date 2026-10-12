@@ -753,6 +753,23 @@
     font-weight: 700;
 }
 
+.order-card-rating {
+    display: inline-flex;
+    align-items: center;
+    gap: 1px;
+    font-size: 18px;
+    line-height: 1;
+}
+
+.order-card-rating .is-filled,
+.order-rating-star.is-active {
+    color: #fcc42c;
+}
+
+.order-card-rating .is-empty {
+    color: #8b918d;
+}
+
 .order-location {
     grid-column: 1;
     grid-row: 2;
@@ -975,7 +992,18 @@
     border-radius: 12px;
 }
 
+.order-modal-store-copy {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 20px;
+    align-items: start;
+    flex: 1;
+    min-width: 0;
+}
+
 .order-modal-store h3 {
+    grid-column: 1;
+    grid-row: 1;
     margin: 0;
     color: #006937;
     font-family: 'League Spartan', 'Inter', sans-serif;
@@ -983,7 +1011,49 @@
     font-weight: 700;
 }
 
+.order-modal-rating {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    text-align: right;
+}
+
+.order-modal-rating-label {
+    color: #111111;
+    font-family: 'League Spartan', 'Inter', sans-serif;
+    font-size: 25px;
+    font-weight: 400;
+    line-height: 1.2;
+}
+
+.order-rating-control {
+    display: flex;
+    align-items: center;
+    min-height: 27px;
+}
+
+.order-rating-star {
+    padding: 0 2px;
+    border: 0;
+    background: transparent;
+    color: #8b918d;
+    cursor: pointer;
+    font-family: Arial, sans-serif;
+    font-size: 23px;
+    line-height: 1;
+}
+
+.order-rating-star:focus-visible {
+    border-radius: 3px;
+    outline: 2px solid #006937;
+    outline-offset: 1px;
+}
+
 .order-modal-store p {
+    grid-column: 1;
+    grid-row: 2;
     margin: 3px 0 0;
     color: #626262;
     font-size: 13px;
@@ -1118,6 +1188,10 @@
     }
 
     .order-modal-store h3 {
+        font-size: 22px;
+    }
+
+    .order-modal-rating-label {
         font-size: 22px;
     }
 

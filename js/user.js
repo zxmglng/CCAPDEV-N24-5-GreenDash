@@ -214,14 +214,55 @@ const orders = [
 ].map((order) => ({
     ...order,
     ...storeDetails[order.store],
-    isOngoing: order.statusClass === 'preparing' || order.statusClass === 'ready',
-    reviewable: order.statusClass === 'completed'
+    isOngoing: order.statusClass === 'preparing' || order.statusClass === 'ready'
 }));
+
+const orderRatingsStorageKey = 'greendash.orderRatings';
+const completedOrderIds = new Set(
+    orders.filter((order) => order.statusClass === 'completed').map((order) => order.id)
+);
+let orderRatings = {};
+
+try {
+    const storedRatings = JSON.parse(localStorage.getItem(orderRatingsStorageKey) || '{}');
+    if (storedRatings && typeof storedRatings === 'object' && !Array.isArray(storedRatings)) {
+        orderRatings = Object.fromEntries(
+            Object.entries(storedRatings).filter(([orderId, rating]) =>
+                completedOrderIds.has(orderId) && Number.isInteger(rating) && rating >= 1 && rating <= 5
+            )
+        );
+    }
+} catch (error) {
+    console.error('Unable to load saved order ratings.', error);
+}
 
 const orderById = Object.fromEntries(orders.map((order) => [order.id, order]));
 const currency = new Intl.NumberFormat('en-PH', { maximumFractionDigits: 0 });
 const ongoingOrdersSection = document.querySelector('#ongoing-heading')?.parentElement;
 const previousOrdersSection = document.querySelector('#previous-heading')?.parentElement;
+const orderCardsById = new Map();
+
+function updateCardRating(orderId, rating) {
+    const ratingDisplay = orderCardsById.get(orderId)?.querySelector('.order-card-rating');
+    if (!ratingDisplay) {
+        return;
+    }
+
+    ratingDisplay.replaceChildren();
+    ratingDisplay.hidden = !rating;
+    if (!rating) {
+        ratingDisplay.removeAttribute('aria-label');
+        return;
+    }
+
+    ratingDisplay.setAttribute('aria-label', `Your rating: ${rating} out of 5 stars`);
+    for (let value = 1; value <= 5; value += 1) {
+        const star = document.createElement('span');
+        star.className = value <= rating ? 'is-filled' : 'is-empty';
+        star.textContent = value <= rating ? '\u2605' : '\u2606';
+        ratingDisplay.append(star);
+    }
+}
 
 function createOrderCard(order) {
     const card = document.createElement('article');
@@ -242,13 +283,16 @@ function createOrderCard(order) {
 
     const storeName = document.createElement('h3');
     storeName.textContent = order.name;
+    const ratingDisplay = document.createElement('span');
+    ratingDisplay.className = 'order-card-rating';
+    ratingDisplay.hidden = true;
     const orderId = document.createElement('span');
     orderId.className = 'order-id';
     orderId.textContent = `ORDER ID: ${order.id}`;
     const status = document.createElement('span');
     status.className = `order-status ${order.statusClass}`;
     status.textContent = order.status;
-    title.append(storeName, orderId, status);
+    title.append(storeName, ratingDisplay, orderId, status);
     titleLine.append(title);
 
     const location = document.createElement('p');
@@ -284,6 +328,7 @@ function createOrderCard(order) {
 
     details.append(titleLine, location, date, items, paymentLine, action);
     card.append(logo, details);
+    orderCardsById.set(order.id, card);
     return card;
 }
 
@@ -292,6 +337,7 @@ const sortedOrders = [...orders].sort((first, second) => Date.parse(second.date)
 sortedOrders.forEach((order) => {
     const section = order.isOngoing ? ongoingOrdersSection : previousOrdersSection;
     section?.append(createOrderCard(order));
+    updateCardRating(order.id, orderRatings[order.id]);
 });
 
 const orderSearchInput = document.querySelector('#orderSearchInput');
@@ -330,6 +376,61 @@ if (orderInfoModal) {
         currency: 'PHP',
         minimumFractionDigits: 2
     });
+    const ratingControl = orderInfoModal.querySelector('#orderRatingControl');
+    const ratingSection = ratingControl.closest('.order-modal-rating');
+    let selectedOrderId = null;
+
+    function renderRatingStars(rating, previewRating = rating) {
+        ratingControl.querySelectorAll('.order-rating-star').forEach((star) => {
+            const starRating = Number(star.dataset.rating);
+            const isFilled = starRating <= previewRating;
+            star.textContent = isFilled ? '\u2605' : '\u2606';
+            star.classList.toggle('is-active', isFilled);
+            star.setAttribute('aria-pressed', String(starRating === rating));
+        });
+    }
+
+    ratingControl.addEventListener('pointerover', (event) => {
+        const star = event.target.closest('.order-rating-star');
+        if (star && orderById[selectedOrderId]?.statusClass === 'completed') {
+            renderRatingStars(orderRatings[selectedOrderId], Number(star.dataset.rating));
+        }
+    });
+
+    ratingControl.addEventListener('pointerleave', () => {
+        renderRatingStars(orderRatings[selectedOrderId]);
+    });
+
+    ratingControl.addEventListener('focusin', (event) => {
+        const star = event.target.closest('.order-rating-star');
+        if (star && orderById[selectedOrderId]?.statusClass === 'completed') {
+            renderRatingStars(orderRatings[selectedOrderId], Number(star.dataset.rating));
+        }
+    });
+
+    ratingControl.addEventListener('focusout', (event) => {
+        if (!ratingControl.contains(event.relatedTarget)) {
+            renderRatingStars(orderRatings[selectedOrderId]);
+        }
+    });
+
+    ratingControl.addEventListener('click', (event) => {
+        const star = event.target.closest('.order-rating-star');
+        if (!star || !selectedOrderId || orderById[selectedOrderId]?.statusClass !== 'completed') {
+            return;
+        }
+
+        const rating = Number(star.dataset.rating);
+        orderRatings[selectedOrderId] = rating;
+        try {
+            localStorage.setItem(orderRatingsStorageKey, JSON.stringify(orderRatings));
+        } catch (error) {
+            console.error('Unable to save the order rating in this browser.', error);
+        }
+
+        renderRatingStars(rating);
+        updateCardRating(selectedOrderId, rating);
+    });
 
     orderInfoModal.addEventListener('show.bs.modal', (event) => {
         const orderId = event.relatedTarget?.dataset.orderId;
@@ -339,6 +440,16 @@ if (orderInfoModal) {
             console.error('Unable to show order details: the selected order was not found.');
             event.preventDefault();
             return;
+        }
+
+        selectedOrderId = order.id;
+        const canRateOrder = order.statusClass === 'completed';
+        ratingSection.hidden = !canRateOrder;
+        ratingControl.querySelectorAll('.order-rating-star').forEach((star) => {
+            star.disabled = !canRateOrder;
+        });
+        if (canRateOrder) {
+            renderRatingStars(orderRatings[selectedOrderId]);
         }
 
         const orderStatus = orderInfoModal.querySelector('#orderModalStatus');
@@ -358,7 +469,7 @@ if (orderInfoModal) {
         orderInfoModal.querySelector('#orderTotal').textContent = modalCurrency.format(order.total);
         orderInfoModal.querySelector('#orderPaymentMethod').textContent = order.paymentMethod;
         orderInfoModal.querySelector('#orderPaymentStatus').textContent = order.paymentStatus;
-        reviewLink.hidden = !order.reviewable;
+        reviewLink.hidden = order.statusClass !== 'completed';
         itemList.replaceChildren();
 
         order.items.forEach((item) => {
