@@ -427,9 +427,14 @@
     border: none;
     border-radius: 50%;
     background-color: #ffffff;
+    color: #404040;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 40px;
+    font-family: 'Inter', sans-serif;
     cursor: pointer;
 }
+
+
 
