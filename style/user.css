@@ -792,6 +792,11 @@
     color: #111111;
 }
 
+.order-status.ready {
+    background-color: #cce8d8;
+    color: #064d2c;
+}
+
 .order-status.cancelled {
     background-color: #e0bebe;
     color: #6b1809;

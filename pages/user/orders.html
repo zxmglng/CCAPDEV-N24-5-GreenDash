@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
+        <meta charset="UTF-8">
         <title>GreenDash - Orders</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="../../bootstrap/css/bootstrap-5.3.3.min.css">
@@ -44,79 +45,10 @@
 
             <section class="orders-section" aria-labelledby="ongoing-heading">
                 <h2 class="orders-section-heading" id="ongoing-heading">Ongoing orders</h2>
-
-                <article class="order-card">
-                    <img class="order-stall-logo" src="../../assets/stalls/starbucks.png" alt="Starbucks logo">
-                    <div class="order-details">
-                        <div class="order-topline">
-                            <div class="order-title-line">
-                                <h3>Starbucks</h3>
-                                <span class="order-id">ORDER ID: 6767HI</span>
-                                <span class="order-status preparing">Preparing, pickup by 2:15 PM</span>
-                            </div>
-                        </div>
-                        <p class="order-location">Location: Green Court</p>
-                        <p class="order-date">October 12, 2026</p>
-                        <p class="order-items">Caffè Latte (x2), Chocolate Chip Cookie (x1)</p>
-                        <div class="order-bottomline">
-                            <p class="order-payment">ONLINE: &#8369;555</p>
-                        </div>
-                        <div class="order-action">
-                            <button class="view-stall-button" type="button" data-order-id="6767HI"
-                                data-bs-toggle="modal" data-bs-target="#orderInfoModal">View order</button>
-                        </div>
-                    </div>
-                </article>
             </section>
 
             <section class="orders-section" aria-labelledby="previous-heading">
                 <h2 class="orders-section-heading" id="previous-heading">Previous orders</h2>
-
-                <article class="order-card">
-                    <img class="order-stall-logo" src="../../assets/stalls/dq.png" alt="Dairy Queen logo">
-                    <div class="order-details">
-                        <div class="order-topline">
-                            <div class="order-title-line">
-                                <h3>Dairy Queen</h3>
-                                <span class="order-id">ORDER ID: 1N2C7T</span>
-                                <span class="order-status completed">Order collected at 3:43 PM</span>
-                            </div>
-                        </div>
-                        <p class="order-location">Location: Agno</p>
-                        <p class="order-date">October 10, 2026</p>
-                        <p class="order-items">Oreo Blizzard (x1), Vanilla Cone (x2)</p>
-                        <div class="order-bottomline">
-                            <p class="order-payment">CASH: &#8369;317</p>
-                        </div>
-                        <div class="order-action">
-                            <button class="view-stall-button" type="button" data-order-id="1N2C7T"
-                                data-bs-toggle="modal" data-bs-target="#orderInfoModal">View order</button>
-                        </div>
-                    </div>
-                </article>
-
-                <article class="order-card">
-                    <img class="order-stall-logo" src="../../assets/stalls/belgian.png" alt="Belgian Waffle logo">
-                    <div class="order-details">
-                        <div class="order-topline">
-                            <div class="order-title-line">
-                                <h3>Belgian Waffle</h3>
-                                <span class="order-id">ORDER ID: 8B4K2M</span>
-                                <span class="order-status cancelled">Order cancelled</span>
-                            </div>
-                        </div>
-                        <p class="order-location">Location: Gokongwei Hall</p>
-                        <p class="order-date">October 8, 2026</p>
-                        <p class="order-items">Chocolate Waffle (x1), Strawberry Waffle (x2)</p>
-                        <div class="order-bottomline">
-                            <p class="order-payment">TOTAL: &#8369;435</p>
-                        </div>
-                        <div class="order-action">
-                            <button class="view-stall-button" type="button" data-order-id="8B4K2M"
-                                data-bs-toggle="modal" data-bs-target="#orderInfoModal">View order</button>
-                        </div>
-                    </div>
-                </article>
             </section>
             <p class="orders-empty" id="noOrdersFound" hidden>No orders match your search.</p>
         </main>
