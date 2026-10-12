@@ -213,7 +213,7 @@
     width: 100%;
     height: 190px;
     object-fit: cover;
-    border-radius: 18px; 
+    border-radius: 18px;
 }
 
 .stall-info-logo {
@@ -436,5 +436,661 @@
     cursor: pointer;
 }
 
+/* ------------------ USER PAGE ------------------- */
+
+.stalls-directory-page {
+    padding: 35px 45px 60px;
+}
 
 
+/* Search bar */
+.search-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    background-color: #f4f4f4;
+    border-radius: 12px;
+    padding: 15px 20px;
+    margin-bottom: 30px;
+}
+
+#searchInput {
+    width: 100%;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    border: none;
+    outline: none;
+    background-color: transparent;
+}
+
+#searchInput::placeholder {
+    color: #3a3a3a;
+}
+
+
+/* Main page heading */
+.section-headers {
+    font-family: 'League Spartan', 'Inter', sans-serif;
+    font-size: 45px;
+    font-weight: bold;
+    color: #006937;
+    margin: 0 0 25px 10px;
+}
+
+
+/* List of stalls */
+.stall-list {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+
+/* Stall cards */
+.stall-card {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    background-color: #f4f4f4;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    transition: 0.5s;
+
+}
+
+.stall-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+
+}
+
+
+/* Logos */
+.stall-logo {
+    width: 180px;
+    border-radius: 15px;
+    padding: 1px;
+}
+
+/* Stall info */
+.stall-info {
+    flex: 1;
+    padding-left: 25px;
+}
+
+.stall-title-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.stall-title-row h3 {
+    font-family: 'League Spartan', 'Inter', sans-serif;
+    font-size: 28px;
+    margin: 0;
+    color: #000000;
+}
+
+.stall-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.stall-tags span {
+    background-color: #dbdedc;
+    color: #1b1b1b;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+
+}
+
+.stall-details {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    margin-top: 12px;
+}
+
+.stall-details p {
+    margin: 0px;
+    color: #404040;
+    font-size: 17px;
+}
+
+.stall-details p:first-child {
+    padding-right: 30px;
+    border-right: 2px solid #5f5f5f;
+}
+
+.stall-description {
+    margin: 10px 0;
+    color: #404040;
+    font-size: 15px;
+    line-height: 1.5;
+
+}
+
+.stall-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 8px;
+}
+
+.rating {
+    font-size: 18px;
+}
+
+.checked {
+    color: #fcc42c;
+}
+
+.rating .fa-star:not(.checked) {
+    color: #bebebe;
+}
+
+.status {
+    font-family: 'League Spartan', 'Inter', sans-serif;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 7px 14px;
+    border-radius: 20px;
+}
+
+.status.open {
+    background-color: #d9e5d2;
+    color: #006937
+}
+
+.status.closed {
+    background-color: #e0bebe;
+    color: #6b1809;
+}
+
+/* Stall button */
+.view-stall-button {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 8px 16px;
+    background-color: #006937;
+    color: #ffffff;
+    border: 0;
+    text-decoration: none;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.5s;
+}
+
+.view-stall-button:hover {
+    background-color: #013e21;
+}
+
+/* Orders page */
+.orders-list-page {
+    line-height: normal;
+}
+
+.orders-page {
+    padding: 35px 45px 60px;
+}
+
+.orders-page .search-container {
+    margin-bottom: 30px;
+}
+
+.orders-page .section-headers {
+    line-height: normal;
+    margin-bottom: 8px;
+}
+
+.orders-page #orderSearchInput {
+    width: 100%;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    border: none;
+    outline: none;
+    background-color: transparent;
+}
+
+.orders-page #orderSearchInput::placeholder {
+    color: #3a3a3a;
+}
+
+.orders-section {
+    margin-bottom: 0;
+}
+
+.orders-section-heading {
+    margin: 0 0 25px 10px;
+    color: #111111;
+    font-family: 'League Spartan', 'Inter', sans-serif;
+    font-size: 34px;
+    font-weight: 700;
+}
+
+.orders-empty {
+    margin: 24px 10px;
+    color: #555555;
+    font-size: 16px;
+}
+
+.order-card {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    margin-bottom: 25px;
+    padding: 20px;
+    background-color: #f4f4f4;
+    border-radius: 20px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    transition: 0.5s;
+}
+
+.order-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.order-stall-logo {
+    width: 180px;
+    flex-shrink: 0;
+    object-fit: contain;
+    border-radius: 15px;
+    padding: 1px;
+}
+
+.order-details {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto 1fr auto;
+    flex: 1;
+    min-width: 0;
+    padding-left: 25px;
+    column-gap: 16px;
+}
+
+.order-topline {
+    display: flex;
+    grid-column: 1;
+    grid-row: 1;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-width: 0;
+}
+
+.order-title-line {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+}
+
+.order-title-line h3 {
+    margin: 2px 0 0;
+    color: #111111;
+    font-family: 'League Spartan', 'Inter', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.order-location {
+    grid-column: 1;
+    grid-row: 2;
+    align-self: start;
+    margin: 0;
+    color: #404040;
+    font-size: 17px;
+}
+
+.order-items {
+    grid-column: 1;
+    grid-row: 3;
+    align-self: start;
+    margin: 5px 0 0;
+    color: #555555;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.order-id,
+.order-status {
+    display: inline-block;
+    padding: 6px 13px;
+    border-radius: 18px;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.order-id {
+    background-color: #006937;
+    color: #ffffff;
+}
+
+.order-status.preparing,
+.order-status.completed {
+    background-color: #cbd3d9;
+    color: #111111;
+}
+
+.order-status.cancelled {
+    background-color: #e0bebe;
+    color: #6b1809;
+}
+
+
+.order-action {
+    grid-column: 1 / -1;
+    grid-row: 4;
+}
+
+.order-action .view-stall-button {
+    margin-top: 12px;
+}
+
+@media (max-width: 850px) {
+    .order-stall-logo {
+        width: 110px;
+    }
+
+    .order-details {
+        padding-left: 16px;
+    }
+
+    .order-id,
+    .order-status {
+        padding: 5px 9px;
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 600px) {
+    .orders-page {
+        padding: 28px 18px 45px;
+    }
+
+    .orders-page .section-headers {
+        font-size: 45px;
+    }
+
+    .orders-section-heading {
+        font-size: 29px;
+    }
+
+    .order-card {
+        align-items: flex-start;
+        padding: 20px;
+    }
+
+    .order-stall-logo {
+        width: 100px;
+    }
+
+    .order-details {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: auto auto auto auto auto;
+        row-gap: 8px;
+        padding-left: 16px;
+    }
+
+    .order-topline {
+        grid-column: 1;
+        grid-row: 1;
+        gap: 5px 8px;
+    }
+
+    .order-title-line {
+        gap: 5px 8px;
+    }
+
+    .order-title-line h3 {
+        font-size: 23px;
+    }
+
+    .order-id,
+    .order-status {
+        max-width: 100%;
+        padding: 5px 9px;
+        font-size: 11px;
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+
+    .order-date {
+        grid-column: 1;
+        grid-row: 2;
+        margin: 0;
+        font-size: 12px;
+        text-align: left;
+    }
+
+    .order-location {
+        grid-column: 1;
+        grid-row: 3;
+        font-size: 15px;
+    }
+
+    .order-items {
+        grid-column: 1;
+        grid-row: 4;
+        margin-top: 0;
+    }
+
+    .order-bottomline {
+        grid-column: 1;
+        grid-row: 5;
+        justify-content: flex-start;
+        padding-top: 0;
+    }
+
+    .order-payment {
+        font-size: 12px;
+        text-align: left;
+    }
+
+    .order-action {
+        grid-column: 1;
+        grid-row: 6;
+    }
+}
+
+/* Order details modal */
+.order-info-modal .modal-dialog {
+    max-width: 560px;
+    margin: 1rem auto;
+}
+
+.order-info-modal .modal-content {
+    line-height: 1.5;
+    overflow: hidden;
+    border: 0;
+    border-radius: 10px;
+    box-shadow: 0 10px 32px rgba(0, 0, 0, 0.2);
+}
+
+.order-info-modal .modal-header {
+    padding: 18px 22px;
+    border-bottom: 1px solid #e4e7e5;
+}
+
+.order-modal-eyebrow {
+    margin: 0 0 4px;
+    color: #006937;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+}
+
+.order-info-modal .modal-title {
+    margin: 0;
+    color: #111111;
+    font-family: 'League Spartan', 'Inter', sans-serif;
+    font-size: 27px;
+    font-weight: 700;
+}
+
+.order-info-modal .modal-body {
+    padding: 22px;
+}
+
+.order-modal-store {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.order-modal-store img {
+    width: 68px;
+    height: 68px;
+    padding: 4px;
+    object-fit: contain;
+    background-color: #f4f4f4;
+    border-radius: 12px;
+}
+
+.order-modal-store h3 {
+    margin: 0;
+    color: #006937;
+    font-family: 'League Spartan', 'Inter', sans-serif;
+    font-size: 25px;
+    font-weight: 700;
+}
+
+.order-modal-store p {
+    margin: 3px 0 0;
+    color: #626262;
+    font-size: 13px;
+}
+
+.order-modal-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid #e4e7e5;
+}
+
+.order-modal-item-description {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.order-modal-item-description strong {
+    color: #1b1b1b;
+    font-size: 14px;
+}
+
+.order-modal-item-description span {
+    color: #707070;
+    font-size: 12px;
+}
+
+.order-modal-item-price {
+    flex-shrink: 0;
+    color: #1b1b1b;
+    font-size: 14px;
+}
+
+.order-modal-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.order-summary-row,
+.order-summary-total {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    color: #555555;
+    font-size: 13px;
+}
+
+.order-summary-row strong {
+    color: #1b1b1b;
+    text-align: right;
+}
+
+.order-summary-total {
+    margin-top: 4px;
+    padding-top: 12px;
+    border-top: 1px solid #cbd3d9;
+    color: #111111;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.order-summary-total strong {
+    color: #006937;
+    font-size: 19px;
+}
+
+.order-info-modal .modal-footer {
+    justify-content: flex-start;
+    gap: 10px;
+    padding: 14px 22px 20px;
+    border-top: 0;
+}
+
+.order-info-modal .modal-footer .view-stall-button {
+    margin-top: 0;
+}
+
+.order-info-modal .modal-footer .review-order-button {
+    display: inline-block;
+    padding: 8px 16px;
+    border: 2px solid #006937;
+    border-radius: 10px;
+    color: #006937;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.order-info-modal .modal-footer .review-order-button:hover {
+    background-color: #006937;
+    color: #ffffff;
+}
+
+#reviewOrderLink[hidden] {
+    display: none;
+}
+
+@media (max-width: 575.98px) {
+    .order-info-modal .modal-dialog {
+        margin: 0.5rem;
+    }
+
+    .order-info-modal .modal-header {
+        padding: 15px 17px;
+    }
+
+    .order-info-modal .modal-body {
+        padding: 18px 17px;
+    }
+
+    .order-info-modal .modal-footer {
+        padding: 12px 17px 17px;
+    }
+
+    .order-modal-store h3 {
+        font-size: 22px;
+    }
+
+    .order-modal-item {
+        gap: 10px;
+    }
+}
