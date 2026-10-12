@@ -1,4 +1,7 @@
-const orderSearchInput = document.querySelector('#orderSearchInput');
+// stall-info filter button
+$("#filterButton").click(function () {
+    $("#filterPanel").slideToggle();
+});const orderSearchInput = document.querySelector('#orderSearchInput');
 
 if (orderSearchInput) {
     const orderSections = document.querySelectorAll('.orders-section');
