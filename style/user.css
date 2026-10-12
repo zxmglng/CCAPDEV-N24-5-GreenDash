@@ -630,6 +630,8 @@
     background-color: #013e21;
 }
 
+
+/* ------------------ ORDERS PAGE ------------------- */
 /* Orders page */
 .orders-list-page {
     line-height: normal;
@@ -1094,3 +1096,6 @@
         gap: 10px;
     }
 }
+
+
+/* ------------------ USER PROFILE PAGE ------------------- */
