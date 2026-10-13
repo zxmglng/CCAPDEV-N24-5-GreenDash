@@ -36,6 +36,42 @@
     margin: 0 8px 24px 4px;
 }
 
+.vendor-order-controls {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 12px 20px;
+}
+
+.vendor-sort-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #006937;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.vendor-sort-control select {
+    min-height: 42px;
+    padding: 7px 34px 7px 12px;
+    border: 1px solid #b8c9bd;
+    border-radius: 8px;
+    background-color: #ffffff;
+    background-image:
+        linear-gradient(45deg, transparent 50%, #006937 50%),
+        linear-gradient(135deg, #006937 50%, transparent 50%);
+    background-position:
+        calc(100% - 14px) 18px,
+        calc(100% - 9px) 18px;
+    background-size: 5px 5px;
+    background-repeat: no-repeat;
+    color: #173e32;
+    font: inherit;
+    appearance: none;
+}
+
 .vendor-orders-heading h1 {
     margin: 0;
     color: #006937;
@@ -59,57 +95,113 @@
 .vendor-order-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 14px 12px;
+    gap: 20px 16px;
 }
 
 .vendor-order-card {
     display: flex;
     flex-direction: column;
     width: 100%;
-    min-height: 162px;
-    overflow: hidden;
-    padding: 14px;
-    border-radius: 25px;
-    background-color: #e7ecef;
+    min-height: 290px;
+    padding: 20px;
+    border-radius: 20px;
+    background-color: #f4f4f4;
     color: #111111;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#vendorOrderGrid > .vendor-order-card[hidden] {
+    display: none;
+}
+
+.vendor-order-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
 .vendor-order-card.is-selected {
-    background-color: #cbd5dc;
+    background-color: #e7ecef;
 }
 
 .vendor-order-card h2 {
-    margin: 0 0 8px;
-    font-family: 'Inter', sans-serif;
-    font-size: 14px;
+    margin: 0 0 6px;
+    font-family: 'League Spartan', 'Inter', sans-serif;
+    font-size: 25px;
     font-weight: 700;
 }
 
-.vendor-order-card p,
-.vendor-order-card ul {
+.vendor-card-order-id {
+    display: inline-block;
+    align-self: flex-start;
+    margin-bottom: 12px;
+    padding: 6px 12px;
+    border-radius: 18px;
+    background-color: #006937;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.vendor-order-card p {
     margin: 0;
+    font-size: 16px;
+    line-height: 1.45;
+}
+
+.vendor-card-options {
+    margin-top: 4px !important;
+    color: #666666;
+}
+
+.vendor-card-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 18px;
+    font-size: 14px;
+}
+
+.vendor-order-status {
+    padding: 6px 11px;
+    border-radius: 12px;
+    background-color: #f5e7bd;
+    color: #775400;
     font-size: 12px;
-    line-height: 1.25;
-}
-
-.vendor-order-card ul {
-    padding-left: 18px;
-}
-
-.vendor-order-card .vendor-card-status {
-    margin-top: 24px;
     font-weight: 700;
+    text-transform: capitalize;
+}
+
+.vendor-order-status.preparing {
+    background-color: #dce8ff;
+    color: #2454a6;
+}
+
+.vendor-order-status.ready {
+    background-color: #d8f0df;
+    color: #176337;
+}
+
+.vendor-order-status.completed {
+    background-color: #e4e7e5;
+    color: #47534b;
+}
+
+.vendor-order-status.cancelled {
+    background-color: #f8dddd;
+    color: #a12626;
 }
 
 .vendor-open-order {
-    align-self: flex-start;
-    margin-top: auto;
-    padding: 6px 10px;
+    padding: 9px 10px;
     border: 0;
     border-radius: 10px;
     background-color: #006937;
     color: #ffffff;
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 700;
     cursor: pointer;
 }
@@ -118,13 +210,40 @@
     background-color: #013e21;
 }
 
+.vendor-card-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: auto;
+    padding-top: 16px;
+}
+
+.vendor-card-actions button {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.vendor-change-status {
+    padding: 9px 8px;
+    background-color: #d9e5d2;
+    color: #006937;
+    font-size: 12px;
+}
+
+.vendor-change-status:hover {
+    background-color: #c7d9bd;
+}
+
 .vendor-order-modal {
     overflow: hidden;
     padding: 0 !important;
 }
 
 .modal.vendor-order-modal .modal-dialog {
-    width: min(420px, 100%);
+    width: min(560px, 100%);
     max-width: none;
     height: 100vh;
     margin: 0 0 0 auto;
@@ -141,6 +260,7 @@
     }
 }
 
+/* Animate the panel itself so Bootstrap can keep its modal positioning intact. */
 .vendor-order-modal.show .vendor-order-detail {
     animation: vendor-order-slide-in 0.3s ease-out both;
 }
@@ -166,14 +286,14 @@
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    padding: 18px 22px 12px;
+    padding: 24px 28px 16px;
 }
 
 .vendor-order-modal-header > h2 {
     margin: 0;
     color: #006937;
     font-family: 'League Spartan', 'Inter', sans-serif;
-    font-size: 26px;
+    font-size: 32px;
     font-weight: 700;
 }
 
@@ -181,20 +301,20 @@
     display: flex;
     flex: 1;
     flex-direction: column;
-    padding: 6px 22px 20px;
+    padding: 8px 28px 26px;
 }
 
 .vendor-order-item {
     display: grid;
-    grid-template-columns: 56px minmax(0, 1fr) auto;
+    grid-template-columns: 84px minmax(0, 1fr) auto;
     align-items: start;
-    gap: 8px;
+    gap: 14px;
 }
 
 .vendor-order-item > img {
-    width: 56px;
-    height: 56px;
-    border-radius: 10px;
+    width: 84px;
+    height: 84px;
+    border-radius: 12px;
     background-color: #173e32;
     object-fit: contain;
 }
@@ -203,15 +323,15 @@
     margin: 0;
     color: #111111;
     font-family: 'Inter', sans-serif;
-    font-size: 12px;
+    font-size: 18px;
     font-weight: 700;
     line-height: 1.25;
 }
 
 .vendor-order-item-copy p {
-    margin: 2px 0 0;
+    margin: 5px 0 0;
     color: #777777;
-    font-size: 10px;
+    font-size: 15px;
     line-height: 1.2;
 }
 
@@ -219,7 +339,7 @@
     align-self: end;
     padding-bottom: 1px;
     color: #006937;
-    font-size: 10px;
+    font-size: 16px;
     white-space: nowrap;
 }
 
@@ -229,12 +349,12 @@
 
 .vendor-order-id {
     display: inline-block;
-    margin: 0 0 8px;
-    padding: 5px 10px;
+    margin: 0 0 12px;
+    padding: 7px 13px;
     border-radius: 18px;
     background-color: #006937;
     color: #ffffff;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 700;
 }
 
@@ -246,7 +366,7 @@
     display: flex;
     justify-content: space-between;
     gap: 12px;
-    font-size: 13px;
+    font-size: 16px;
     font-weight: 700;
     line-height: 1.45;
 }
@@ -265,19 +385,106 @@
     color: #d52218;
 }
 
+.vendor-order-summary .vendor-payment-status.pending {
+    color: #775400;
+}
+
+.vendor-order-summary .vendor-payment-status.preparing {
+    color: #2454a6;
+}
+
+.vendor-order-summary .vendor-payment-status.ready {
+    color: #176337;
+}
+
+.vendor-order-summary .vendor-payment-status.completed {
+    color: #47534b;
+}
+
+.vendor-order-summary .vendor-payment-status.cancelled {
+    color: #a12626;
+}
+
 .vendor-complete-order {
     width: 100%;
-    min-height: 34px;
-    margin-top: 14px;
+    min-height: 44px;
+    margin-top: 18px;
     border: 0;
     border-radius: 8px;
     background-color: #cbd5dc;
     color: #ffffff;
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 700;
 }
 
+.vendor-status-modal .modal-content {
+    overflow: hidden;
+    border: 0;
+    border-radius: 12px;
+    box-shadow: 0 10px 32px rgba(0, 0, 0, 0.2);
+}
+
+.vendor-status-modal .modal-header,
+.vendor-status-modal .modal-body,
+.vendor-status-modal .modal-footer {
+    padding: 20px 24px;
+}
+
+.vendor-status-modal .modal-title {
+    color: #111111;
+    font-family: 'League Spartan', 'Inter', sans-serif;
+    font-size: 27px;
+    font-weight: 700;
+}
+
+.vendor-status-prompt {
+    margin: 0 0 16px;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.vendor-status-options {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.vendor-status-option {
+    min-height: 48px;
+    padding: 10px 16px;
+    border: 0;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.vendor-status-option.pending {
+    background-color: #f5e7bd;
+    color: #775400;
+}
+
+.vendor-status-option.preparing {
+    background-color: #dce8ff;
+    color: #2454a6;
+}
+
+.vendor-status-option.ready {
+    background-color: #d8f0df;
+    color: #176337;
+}
+
+.vendor-status-option.completed {
+    background-color: #e4e7e5;
+    color: #47534b;
+}
+
+.vendor-status-option:hover {
+    filter: brightness(0.96);
+}
+
 @media (max-width: 850px) {
+    /* Reduce the grid to two columns on tablet-sized screens. */
     .vendor-order-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
@@ -333,8 +540,25 @@
         font-size: 34px;
     }
 
+    .vendor-sort-control {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+
+    .vendor-order-controls {
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .vendor-sort-control select {
+        max-width: 190px;
+        font-size: 11px;
+    }
+
     .vendor-order-card {
-        min-height: 145px;
+        min-height: 270px;
+        padding: 17px;
         border-radius: 20px;
     }
 
@@ -350,11 +574,51 @@
     }
 
     .vendor-order-modal-header {
-        padding: 15px 17px 10px;
+        padding: 20px 20px 14px;
     }
 
     .vendor-order-modal-body {
-        padding: 6px 17px 17px;
+        padding: 8px 20px 22px;
+    }
+
+    .vendor-order-modal-header > h2 {
+        font-size: 28px;
+    }
+
+    .vendor-order-item {
+        grid-template-columns: 68px minmax(0, 1fr) auto;
+        gap: 10px;
+    }
+
+    .vendor-order-item > img {
+        width: 68px;
+        height: 68px;
+    }
+
+    .vendor-order-item-copy h3 {
+        font-size: 16px;
+    }
+
+    .vendor-order-item-copy p {
+        font-size: 13px;
+    }
+
+    .vendor-order-item-price {
+        font-size: 14px;
+    }
+
+    .vendor-order-summary dl > div {
+        font-size: 14px;
+    }
+
+    .vendor-card-actions {
+        gap: 6px;
+    }
+
+    .vendor-card-actions button {
+        padding-right: 5px;
+        padding-left: 5px;
+        font-size: 11px;
     }
 }
 
