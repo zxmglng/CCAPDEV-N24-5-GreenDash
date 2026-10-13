@@ -823,8 +823,12 @@
 }
 
 .vendor-status-cancel {
-    background-color: #e4e7e5;
-    color: #26352b;
+    background-color: #006937;
+    color: #ffffff;
+}
+
+.vendor-status-cancel:hover {
+    background-color: #013e21;
 }
 
 .vendor-cancel-order:hover,
