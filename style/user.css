@@ -40,6 +40,7 @@
 .section-headers {
     font-family: 'League Spartan', 'Inter', sans-serif;
     font-size: 45px;
+    line-height: normal;
     font-weight: bold;
     color: #006937;
     margin: 0 0 25px 10px;
@@ -637,6 +638,10 @@
     line-height: normal;
 }
 
+.profile-list-page {
+    line-height: normal;
+}
+
 .orders-page {
     padding: 35px 45px 60px;
 }
@@ -1195,6 +1200,10 @@
     font-size: 14px;
     line-height: normal;
     text-align: center;
+}
+
+#cancelUserOrderModal .modal-footer {
+    gap: 10px;
 }
 
 .order-info-modal .modal-footer .review-order-button,
