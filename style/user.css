@@ -1444,13 +1444,14 @@
     font-size: 14px;
     color: #404040;
     outline: none;
+    padding: 10px 16px;
 }
 
 .profile-button-group {
     display: flex;
     justify-content: flex-end;
     gap: 12px;
-    margin-top: 25px;
+    margin-top: 50px;
 }
 
 .edit-profile-btn {
@@ -1473,4 +1474,114 @@
     font-size: 14px;
     font-weight: bold;
     cursor: pointer;
+}
+
+
+/* right profile card (my activity) */
+.activity-card h2 {
+    font-family: 'League Spartan', 'Inter', sans-serif;
+    font-size: 34px;
+    font-weight: bold;
+    color: #006937;
+    margin-bottom: 5px;
+}
+
+.activity-description {
+    font-size: 15px;
+    color: #404040;
+    margin-bottom: 22px;
+}
+
+/* stats */
+.activity-stats {
+    display: flex;
+    gap: 18px;
+    margin-bottom: 30px;
+}
+
+.stat-box {
+    flex: 1;
+    background-color: #ffffff;
+    border-radius: 20px;
+    padding: 18px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.stat-icon-circle {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background-color: #dbe8d0;
+    color: #006937;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stat-icon-circle i {
+    font-size: 32px;
+}
+
+.stat-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.stat-label {
+    margin: 0 0 3px;
+    font-size: 15px;
+    font-weight: bold;
+    color: #006937;
+}
+
+.stat-text h3 {
+    margin: 0;
+    font-family: 'League Spartan', 'Inter', sans-serif;
+    font-size: 28px;
+    font-weight: bold;
+    color: #111111;
+}
+
+/* chart */
+.chart-section h3 {
+    font-family: 'League Spartan', 'Inter', sans-serif;
+    font-size: 28px;
+    font-weight: bold;
+    color: #006937;
+    margin-bottom: 5px;
+}
+
+.chart-section p {
+    font-size: 15px;
+    color: #404040;
+    margin-bottom: 15px;
+}
+
+.chart-container {
+    width: 100%;
+    height: 320px;
+    background-color: #ffffff;
+    border-radius: 20px;
+    padding: 20px;
+}
+
+@media (max-width: 576px) {
+    .profile-page {
+        padding: 25px 18px 40px;
+    }
+
+    .profile-button-group {
+        flex-direction: column;
+    }
+
+    .edit-profile-btn, .logout-btn {
+        width: 100%;
+    }
+
+    .activity-stats {
+        flex-direction: column;
+    }
 }
