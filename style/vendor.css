@@ -756,7 +756,7 @@
     padding: 0 !important;
 }
 
-.vendor-right-modal .modal-dialog {
+.modal.vendor-right-modal .modal-dialog {
     width: min(560px, 100%);
     max-width: none;
     height: 100vh;
