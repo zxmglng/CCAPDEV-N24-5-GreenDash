@@ -1117,6 +1117,28 @@
     text-align: right;
 }
 
+.order-summary-row .order-payment-status {
+    padding: 4px 10px;
+    border-radius: 14px;
+    font-size: 12px;
+    line-height: 1.2;
+}
+
+.order-payment-status.paid {
+    background-color: #cce8d8;
+    color: #064d2c;
+}
+
+.order-payment-status.pending {
+    background-color: #f5e7bd;
+    color: #775400;
+}
+
+.order-payment-status.not-charged {
+    background-color: #e0bebe;
+    color: #6b1809;
+}
+
 .order-summary-total {
     margin-top: 4px;
     padding-top: 12px;

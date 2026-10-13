@@ -597,7 +597,9 @@ if (orderInfoModal) {
         orderInfoModal.querySelector('#orderSubtotal').textContent = modalCurrency.format(order.total);
         orderInfoModal.querySelector('#orderTotal').textContent = modalCurrency.format(order.total);
         orderInfoModal.querySelector('#orderPaymentMethod').textContent = order.paymentMethod;
-        orderInfoModal.querySelector('#orderPaymentStatus').textContent = order.paymentStatus;
+        const paymentStatus = orderInfoModal.querySelector('#orderPaymentStatus');
+        paymentStatus.textContent = order.paymentStatus;
+        paymentStatus.className = `order-payment-status ${order.paymentStatus.toLowerCase().replace(/\s+/g, '-')}`;
         reviewButton.hidden = order.statusClass !== 'completed';
         reviewButton.textContent = orderReviews[order.id] ? 'Edit review' : 'Leave a review';
         cancelUserOrderButton.hidden = order.statusClass !== 'pending';
