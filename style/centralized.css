@@ -89,6 +89,22 @@ nav {
     padding: 5px 20px;
 }
 
+.nav-links a[aria-current="page"] {
+    position: relative;
+    color: #013e21;
+}
+
+.nav-links a[aria-current="page"]::after {
+    position: absolute;
+    right: 20px;
+    bottom: 0;
+    left: 20px;
+    height: 3px;
+    border-radius: 3px;
+    background-color: #006937;
+    content: "";
+}
+
 .icon-button {
     display: inline-flex;
     align-items: center;

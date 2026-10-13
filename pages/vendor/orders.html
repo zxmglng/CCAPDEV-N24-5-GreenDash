@@ -37,8 +37,19 @@
 
         <main class="vendor-orders-layout">
             <section class="vendor-orders-list" aria-labelledby="ongoingOrdersHeading">
+                <label class="vendor-search-container">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    <input type="search" id="vendorOrderSearchInput"
+                        aria-label="Search orders by order ID, customer, or item"
+                        placeholder="Search orders by order ID, name, or item">
+                </label>
                 <div class="vendor-orders-heading">
-                    <h1 id="ongoingOrdersHeading">Order requests</h1>
+                    <h1 id="ongoingOrdersHeading">Order Requests</h1>
                     <div class="vendor-order-controls">
                         <label class="vendor-sort-control">
                             <span>Sort by</span>
@@ -61,11 +72,12 @@
                     </div>
                 </div>
 
-                <!-- Order cards open the selected request in the details modal. -->
+                <!-- Card amounts and default profile photos are filled from each order's data. -->
                 <div class="vendor-order-grid" id="vendorOrderGrid">
                     <article class="vendor-order-card" data-customer="David" data-order-id="6767HI"
                         data-item="Java Chip Frappuccino" data-image="javachip.png" data-options="Non-fat, Grande"
-                        data-quantity="2" data-total="460" data-payment="Cash" data-status="pending"
+                        data-quantity="2" data-total="460" data-payment="Cash"
+                        data-payment-status="Pending" data-status="pending"
                         data-pickup-time="now">
                         <h2>David</h2>
                         <span class="vendor-card-order-id">ORDER #6767HI</span>
@@ -74,17 +86,17 @@
                         <div class="vendor-card-meta">
                             <span class="vendor-order-status pending">Pending</span>
                             <span>Pickup: Now</span>
+                            <span class="vendor-card-payment-status pending">Payment: Pending</span>
                         </div>
                         <div class="vendor-card-actions">
                             <button class="vendor-open-order" type="button" data-bs-toggle="modal"
                                 data-bs-target="#vendorOrderModal">Open order</button>
-                            <button class="vendor-change-status" type="button"
-                                data-bs-toggle="modal" data-bs-target="#vendorStatusModal">Change status</button>
                         </div>
                     </article>
                     <article class="vendor-order-card" data-customer="Alyssa" data-order-id="6768AB"
                         data-item="Caffè Americano" data-image="americano.png" data-options="Iced, Tall"
-                        data-quantity="1" data-total="150" data-payment="GCash" data-status="preparing"
+                        data-quantity="1" data-total="150" data-payment="Online payment"
+                        data-payment-status="Paid" data-reference-number="0928475163021" data-status="preparing"
                         data-pickup-time="11:25">
                         <h2>Alyssa</h2>
                         <span class="vendor-card-order-id">ORDER #6768AB</span>
@@ -93,17 +105,17 @@
                         <div class="vendor-card-meta">
                             <span class="vendor-order-status preparing">Preparing</span>
                             <span>Pickup: 11:25 AM</span>
+                            <span class="vendor-card-payment-status paid">Payment: Paid</span>
                         </div>
                         <div class="vendor-card-actions">
                             <button class="vendor-open-order" type="button" data-bs-toggle="modal"
                                 data-bs-target="#vendorOrderModal">Open order</button>
-                            <button class="vendor-change-status" type="button"
-                                data-bs-toggle="modal" data-bs-target="#vendorStatusModal">Change status</button>
                         </div>
                     </article>
                     <article class="vendor-order-card" data-customer="Marco" data-order-id="6769CD"
                         data-item="Caramel Macchiato" data-image="caramel.png" data-options="Oat milk, Grande"
-                        data-quantity="1" data-total="230" data-payment="Cash" data-status="ready"
+                        data-quantity="1" data-total="230" data-payment="Cash"
+                        data-payment-status="Pending" data-status="ready"
                         data-pickup-time="11:30">
                         <h2>Marco</h2>
                         <span class="vendor-card-order-id">ORDER #6769CD</span>
@@ -112,55 +124,57 @@
                         <div class="vendor-card-meta">
                             <span class="vendor-order-status ready">Ready</span>
                             <span>Pickup: 11:30 AM</span>
+                            <span class="vendor-card-payment-status pending">Payment: Pending</span>
                         </div>
                         <div class="vendor-card-actions">
                             <button class="vendor-open-order" type="button" data-bs-toggle="modal"
                                 data-bs-target="#vendorOrderModal">Open order</button>
-                            <button class="vendor-change-status" type="button"
-                                data-bs-toggle="modal" data-bs-target="#vendorStatusModal">Change status</button>
                         </div>
                     </article>
                     <article class="vendor-order-card" data-customer="Bea" data-order-id="6770EF"
-                        data-item="Matcha Latte" data-image="matchalatte.png" data-options="Iced, Grande"
-                        data-quantity="2" data-total="390" data-payment="Card" data-status="pending"
+                        data-item="Matcha Latte, Caffè Americano" data-image="matchalatte.png" data-options="Iced, Grande"
+                        data-items='[{"name":"Matcha Latte","image":"matchalatte.png","options":"Iced, Grande","quantity":1,"price":195},{"name":"Caffè Americano","image":"americano.png","options":"Iced, Tall","quantity":1,"price":150}]'
+                        data-quantity="2" data-total="345" data-payment="Online payment"
+                        data-payment-status="Paid" data-reference-number="4710392851642" data-status="pending"
                         data-pickup-time="11:35">
                         <h2>Bea</h2>
                         <span class="vendor-card-order-id">ORDER #6770EF</span>
-                        <p>Matcha Latte × 2</p>
-                        <p class="vendor-card-options">Iced · Grande</p>
+                        <p>Matcha Latte × 1, Caffè Americano × 1</p>
+                        <p class="vendor-card-options">Iced Grande · Iced Tall</p>
                         <div class="vendor-card-meta">
                             <span class="vendor-order-status pending">Pending</span>
                             <span>Pickup: 11:35 AM</span>
+                            <span class="vendor-card-payment-status paid">Payment: Paid</span>
                         </div>
                         <div class="vendor-card-actions">
                             <button class="vendor-open-order" type="button" data-bs-toggle="modal"
                                 data-bs-target="#vendorOrderModal">Open order</button>
-                            <button class="vendor-change-status" type="button"
-                                data-bs-toggle="modal" data-bs-target="#vendorStatusModal">Change status</button>
                         </div>
                     </article>
                     <article class="vendor-order-card" data-customer="Nina" data-order-id="6771GH"
-                        data-item="Caffè Americano" data-image="americano.png" data-options="Hot, Grande"
-                        data-quantity="2" data-total="300" data-payment="GCash" data-status="preparing"
+                        data-item="Caffè Americano, Java Chip Frappuccino" data-image="americano.png" data-options="Hot, Grande"
+                        data-items='[{"name":"Caffè Americano","image":"americano.png","options":"Hot, Grande","quantity":1,"price":150},{"name":"Java Chip Frappuccino","image":"javachip.png","options":"Non-fat, Tall","quantity":1,"price":190}]'
+                        data-quantity="2" data-total="340" data-payment="Online payment"
+                        data-payment-status="Paid" data-reference-number="6251840392716" data-status="preparing"
                         data-pickup-time="11:40">
                         <h2>Nina</h2>
                         <span class="vendor-card-order-id">ORDER #6771GH</span>
-                        <p>Caffè Americano × 2</p>
-                        <p class="vendor-card-options">Hot · Grande</p>
+                        <p>Caffè Americano × 1, Java Chip Frappuccino × 1</p>
+                        <p class="vendor-card-options">Hot Grande · Non-fat Tall</p>
                         <div class="vendor-card-meta">
                             <span class="vendor-order-status preparing">Preparing</span>
                             <span>Pickup: 11:40 AM</span>
+                            <span class="vendor-card-payment-status paid">Payment: Paid</span>
                         </div>
                         <div class="vendor-card-actions">
                             <button class="vendor-open-order" type="button" data-bs-toggle="modal"
                                 data-bs-target="#vendorOrderModal">Open order</button>
-                            <button class="vendor-change-status" type="button"
-                                data-bs-toggle="modal" data-bs-target="#vendorStatusModal">Change status</button>
                         </div>
                     </article>
                     <article class="vendor-order-card" data-customer="Paolo" data-order-id="6772JK"
                         data-item="Java Chip Frappuccino" data-image="javachip.png" data-options="Non-fat, Tall"
-                        data-quantity="1" data-total="190" data-payment="Cash" data-status="ready"
+                        data-quantity="1" data-total="190" data-payment="Cash"
+                        data-payment-status="Pending" data-status="ready"
                         data-pickup-time="11:45">
                         <h2>Paolo</h2>
                         <span class="vendor-card-order-id">ORDER #6772JK</span>
@@ -169,18 +183,19 @@
                         <div class="vendor-card-meta">
                             <span class="vendor-order-status ready">Ready</span>
                             <span>Pickup: 11:45 AM</span>
+                            <span class="vendor-card-payment-status pending">Payment: Pending</span>
                         </div>
                         <div class="vendor-card-actions">
                             <button class="vendor-open-order" type="button" data-bs-toggle="modal"
                                 data-bs-target="#vendorOrderModal">Open order</button>
-                            <button class="vendor-change-status" type="button"
-                                data-bs-toggle="modal" data-bs-target="#vendorStatusModal">Change status</button>
                         </div>
                     </article>
                     <article class="vendor-order-card" data-customer="James" data-order-id="6773LM"
                         data-item="Caramel Macchiato" data-image="caramel.png" data-options="Hot, Grande"
-                        data-quantity="1" data-total="220" data-payment="Cash" data-status="completed"
-                        data-pickup-time="11:05">
+                        data-quantity="1" data-total="220" data-payment="Cash"
+                        data-payment-status="Paid" data-status="completed"
+                        data-pickup-time="11:05" data-rating="5"
+                        data-completed-at="2026-10-13T11:04:00+08:00">
                         <h2>James</h2>
                         <span class="vendor-card-order-id">ORDER #6773LM</span>
                         <p>Caramel Macchiato × 1</p>
@@ -188,18 +203,19 @@
                         <div class="vendor-card-meta">
                             <span class="vendor-order-status completed">Completed</span>
                             <span>Pickup: 11:05 AM</span>
+                            <span class="vendor-card-payment-status paid">Payment: Paid</span>
                         </div>
                         <div class="vendor-card-actions">
                             <button class="vendor-open-order" type="button" data-bs-toggle="modal"
                                 data-bs-target="#vendorOrderModal">Open order</button>
-                            <button class="vendor-change-status" type="button"
-                                data-bs-toggle="modal" data-bs-target="#vendorStatusModal">Change status</button>
                         </div>
                     </article>
                     <article class="vendor-order-card" data-customer="Ella" data-order-id="6774NP"
                         data-item="Matcha Latte" data-image="matchalatte.png" data-options="Iced, Tall"
-                        data-quantity="1" data-total="195" data-payment="Card" data-status="cancelled"
-                        data-pickup-time="11:10">
+                        data-quantity="1" data-total="195" data-payment="Online payment"
+                        data-payment-status="Not charged" data-status="cancelled"
+                        data-pickup-time="11:10"
+                        data-cancellation-reason="Customer requested cancellation before preparation.">
                         <h2>Ella</h2>
                         <span class="vendor-card-order-id">ORDER #6774NP</span>
                         <p>Matcha Latte × 1</p>
@@ -207,17 +223,17 @@
                         <div class="vendor-card-meta">
                             <span class="vendor-order-status cancelled">Cancelled</span>
                             <span>Pickup: 11:10 AM</span>
+                            <span class="vendor-card-payment-status">Payment: Not charged</span>
                         </div>
                         <div class="vendor-card-actions">
                             <button class="vendor-open-order" type="button" data-bs-toggle="modal"
                                 data-bs-target="#vendorOrderModal">Open order</button>
-                            <button class="vendor-change-status" type="button"
-                                data-bs-toggle="modal" data-bs-target="#vendorStatusModal">Change status</button>
                         </div>
                     </article>
                     <article class="vendor-order-card" data-customer="Chris" data-order-id="6775QR"
                         data-item="Caramel Macchiato" data-image="caramel.png" data-options="Extra shot, Grande"
-                        data-quantity="2" data-total="460" data-payment="Cash" data-status="pending"
+                        data-quantity="2" data-total="460" data-payment="Cash"
+                        data-payment-status="Pending" data-status="pending"
                         data-pickup-time="11:50">
                         <h2>Chris</h2>
                         <span class="vendor-card-order-id">ORDER #6775QR</span>
@@ -226,59 +242,53 @@
                         <div class="vendor-card-meta">
                             <span class="vendor-order-status pending">Pending</span>
                             <span>Pickup: 11:50 AM</span>
+                            <span class="vendor-card-payment-status pending">Payment: Pending</span>
                         </div>
                         <div class="vendor-card-actions">
                             <button class="vendor-open-order" type="button" data-bs-toggle="modal"
                                 data-bs-target="#vendorOrderModal">Open order</button>
-                            <button class="vendor-change-status" type="button"
-                                data-bs-toggle="modal" data-bs-target="#vendorStatusModal">Change status</button>
                         </div>
                     </article>
                     <article class="vendor-order-card" data-customer="Sofia" data-order-id="6776ST"
-                        data-item="Matcha Latte" data-image="matchalatte.png" data-options="Iced, Tall"
-                        data-quantity="1" data-total="180" data-payment="Card" data-status="preparing"
+                        data-item="Matcha Latte, Caramel Macchiato" data-image="matchalatte.png" data-options="Iced, Tall"
+                        data-items='[{"name":"Matcha Latte","image":"matchalatte.png","options":"Iced, Tall","quantity":1,"price":180},{"name":"Caramel Macchiato","image":"caramel.png","options":"Hot, Grande","quantity":1,"price":220}]'
+                        data-quantity="2" data-total="400" data-payment="Online payment"
+                        data-payment-status="Paid" data-reference-number="1837604925184" data-status="preparing"
                         data-pickup-time="12:00">
                         <h2>Sofia</h2>
                         <span class="vendor-card-order-id">ORDER #6776ST</span>
-                        <p>Matcha Latte × 1</p>
-                        <p class="vendor-card-options">Iced · Tall</p>
+                        <p>Matcha Latte × 1, Caramel Macchiato × 1</p>
+                        <p class="vendor-card-options">Iced Tall · Hot Grande</p>
                         <div class="vendor-card-meta">
                             <span class="vendor-order-status preparing">Preparing</span>
                             <span>Pickup: 12:00 PM</span>
+                            <span class="vendor-card-payment-status paid">Payment: Paid</span>
                         </div>
                         <div class="vendor-card-actions">
                             <button class="vendor-open-order" type="button" data-bs-toggle="modal"
                                 data-bs-target="#vendorOrderModal">Open order</button>
-                            <button class="vendor-change-status" type="button"
-                                data-bs-toggle="modal" data-bs-target="#vendorStatusModal">Change status</button>
                         </div>
                     </article>
                 </div>
+                <p class="vendor-orders-empty" id="vendorOrdersEmpty" hidden>
+                    No orders match your search or filter.
+                </p>
             </section>
 
         </main>
 
         <!-- Keep order details in a dismissible, right-side modal. -->
-        <div class="modal fade vendor-order-modal" id="vendorOrderModal" tabindex="-1"
+        <div class="modal fade vendor-order-modal vendor-right-modal" id="vendorOrderModal" tabindex="-1"
             aria-labelledby="selectedOrderHeading" aria-hidden="true">
             <div class="modal-dialog">
-                <div class="modal-content vendor-order-detail">
+                <div class="modal-content vendor-order-detail vendor-right-panel">
                     <div class="vendor-order-modal-header">
                         <h2 id="selectedOrderHeading">Customer2’s order</h2>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"
                             aria-label="Close order details"></button>
                     </div>
                     <div class="vendor-order-modal-body">
-                        <div class="vendor-order-item">
-                            <img id="vendorModalItemImage" src="../../assets/starbucksMenu/javachip.png"
-                                alt="Java Chip Frappuccino">
-                            <div class="vendor-order-item-copy">
-                                <h3 id="vendorModalItemName">Java Chip Frappuccino</h3>
-                                <p id="vendorModalOptions">Non-fat, Grande</p>
-                                <p id="vendorModalQuantity">Quantity: 2</p>
-                            </div>
-                            <strong class="vendor-order-item-price" id="vendorModalTotal">₱460</strong>
-                        </div>
+                        <div class="vendor-modal-items" id="vendorModalItems"></div>
 
                         <div class="vendor-order-summary">
                             <p class="vendor-order-id" id="vendorModalOrderId">ORDER ID: 6767HI</p>
@@ -288,8 +298,16 @@
                                     <dd id="vendorModalSubtotal">₱460</dd>
                                 </div>
                                 <div>
-                                    <dt>Payment:</dt>
+                                    <dt>Payment method:</dt>
                                     <dd id="vendorModalPayment">Cash</dd>
+                                </div>
+                                <div>
+                                    <dt>Payment status:</dt>
+                                    <dd id="vendorModalPaymentStatus" class="vendor-payment-status pending">Pending</dd>
+                                </div>
+                                <div id="vendorModalReferenceRow" hidden>
+                                    <dt>Reference number:</dt>
+                                    <dd id="vendorModalReferenceNumber"></dd>
                                 </div>
                                 <div>
                                     <dt>Status:</dt>
@@ -300,39 +318,55 @@
                                     <dd id="vendorModalPickup">11:20 AM</dd>
                                 </div>
                             </dl>
+                            <p class="vendor-cancellation-reason" id="vendorModalCancellationReason" hidden></p>
                         </div>
-                        <button class="vendor-complete-order" type="button" disabled>Complete Order</button>
+                        <div class="vendor-order-modal-actions">
+                            <p>Update status</p>
+                            <div class="vendor-status-options" role="group" aria-label="Set order status">
+                                <button type="button" class="vendor-status-option pending" data-status="pending">
+                                    Pending
+                                </button>
+                                <button type="button" class="vendor-status-option preparing" data-status="preparing">
+                                    Preparing
+                                </button>
+                                <button type="button" class="vendor-status-option ready" data-status="ready">
+                                    Ready
+                                </button>
+                                <button type="button" class="vendor-status-option completed" data-status="completed">
+                                    Complete order
+                                </button>
+                            </div>
+                            <button type="button" class="vendor-cancel-order" id="vendorCancelOrderButton">
+                                Cancel order
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="modal fade vendor-status-modal" id="vendorStatusModal" tabindex="-1"
-            aria-labelledby="vendorStatusModalHeading" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h2 class="modal-title" id="vendorStatusModalHeading">Change order status</h2>
+        <div class="modal fade vendor-cancel-modal vendor-right-modal" id="vendorCancelModal" tabindex="-1"
+            aria-labelledby="vendorCancelHeading" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content vendor-order-detail vendor-right-panel">
+                    <div class="vendor-order-modal-header">
+                        <h2 id="vendorCancelHeading">Cancel order</h2>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"
-                            aria-label="Close status dialog"></button>
+                            aria-label="Close cancellation dialog"></button>
                     </div>
-                    <div class="modal-body">
-                        <p class="vendor-status-prompt">Select a status for this order:</p>
-                        <div class="vendor-status-options" role="group" aria-labelledby="vendorStatusModalHeading">
-                            <button type="button" class="vendor-status-option pending" data-status="pending">
-                                Pending
-                            </button>
-                            <button type="button" class="vendor-status-option preparing" data-status="preparing">
-                                Preparing
-                            </button>
-                            <button type="button" class="vendor-status-option ready" data-status="ready">
-                                Ready
-                            </button>
-                            <button type="button" class="vendor-status-option completed" data-status="completed">
-                                Completed
-                            </button>
+                    <form id="vendorCancelForm" class="vendor-cancel-form">
+                        <div class="vendor-order-modal-body">
+                            <p id="vendorCancelOrderLabel" class="vendor-cancel-order-label"></p>
+                            <label for="vendorCancelReason">Reason for cancellation</label>
+                            <textarea id="vendorCancelReason" rows="5" maxlength="500" required></textarea>
+                            <p class="vendor-cancel-hint">A reason is required (up to 500 characters).</p>
+                            <div class="vendor-cancel-actions">
+                                <button type="button" class="vendor-status-cancel"
+                                    data-bs-dismiss="modal">Keep order</button>
+                                <button type="submit" class="vendor-status-save">Cancel order</button>
+                            </div>
                         </div>
-                    </div>
+                    </form>
                 </div>
             </div>
         </div>

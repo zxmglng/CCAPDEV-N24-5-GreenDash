@@ -55,8 +55,8 @@ const storeDetails = {
 const orders = [
     {
         id: '6767HI', store: 'starbucks', date: 'October 12, 2026',
-        status: 'Preparing, pickup by 2:15 PM', statusClass: 'preparing',
-        paymentMethod: 'Online payment', paymentStatus: 'Paid', total: 555,
+        status: 'Pending', statusClass: 'pending',
+        paymentMethod: 'Online payment', paymentStatus: 'Pending', total: 555,
         items: [
             { name: 'Caff\u00e8 Latte', detail: 'Grande', quantity: 2, total: 480 },
             { name: 'Chocolate Chip Cookie', detail: 'Classic', quantity: 1, total: 75 }
@@ -212,11 +212,33 @@ const orders = [
         paymentMethod: 'Cash', paymentStatus: 'Paid', total: 158,
         items: [{ name: 'Classic Belgian Waffle', detail: 'Chocolate', quantity: 1, total: 158 }]
     }
-].map((order) => ({
-    ...order,
-    ...storeDetails[order.store],
-    isOngoing: order.statusClass === 'preparing' || order.statusClass === 'ready'
-}));
+];
+const userOrderStatusStorageKey = 'greendash.user.order-status.v1';
+let savedUserOrderStatuses = {};
+try {
+    const savedStatuses = JSON.parse(localStorage.getItem(userOrderStatusStorageKey) || '{}');
+    if (savedStatuses && typeof savedStatuses === 'object' && !Array.isArray(savedStatuses)) {
+        savedUserOrderStatuses = savedStatuses;
+    }
+} catch (error) {
+    console.error('Unable to load saved user order statuses.', error);
+}
+
+orders.forEach((order) => {
+    if (savedUserOrderStatuses[order.id] === 'cancelled' && order.statusClass === 'pending') {
+        order.status = 'Order cancelled';
+        order.statusClass = 'cancelled';
+        order.paymentStatus = 'Not charged';
+    }
+});
+
+orders.forEach((order) => {
+    Object.assign(order, storeDetails[order.store], {
+        isOngoing: order.statusClass === 'pending'
+            || order.statusClass === 'preparing'
+            || order.statusClass === 'ready'
+    });
+});
 
 const orderRatingsStorageKey = 'greendash.orderRatings';
 // Retain comments by order so they can be reopened and edited.
@@ -405,6 +427,9 @@ if (orderInfoModal) {
     const reviewCount = orderReviewModal?.querySelector('#orderReviewCount');
     const reviewContext = orderReviewModal?.querySelector('#orderReviewContext');
     const reviewFeedback = orderReviewModal?.querySelector('#orderReviewFeedback');
+    const cancelUserOrderButton = orderInfoModal.querySelector('#cancelUserOrderButton');
+    const cancelUserOrderModal = document.querySelector('#cancelUserOrderModal');
+    let cancelConfirmationPending = false;
     let selectedOrderId = null;
     let returnToOrderDetails = false;
     let pendingReview = false;
@@ -575,6 +600,7 @@ if (orderInfoModal) {
         orderInfoModal.querySelector('#orderPaymentStatus').textContent = order.paymentStatus;
         reviewButton.hidden = order.statusClass !== 'completed';
         reviewButton.textContent = orderReviews[order.id] ? 'Edit review' : 'Leave a review';
+        cancelUserOrderButton.hidden = order.statusClass !== 'pending';
         itemList.replaceChildren();
 
         order.items.forEach((item) => {
@@ -602,6 +628,60 @@ if (orderInfoModal) {
             row.append(description, price);
             itemList.append(row);
         });
+    });
+
+    // Show confirmation only after the details modal closes to avoid stacked backdrops.
+    cancelUserOrderButton.addEventListener('click', () => {
+        const order = orderById[selectedOrderId];
+        if (!order || order.statusClass !== 'pending') {
+            return;
+        }
+
+        cancelUserOrderModal.querySelector('#cancelUserOrderMessage').textContent =
+            `Cancel order ${order.id} from ${order.name}?`;
+        orderInfoModal.addEventListener('hidden.bs.modal', () => {
+            cancelConfirmationPending = true;
+            bootstrap.Modal.getOrCreateInstance(cancelUserOrderModal).show();
+        }, { once: true });
+        bootstrap.Modal.getOrCreateInstance(orderInfoModal).hide();
+    });
+
+    cancelUserOrderModal.querySelector('#confirmCancelUserOrderButton')
+        .addEventListener('click', () => {
+            const order = orderById[selectedOrderId];
+            if (!order || order.statusClass !== 'pending') {
+                return;
+            }
+
+            order.status = 'Order cancelled';
+            order.statusClass = 'cancelled';
+            order.paymentStatus = 'Not charged';
+            order.isOngoing = false;
+
+            const card = orderCardsById.get(order.id);
+            const status = card?.querySelector('.order-status');
+            if (status) {
+                status.textContent = order.status;
+                status.className = `order-status ${order.statusClass}`;
+                previousOrdersSection?.append(card);
+            }
+            cancelUserOrderButton.hidden = true;
+
+            try {
+                savedUserOrderStatuses[order.id] = 'cancelled';
+                localStorage.setItem(userOrderStatusStorageKey, JSON.stringify(savedUserOrderStatuses));
+            } catch (error) {
+                console.error('Unable to save the cancelled order status.', error);
+            }
+
+            bootstrap.Modal.getOrCreateInstance(cancelUserOrderModal).hide();
+        });
+
+    cancelUserOrderModal.addEventListener('hidden.bs.modal', () => {
+        if (cancelConfirmationPending) {
+            cancelConfirmationPending = false;
+            bootstrap.Modal.getOrCreateInstance(orderInfoModal).show();
+        }
     });
 
 }

@@ -127,6 +127,9 @@
 
                     <div class="modal-footer">
                         <button type="button" class="view-stall-button" data-bs-dismiss="modal">Back to orders</button>
+                        <button class="cancel-user-order-button" id="cancelUserOrderButton" type="button">
+                            Cancel order
+                        </button>
                         <button class="review-order-button" id="reviewOrderButton" type="button"
                             hidden>Leave a review</button>
                     </div>
@@ -161,6 +164,28 @@
                             <button class="review-order-button" type="submit">Save review</button>
                         </div>
                     </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="cancelUserOrderModal" tabindex="-1"
+            aria-labelledby="cancelUserOrderHeading" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title" id="cancelUserOrderHeading">Cancel this order?</h2>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close cancellation confirmation"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p id="cancelUserOrderMessage">You can cancel while the order is pending.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="view-stall-button" data-bs-dismiss="modal">Keep order</button>
+                        <button type="button" class="cancel-user-order-button" id="confirmCancelUserOrderButton">
+                            Cancel order
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

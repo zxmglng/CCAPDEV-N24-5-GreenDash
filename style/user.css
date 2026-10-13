@@ -811,6 +811,11 @@
     color: #111111;
 }
 
+.order-status.pending {
+    background-color: #f5e7bd;
+    color: #775400;
+}
+
 .order-status.ready {
     background-color: #cce8d8;
     color: #064d2c;
@@ -1138,6 +1143,7 @@
 }
 
 .order-info-modal .modal-footer .view-stall-button,
+.order-info-modal .modal-footer .cancel-user-order-button,
 .order-info-modal .modal-footer .review-order-button {
     display: inline-flex;
     align-items: center;
@@ -1145,8 +1151,25 @@
     box-sizing: border-box;
     margin: 0;
     width: 140px;
+    min-height: 36px;
     height: 36px;
     padding: 8px 16px;
+    font-size: 14px;
+    line-height: normal;
+    text-align: center;
+}
+
+#cancelUserOrderModal .modal-footer > button {
+    display: inline-flex;
+    flex: 0 0 140px;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: 140px;
+    min-height: 36px;
+    height: 36px;
+    margin: 0;
+    padding: 8px 12px;
     font-size: 14px;
     line-height: normal;
     text-align: center;
@@ -1162,6 +1185,28 @@
     text-decoration: none;
     cursor: pointer;
     transition: background-color 0.2s, color 0.2s;
+}
+
+.cancel-user-order-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 8px 16px;
+    border: 0;
+    border-radius: 10px;
+    background-color: #a12626;
+    color: #ffffff;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.cancel-user-order-button:hover {
+    background-color: #7f1d1d;
+}
+
+.order-info-modal .modal-footer .cancel-user-order-button {
+    margin: 0;
 }
 
 .order-info-modal .modal-footer .review-order-button:hover,
