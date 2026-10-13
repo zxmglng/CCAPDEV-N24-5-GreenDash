@@ -906,7 +906,6 @@
         font-size: 12px;
         text-align: left;
     }
-
     .order-location {
         grid-column: 1;
         grid-row: 3;
@@ -1202,3 +1201,114 @@
 
 
 /* ------------------ USER PROFILE PAGE ------------------- */
+.profile-page {
+    padding: 35px 45px 60px;
+}
+
+.profile-card, .activity-card {
+    background-color: #f4f4f4;
+    border-radius: 24px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.10);
+    padding: 28px;
+}
+
+/* left profile card */
+.profile-top {
+    text-align: center;
+    padding-bottom: 15px;
+}
+
+.profile-avatar {
+    width: 140px;
+    height: 140px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-bottom: 15px;
+}
+
+.profile-top h2 {
+    font-family: 'League Spartan', 'Inter', sans-serif;
+    font-size: 34px;
+    font-weight: bold;
+    text-align: center;
+    color: #111111;
+    margin-bottom: -2px;
+}
+
+.profile-email {
+    font-size: 16px;
+    margin-bottom: 20px;
+    text-align: center;
+    color: #111111;
+}
+
+.profile-role-badge {
+    display: inline-block;
+    background-color: #dbe8d0;
+    color: #006937;
+    padding: 7px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.profile-divider {
+    border: none;
+    border-top: 1px solid #999999;
+    margin: 20px 0;
+}
+
+.profile-information h3 {
+    font-family: 'League Spartan', 'Inter', sans-serif;
+    font-size: 28px;
+    font-weight: bold;
+    color: #006937;
+    margin-bottom: 18px;
+}
+
+.profile-label {
+    display: block;
+    font-size: 14px;
+    font-weight: bold;
+    color: #111111;
+    margin-bottom: 6px;
+}
+
+.profile-input {
+    width: 100%;
+    border: 1px solid #b7b7b7;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: #404040;
+    outline: none;
+}
+
+.profile-button-group {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 25px;
+}
+
+.edit-profile-btn {
+    background-color: #006937;
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.logout-btn {
+    background-color: #ffffff;
+    color: #6b1809;
+    border: 2px solid #6b1809;
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+}
