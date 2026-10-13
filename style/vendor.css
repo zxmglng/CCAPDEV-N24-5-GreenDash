@@ -2,3 +2,368 @@
     This file contains the CSS for the VENDOR side ONLY 
     Please make sure to implement the styles in their respective .css file 
 */
+
+.vendor-page {
+    line-height: normal;
+}
+
+.vendor-page .location {
+    min-width: 176px;
+}
+
+.vendor-page .location strong {
+    order: -1;
+}
+
+.vendor-page nav {
+    overflow-x: auto;
+}
+
+.vendor-empty-page {
+    min-height: calc(100vh - 114px);
+}
+
+.vendor-orders-layout {
+    display: block;
+    padding: 16px 30px 40px;
+}
+
+.vendor-orders-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 0 8px 24px 4px;
+}
+
+.vendor-orders-heading h1 {
+    margin: 0;
+    color: #006937;
+    font-family: 'League Spartan', 'Inter', sans-serif;
+    font-size: 38px;
+    font-weight: 700;
+}
+
+.vendor-sort-icon {
+    display: inline-flex;
+    align-items: center;
+    color: #006937;
+}
+
+.vendor-sort-icon svg {
+    width: 24px;
+    height: 24px;
+    stroke-width: 3;
+}
+
+.vendor-order-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px 12px;
+}
+
+.vendor-order-card {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-height: 162px;
+    overflow: hidden;
+    padding: 14px;
+    border-radius: 25px;
+    background-color: #e7ecef;
+    color: #111111;
+}
+
+.vendor-order-card.is-selected {
+    background-color: #cbd5dc;
+}
+
+.vendor-order-card h2 {
+    margin: 0 0 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.vendor-order-card p,
+.vendor-order-card ul {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.25;
+}
+
+.vendor-order-card ul {
+    padding-left: 18px;
+}
+
+.vendor-order-card .vendor-card-status {
+    margin-top: 24px;
+    font-weight: 700;
+}
+
+.vendor-open-order {
+    align-self: flex-start;
+    margin-top: auto;
+    padding: 6px 10px;
+    border: 0;
+    border-radius: 10px;
+    background-color: #006937;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.vendor-open-order:hover {
+    background-color: #013e21;
+}
+
+.vendor-order-modal {
+    overflow: hidden;
+    padding: 0 !important;
+}
+
+.modal.vendor-order-modal .modal-dialog {
+    width: min(420px, 100%);
+    max-width: none;
+    height: 100vh;
+    margin: 0 0 0 auto;
+    transform: none;
+}
+
+@keyframes vendor-order-slide-in {
+    from {
+        transform: translateX(100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+.vendor-order-modal.show .vendor-order-detail {
+    animation: vendor-order-slide-in 0.3s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vendor-order-modal.show .vendor-order-detail {
+        animation-duration: 0.01ms;
+    }
+}
+
+.vendor-order-detail {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    border: 0;
+    border-radius: 0 12px 12px 0;
+    background-color: #f4f4f4;
+    box-shadow: 0 10px 32px rgba(0, 0, 0, 0.2);
+}
+
+.vendor-order-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 18px 22px 12px;
+}
+
+.vendor-order-modal-header > h2 {
+    margin: 0;
+    color: #006937;
+    font-family: 'League Spartan', 'Inter', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+}
+
+.vendor-order-modal-body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    padding: 6px 22px 20px;
+}
+
+.vendor-order-item {
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 8px;
+}
+
+.vendor-order-item > img {
+    width: 56px;
+    height: 56px;
+    border-radius: 10px;
+    background-color: #173e32;
+    object-fit: contain;
+}
+
+.vendor-order-item-copy h3 {
+    margin: 0;
+    color: #111111;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.vendor-order-item-copy p {
+    margin: 2px 0 0;
+    color: #777777;
+    font-size: 10px;
+    line-height: 1.2;
+}
+
+.vendor-order-item-price {
+    align-self: end;
+    padding-bottom: 1px;
+    color: #006937;
+    font-size: 10px;
+    white-space: nowrap;
+}
+
+.vendor-order-summary {
+    margin-top: auto;
+}
+
+.vendor-order-id {
+    display: inline-block;
+    margin: 0 0 8px;
+    padding: 5px 10px;
+    border-radius: 18px;
+    background-color: #006937;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.vendor-order-summary dl {
+    margin: 0;
+}
+
+.vendor-order-summary dl > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.45;
+}
+
+.vendor-order-summary dt,
+.vendor-order-summary dd {
+    margin: 0;
+}
+
+.vendor-order-summary dd {
+    color: #006937;
+    text-align: right;
+}
+
+.vendor-order-summary .vendor-payment-status {
+    color: #d52218;
+}
+
+.vendor-complete-order {
+    width: 100%;
+    min-height: 34px;
+    margin-top: 14px;
+    border: 0;
+    border-radius: 8px;
+    background-color: #cbd5dc;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+@media (max-width: 850px) {
+    .vendor-order-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .vendor-orders-layout {
+        padding-right: 24px;
+        padding-left: 24px;
+    }
+}
+
+@media (max-width: 680px) {
+    .vendor-page .main-header {
+        padding-left: 10px;
+    }
+
+    .vendor-page #logo {
+        width: min(40vw, 170px);
+        padding: 8px;
+    }
+
+    .vendor-page .location {
+        min-width: 0;
+        padding: 5px 6px;
+    }
+
+    .vendor-page .location span {
+        font-size: 12px;
+    }
+
+    .vendor-page .location strong {
+        font-size: 22px;
+    }
+
+    .vendor-page .icon-button#eclipse {
+        flex-shrink: 0;
+        margin-right: 8px;
+    }
+
+    .vendor-page .nav-links {
+        flex: 0 0 auto;
+        width: max-content;
+    }
+
+    .vendor-orders-layout {
+        padding: 22px 18px 32px;
+    }
+
+    .vendor-orders-heading {
+        margin-bottom: 18px;
+    }
+
+    .vendor-orders-heading h1 {
+        font-size: 34px;
+    }
+
+    .vendor-order-card {
+        min-height: 145px;
+        border-radius: 20px;
+    }
+
+    .vendor-order-modal .modal-dialog {
+        width: 100%;
+        max-width: none;
+        height: 100vh;
+        margin: 0;
+    }
+
+    .vendor-order-detail {
+        border-radius: 0;
+    }
+
+    .vendor-order-modal-header {
+        padding: 15px 17px 10px;
+    }
+
+    .vendor-order-modal-body {
+        padding: 6px 17px 17px;
+    }
+}
+
+@media (max-width: 380px) {
+    .vendor-order-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .vendor-order-card[aria-hidden="true"] {
+        display: none;
+    }
+}

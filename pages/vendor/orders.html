@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>GreenDash - Order Requests</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="../../bootstrap/css/bootstrap-5.3.3.min.css">
+        <link rel="stylesheet" href="../../style/centralized.css">
+        <link rel="stylesheet" href="../../style/vendor.css">
+        <link rel="icon" type="image/png" href="../../assets/main/GreenDash_CIRCLE.png">
+    </head>
+    <body class="vendor-page vendor-orders-page">
+        <header>
+            <div class="main-header">
+                <img id="logo" src="../../assets/main/GreenDash_LOGO.png" alt="GreenDash Logo">
+                <div class="location">
+                    <strong>Starbucks</strong>
+                    <span>Gokongwei Hall</span>
+                </div>
+                <button class="icon-button" id="eclipse" type="button" aria-label="Toggle dark mode">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M12 2a7 7 0 1 0 10 10"></path>
+                    </svg>
+                </button>
+            </div>
+            <nav aria-label="Vendor navigation">
+                <div class="nav-links">
+                    <a href="profile.html">Profile</a>
+                    <a href="orders.html" aria-current="page">Order Requests</a>
+                    <a href="transaction-history.html">Transaction History</a>
+                </div>
+            </nav>
+        </header>
+
+        <main class="vendor-orders-layout">
+            <section class="vendor-orders-list" aria-labelledby="ongoingOrdersHeading">
+                <div class="vendor-orders-heading">
+                    <h1 id="ongoingOrdersHeading">Ongoing orders</h1>
+                    <span class="vendor-sort-icon" aria-label="Sort orders">
+                        <i data-lucide="list-filter" aria-hidden="true"></i>
+                    </span>
+                </div>
+
+                <div class="vendor-order-grid">
+                    <article class="vendor-order-card">
+                        <h2>Customer1</h2>
+                    </article>
+                    <article class="vendor-order-card is-selected" aria-current="true">
+                        <h2>Customer2</h2>
+                        <p>Java Chip Frappuccino x2</p>
+                        <ul>
+                            <li>non-fat</li>
+                            <li>grande</li>
+                        </ul>
+                        <p class="vendor-card-status">Status:</p>
+                        <button class="vendor-open-order" type="button"
+                            data-bs-toggle="modal" data-bs-target="#vendorOrderModal">Open order</button>
+                    </article>
+                    <article class="vendor-order-card">
+                        <h2>Customer3</h2>
+                    </article>
+                    <article class="vendor-order-card">
+                        <h2>Customer4</h2>
+                    </article>
+                    <article class="vendor-order-card" aria-hidden="true"></article>
+                    <article class="vendor-order-card" aria-hidden="true"></article>
+                    <article class="vendor-order-card" aria-hidden="true"></article>
+                    <article class="vendor-order-card" aria-hidden="true"></article>
+                </div>
+            </section>
+
+        </main>
+
+        <div class="modal fade vendor-order-modal" id="vendorOrderModal" tabindex="-1"
+            aria-labelledby="selectedOrderHeading" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content vendor-order-detail">
+                    <div class="vendor-order-modal-header">
+                        <h2 id="selectedOrderHeading">Customer2’s order</h2>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close order details"></button>
+                    </div>
+                    <div class="vendor-order-modal-body">
+                        <div class="vendor-order-item">
+                            <img src="../../assets/starbucksMenu/javachip.png" alt="Java Chip Frappuccino">
+                            <div class="vendor-order-item-copy">
+                                <h3>Java Chip Frappuccino</h3>
+                                <p>Non-fat</p>
+                                <p>Grande</p>
+                                <p>Quantity: 2</p>
+                            </div>
+                            <strong class="vendor-order-item-price">₱460</strong>
+                        </div>
+
+                        <div class="vendor-order-summary">
+                            <p class="vendor-order-id">ORDER ID: 6767HI</p>
+                            <dl>
+                                <div>
+                                    <dt>Subtotal:</dt>
+                                    <dd>₱460</dd>
+                                </div>
+                                <div>
+                                    <dt>Payment:</dt>
+                                    <dd>Cash</dd>
+                                </div>
+                                <div>
+                                    <dt>Status:</dt>
+                                    <dd class="vendor-payment-status">To Pay</dd>
+                                </div>
+                            </dl>
+                        </div>
+                        <button class="vendor-complete-order" type="button" disabled>Complete Order</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="../../bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script type="module" src="../../js/centralized.js"></script>
+    </body>
+</html>
