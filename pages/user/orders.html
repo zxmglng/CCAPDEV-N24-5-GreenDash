@@ -35,6 +35,7 @@
         </header>
 
         <main class="user-main orders-page">
+            <!-- Orders search and status sections -->
             <div class="search-container">
                 <i data-lucide="search" aria-hidden="true"></i>
                 <input type="text" id="orderSearchInput" aria-label="Search orders"
@@ -53,6 +54,7 @@
             <p class="orders-empty" id="noOrdersFound" hidden>No orders match your search.</p>
         </main>
 
+        <!-- Detailed order modal -->
         <div class="modal fade order-info-modal" id="orderInfoModal" tabindex="-1"
             aria-labelledby="orderInfoModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
@@ -125,8 +127,40 @@
 
                     <div class="modal-footer">
                         <button type="button" class="view-stall-button" data-bs-dismiss="modal">Back to orders</button>
-                        <a class="review-order-button" id="reviewOrderLink" href="review.html" hidden>Leave a review</a>
+                        <button class="review-order-button" id="reviewOrderButton" type="button"
+                            hidden>Leave a review</button>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comment form for reviewing a completed order -->
+        <div class="modal fade order-review-modal" id="orderReviewModal" tabindex="-1"
+            aria-labelledby="orderReviewModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <form id="orderReviewForm">
+                        <div class="modal-header">
+                            <div>
+                                <p class="order-modal-eyebrow">ORDER REVIEW</p>
+                                <h2 class="modal-title" id="orderReviewModalLabel">Review your order</h2>
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Close review form"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p class="order-review-context" id="orderReviewContext"></p>
+                            <label class="order-review-label" for="orderReviewComment">Your comment</label>
+                            <textarea class="order-review-comment" id="orderReviewComment" name="comment"
+                                rows="5" maxlength="500" required aria-describedby="orderReviewCount"></textarea>
+                            <p class="order-review-count" id="orderReviewCount" aria-live="polite">0/500</p>
+                            <p class="order-review-feedback" id="orderReviewFeedback" role="alert" hidden></p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="view-stall-button" data-bs-dismiss="modal">Cancel</button>
+                            <button class="review-order-button" type="submit">Save review</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>

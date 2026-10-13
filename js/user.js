@@ -28,6 +28,7 @@ if (stallSearchInput) {
     });
 }
 
+// Order data for the user orders page.
 const storeDetails = {
     starbucks: {
         name: 'Starbucks',
@@ -218,10 +219,13 @@ const orders = [
 }));
 
 const orderRatingsStorageKey = 'greendash.orderRatings';
+// Retain comments by order so they can be reopened and edited.
+const orderReviewsStorageKey = 'greendash.orderReviews';
 const completedOrderIds = new Set(
     orders.filter((order) => order.statusClass === 'completed').map((order) => order.id)
 );
 let orderRatings = {};
+let orderReviews = {};
 
 try {
     const storedRatings = JSON.parse(localStorage.getItem(orderRatingsStorageKey) || '{}');
@@ -234,6 +238,20 @@ try {
     }
 } catch (error) {
     console.error('Unable to load saved order ratings.', error);
+}
+
+try {
+    const storedReviews = JSON.parse(localStorage.getItem(orderReviewsStorageKey) || '{}');
+    if (storedReviews && typeof storedReviews === 'object' && !Array.isArray(storedReviews)) {
+        orderReviews = Object.fromEntries(
+            Object.entries(storedReviews).filter(([orderId, review]) =>
+                completedOrderIds.has(orderId) && typeof review === 'string' && review.trim().length > 0 &&
+                review.length <= 500
+            )
+        );
+    }
+} catch (error) {
+    console.error('Unable to load saved order reviews.', error);
 }
 
 const orderById = Object.fromEntries(orders.map((order) => [order.id, order]));
@@ -340,6 +358,7 @@ sortedOrders.forEach((order) => {
     updateCardRating(order.id, orderRatings[order.id]);
 });
 
+// Search and section filtering for the order list.
 const orderSearchInput = document.querySelector('#orderSearchInput');
 
 if (orderSearchInput) {
@@ -368,7 +387,9 @@ if (orderSearchInput) {
     });
 }
 
+// Order detail modal logic and rating interactions.
 const orderInfoModal = document.querySelector('#orderInfoModal');
+const orderReviewModal = document.querySelector('#orderReviewModal');
 
 if (orderInfoModal) {
     const modalCurrency = new Intl.NumberFormat('en-PH', {
@@ -378,7 +399,92 @@ if (orderInfoModal) {
     });
     const ratingControl = orderInfoModal.querySelector('#orderRatingControl');
     const ratingSection = ratingControl.closest('.order-modal-rating');
+    const reviewButton = orderInfoModal.querySelector('#reviewOrderButton');
+    const reviewForm = orderReviewModal?.querySelector('#orderReviewForm');
+    const reviewComment = orderReviewModal?.querySelector('#orderReviewComment');
+    const reviewCount = orderReviewModal?.querySelector('#orderReviewCount');
+    const reviewContext = orderReviewModal?.querySelector('#orderReviewContext');
+    const reviewFeedback = orderReviewModal?.querySelector('#orderReviewFeedback');
     let selectedOrderId = null;
+    let returnToOrderDetails = false;
+    let pendingReview = false;
+
+    function updateReviewCount() {
+        reviewCount.textContent = `${reviewComment.value.length}/500`;
+    }
+
+    // Avoid stacking the review form on top of the order details modal.
+    function closeOrderModalForReview() {
+        let isHidingOrderModal = false;
+        const handleOrderModalHide = () => {
+            isHidingOrderModal = true;
+            returnToOrderDetails = true;
+            orderInfoModal.addEventListener('hidden.bs.modal', () => {
+                bootstrap.Modal.getOrCreateInstance(orderReviewModal).show();
+            }, { once: true });
+        };
+
+        orderInfoModal.addEventListener('hide.bs.modal', handleOrderModalHide, { once: true });
+        bootstrap.Modal.getOrCreateInstance(orderInfoModal).hide();
+        if (!isHidingOrderModal) {
+            orderInfoModal.removeEventListener('hide.bs.modal', handleOrderModalHide);
+            orderInfoModal.addEventListener('shown.bs.modal', closeOrderModalForReview, { once: true });
+        }
+    }
+
+    reviewButton.addEventListener('click', () => {
+        const order = orderById[selectedOrderId];
+        if (!order || order.statusClass !== 'completed' || pendingReview) {
+            return;
+        }
+
+        pendingReview = true;
+        reviewContext.textContent = `${order.name} - Order ${order.id}`;
+        reviewComment.value = orderReviews[order.id] || '';
+        reviewComment.setCustomValidity('');
+        reviewFeedback.hidden = true;
+        updateReviewCount();
+        closeOrderModalForReview();
+    });
+
+    reviewComment.addEventListener('input', () => {
+        reviewComment.setCustomValidity('');
+        reviewFeedback.hidden = true;
+        updateReviewCount();
+    });
+
+    reviewForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+
+        const order = orderById[selectedOrderId];
+        const review = reviewComment.value.trim();
+        reviewComment.setCustomValidity(review ? '' : 'Enter a comment before saving your review.');
+        if (!order || order.statusClass !== 'completed' || !reviewForm.reportValidity()) {
+            return;
+        }
+
+        const updatedReviews = { ...orderReviews, [order.id]: review };
+        try {
+            localStorage.setItem(orderReviewsStorageKey, JSON.stringify(updatedReviews));
+        } catch (error) {
+            console.error('Unable to save the order review in this browser.', error);
+            reviewFeedback.textContent = 'Unable to save your review. Please try again.';
+            reviewFeedback.hidden = false;
+            return;
+        }
+
+        orderReviews = updatedReviews;
+        reviewButton.textContent = 'Edit review';
+        bootstrap.Modal.getOrCreateInstance(orderReviewModal).hide();
+    });
+
+    orderReviewModal.addEventListener('hidden.bs.modal', () => {
+        if (returnToOrderDetails && selectedOrderId) {
+            returnToOrderDetails = false;
+            pendingReview = false;
+            bootstrap.Modal.getOrCreateInstance(orderInfoModal).show();
+        }
+    });
 
     function renderRatingStars(rating, previewRating = rating) {
         ratingControl.querySelectorAll('.order-rating-star').forEach((star) => {
@@ -433,7 +539,7 @@ if (orderInfoModal) {
     });
 
     orderInfoModal.addEventListener('show.bs.modal', (event) => {
-        const orderId = event.relatedTarget?.dataset.orderId;
+        const orderId = event.relatedTarget?.dataset.orderId || selectedOrderId;
         const order = orderById[orderId];
 
         if (!order) {
@@ -454,8 +560,6 @@ if (orderInfoModal) {
 
         const orderStatus = orderInfoModal.querySelector('#orderModalStatus');
         const itemList = orderInfoModal.querySelector('#orderModalItems');
-        const reviewLink = orderInfoModal.querySelector('#reviewOrderLink');
-
         const orderLogo = orderInfoModal.querySelector('#orderStoreLogo');
         orderLogo.src = order.logo;
         orderLogo.alt = `${order.name} logo`;
@@ -469,7 +573,8 @@ if (orderInfoModal) {
         orderInfoModal.querySelector('#orderTotal').textContent = modalCurrency.format(order.total);
         orderInfoModal.querySelector('#orderPaymentMethod').textContent = order.paymentMethod;
         orderInfoModal.querySelector('#orderPaymentStatus').textContent = order.paymentStatus;
-        reviewLink.hidden = order.statusClass !== 'completed';
+        reviewButton.hidden = order.statusClass !== 'completed';
+        reviewButton.textContent = orderReviews[order.id] ? 'Edit review' : 'Leave a review';
         itemList.replaceChildren();
 
         order.items.forEach((item) => {
@@ -498,4 +603,5 @@ if (orderInfoModal) {
             itemList.append(row);
         });
     });
+
 }
