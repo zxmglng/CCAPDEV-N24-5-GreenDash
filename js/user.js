@@ -689,25 +689,12 @@ if (orderInfoModal) {
 }
 
 
-// mock login :>
-window.onload = function () {
-    google.accounts.id.initialize({
-        client_id: "724785346741-nn8e5lr9aga88afsfa9bsa79s9ofj6k3.apps.googleusercontent.com",
-        callback: handleGoogleLogin,
-        hd: "dlsu.edu.ph"
-    });
-
-    google.accounts.id.renderButton(
-        document.getElementById("googleLoginButton"),
-        {
-            theme: "outline",
-            size: "large",
-            text: "continue_with",
-            width: 300
-        }
-    );
-};
-
+/*
+MOCK LOGIN / LOGIN WITH GOOGLE :>
+Sources: 
+https://support.google.com/cloud/answer/15549257?hl=en
+https://www.youtube.com/watch?v=tgO_ADSvY1I
+*/
 function handleGoogleLogin(response) {
     var token = response.credential;
 
@@ -726,6 +713,23 @@ function handleGoogleLogin(response) {
         alert("Only DLSU email accounts are allowed.");
     }
 }
+
+window.onload = function () {
+    google.accounts.id.initialize({
+        client_id: "724785346741-nn8e5lr9aga88afsfa9bsa79s9ofj6k3.apps.googleusercontent.com",
+        callback: handleGoogleLogin
+    });
+
+    google.accounts.id.renderButton(
+        document.getElementById("googleLoginButton"),
+        {
+            theme: "outline",
+            size: "large",
+            text: "continue_with",
+            width: 300
+        }
+    );
+};
 
 // Profile page - order frequency chart
 $(document).ready(function () {
