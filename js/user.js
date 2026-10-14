@@ -9,7 +9,7 @@ $(document).ready(function () {
                 labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
                 datasets: [{
                     label: 'Number of Orders',
-                    data: [2, 1, 3, 6, 3, 6, 5, 3, 7, 8, 4, 2],
+                    data: [0, 1, 4, 6, 3, 6, 7, 3, 10, 2, 12, 0],
                     backgroundColor: '#006937',
                     borderColor: '#006937',
                     borderWidth: 1
@@ -18,7 +18,14 @@ $(document).ready(function () {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                scales: {y: {beginAtZero: true}}}
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {stepSize: 2}
+
+                    }
+                }
+            }
         });
     }
 });
