@@ -1403,12 +1403,12 @@
     font-weight: bold;
     text-align: center;
     color: #111111;
-    margin-bottom: -2px;
+    margin-bottom: -1px;
 }
 
 .profile-email {
     font-size: 16px;
-    margin-bottom: 20px;
+    margin-bottom: 22px;
     text-align: center;
     color: #111111;
 }
@@ -1419,14 +1419,14 @@
     color: #006937;
     padding: 7px 16px;
     border-radius: 20px;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: bold;
 }
 
 .profile-divider {
     border: none;
     border-top: 1px solid #999999;
-    margin: 20px 0;
+    margin: 10px 0;
 }
 
 .profile-information h3 {
@@ -1434,7 +1434,12 @@
     font-size: 28px;
     font-weight: bold;
     color: #006937;
+    margin-top: 18px;
     margin-bottom: 18px;
+}
+
+.profile-information .col-md-6 {
+    margin-bottom: 10px;
 }
 
 .profile-label {
@@ -1460,7 +1465,7 @@
     display: flex;
     justify-content: flex-end;
     gap: 12px;
-    margin-top: 50px;
+    margin-top: 70px;
 }
 
 .edit-profile-btn {
