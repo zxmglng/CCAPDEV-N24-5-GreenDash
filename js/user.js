@@ -1,3 +1,28 @@
+// Profile page - order frequency chart
+$(document).ready(function () {
+    var chartCanvas = $('#orderFrequencyChart');
+    if (chartCanvas.length) {
+        var ctx = chartCanvas[0].getContext('2d');
+        var orderFrequencyChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'Number of Orders',
+                    data: [2, 1, 3, 6, 3, 6, 5, 3, 7, 8, 4, 2],
+                    backgroundColor: '#006937',
+                    borderColor: '#006937',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {y: {beginAtZero: true}}}
+        });
+    }
+});
+
 // stall-info filter button
 if (window.jQuery) {
     window.jQuery('#filterButton').click(function () {
