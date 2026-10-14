@@ -1,0 +1,30 @@
+/* vendors-profile.css - pages/vendor/profile.html */
+
+.account-details {
+    margin: 0;
+}
+
+.account-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+    margin-bottom: 26px;
+    font-size: clamp(1.05rem, 2.4vw, 1.4rem);
+}
+
+.account-row dt {
+    font-weight: 800;
+}
+
+.account-row dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 575.98px) {
+    .account-row {
+        flex-direction: column;
+        gap: 2px;
+        margin-bottom: 18px;
+    }
+}

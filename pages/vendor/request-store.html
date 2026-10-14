@@ -1,0 +1,250 @@
+<!-- Request Store -->
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>GreenDash - Request a New Store</title>
+
+        <link rel="stylesheet" href="../../bootstrap/css/bootstrap-5.3.3.min.css">
+        <link rel="stylesheet" href="../../bootstrap-icons/bootstrap-icons.css">
+        <link rel="stylesheet" href="../../style/centralized.css">
+        <link rel="stylesheet" href="../../style/vendors-common.css">
+        <link rel="stylesheet" href="../../style/vendors-request-store.css">
+        <link rel="stylesheet" href="../../style/vendors-modal.css">
+
+        <!-- website icon -->
+        <link rel="icon" type="image/png" href="../../assets/main/GreenDash_CIRCLE.png">
+    </head>
+    <body class="vendor-page">
+        <!-- INCLUDE EVERYTHING FOR THE MAIN HEADER FOR ALL PAGES FROM HERE-->
+        <header>
+            <div class="main-header">
+                <img id="logo" src="../../assets/main/GreenDash_LOGO.png" alt="GreenDash Logo">
+                <div class="location">
+                    <span>Your Location:</span>
+                    <strong>Gokongwei</strong>
+                </div>
+                <button class="icon-button" id="eclipse" aria-label="Toggle dark mode">
+                    <i data-lucide="eclipse"></i>
+                </button>
+            </div>
+
+            <!-- VENDOR NAVIGATION LINKS -->
+            <nav>
+                <div class="nav-links">
+                    <a href="../../pages/vendor/profile.html" class="active" aria-current="page">Profile</a>
+                    <a href="../../pages/vendor/orders.html">Order Requests</a>
+                    <a href="../../pages/vendor/transactions.html">Transaction History</a>
+                </div>
+            </nav>
+        </header>
+        <!-- TO HERE!-->
+
+        <div class="vendor-layout">
+            <!-- LEFT SIDEBAR -->
+            <aside class="vendor-sidebar" aria-label="Profile sections">
+                <h2>Profile</h2>
+                <p class="vendor-greeting">Hello, Syx!</p>
+
+                <ul class="sidebar-links">
+                    <li><a href="../../pages/vendor/profile.html">Your account</a></li>
+                    <li><a href="../../pages/vendor/manage-store.html">Manage store</a></li>
+                    <li><a href="../../pages/vendor/request-store.html" class="active" aria-current="page">Request to add a new store</a></li>
+                </ul>
+            </aside>
+
+            <main class="vendor-content">
+                <h1 class="page-title">Request to add a new store</h1>
+
+                <form class="store-panel" action="request-store.html#request-sent" method="get">
+                    <h2 class="form-section-title">Store details</h2>
+
+                    <div class="request-grid">
+                        <!-- LEFT COLUMN -->
+                        <div class="request-col">
+                            <div class="request-field">
+                                <label for="store-name" class="form-label">Store name</label>
+                                <input type="text" class="form-control" id="store-name" name="storeName" maxlength="40" required autocomplete="off">
+                            </div>
+
+                            <div class="request-field">
+                                <label for="store-type" class="form-label">Store type</label>
+                                <select class="form-select" id="store-type" name="storeType" required>
+                                    <option value="" selected disabled>Select a type</option>
+                                    <option value="Snacks">Snacks</option>
+                                    <option value="Food stall">Food stall</option>
+                                    <option value="Restaurant">Restaurant</option>
+                                </select>
+                            </div>
+
+                            <fieldset class="request-field">
+                                <legend class="form-label">Operating days</legend>
+                                <div class="day-picker">
+                                    <input class="day-input" type="checkbox" id="day-mon" name="days" value="Mon">
+                                    <label class="day-pill" for="day-mon">Mon</label>
+                                    <input class="day-input" type="checkbox" id="day-tue" name="days" value="Tue">
+                                    <label class="day-pill" for="day-tue">Tue</label>
+                                    <input class="day-input" type="checkbox" id="day-wed" name="days" value="Wed">
+                                    <label class="day-pill" for="day-wed">Wed</label>
+                                    <input class="day-input" type="checkbox" id="day-thu" name="days" value="Thu">
+                                    <label class="day-pill" for="day-thu">Thu</label>
+                                    <input class="day-input" type="checkbox" id="day-fri" name="days" value="Fri">
+                                    <label class="day-pill" for="day-fri">Fri</label>
+                                    <input class="day-input" type="checkbox" id="day-sat" name="days" value="Sat">
+                                    <label class="day-pill" for="day-sat">Sat</label>
+                                    <input class="day-input" type="checkbox" id="day-sun" name="days" value="Sun">
+                                    <label class="day-pill" for="day-sun">Sun</label>
+                                </div>
+                                <p class="form-hint">Tap the days the store is open each week.</p>
+                            </fieldset>
+                        </div>
+
+                        <!-- RIGHT COLUMN -->
+                        <div class="request-col">
+                            <div class="request-field">
+                                <label for="store-logo" class="form-label">Store logo</label>
+                                <input type="file" class="form-control" id="store-logo" name="storeLogo" accept="image/png" required>
+                                <p class="form-hint">PNG only.</p>
+                            </div>
+
+                            <div class="request-field">
+                                <label for="store-location" class="form-label">Location</label>
+                                <select class="form-select" id="store-location" name="location" required>
+                                    <option value="" selected disabled>Select a location</option>
+                                    <option value="Agno">Agno</option>
+                                    <option value="Bloemen">Bloemen</option>
+                                    <option value="Green Court">Green Court</option>
+                                    <option value="Gokongwei Hall">Gokongwei Hall</option>
+                                    <option value="La Salle Hall">La Salle Hall</option>
+                                </select>
+                            </div>
+
+                            <fieldset class="request-field">
+                                <legend class="form-label">Operating hours</legend>
+                                <div class="hours-pair">
+                                    <div>
+                                        <label for="opens-at" class="form-hint-label">Opens</label>
+                                        <select class="form-select" id="opens-at" name="opensAt" required>
+                                        <option value="" selected disabled>Select time</option>
+                                        <option value="05:00">5:00 AM</option>
+                                        <option value="05:30">5:30 AM</option>
+                                        <option value="06:00">6:00 AM</option>
+                                        <option value="06:30">6:30 AM</option>
+                                        <option value="07:00">7:00 AM</option>
+                                        <option value="07:30">7:30 AM</option>
+                                        <option value="08:00">8:00 AM</option>
+                                        <option value="08:30">8:30 AM</option>
+                                        <option value="09:00">9:00 AM</option>
+                                        <option value="09:30">9:30 AM</option>
+                                        <option value="10:00">10:00 AM</option>
+                                        <option value="10:30">10:30 AM</option>
+                                        <option value="11:00">11:00 AM</option>
+                                        <option value="11:30">11:30 AM</option>
+                                        <option value="12:00">12:00 PM</option>
+                                        <option value="12:30">12:30 PM</option>
+                                        <option value="13:00">1:00 PM</option>
+                                        <option value="13:30">1:30 PM</option>
+                                        <option value="14:00">2:00 PM</option>
+                                        <option value="14:30">2:30 PM</option>
+                                        <option value="15:00">3:00 PM</option>
+                                        <option value="15:30">3:30 PM</option>
+                                        <option value="16:00">4:00 PM</option>
+                                        <option value="16:30">4:30 PM</option>
+                                        <option value="17:00">5:00 PM</option>
+                                        <option value="17:30">5:30 PM</option>
+                                        <option value="18:00">6:00 PM</option>
+                                        <option value="18:30">6:30 PM</option>
+                                        <option value="19:00">7:00 PM</option>
+                                        <option value="19:30">7:30 PM</option>
+                                        <option value="20:00">8:00 PM</option>
+                                        <option value="20:30">8:30 PM</option>
+                                        <option value="21:00">9:00 PM</option>
+                                        <option value="21:30">9:30 PM</option>
+                                        <option value="22:00">10:00 PM</option>
+                                        <option value="22:30">10:30 PM</option>
+                                        <option value="23:00">11:00 PM</option>
+                                        <option value="23:30">11:30 PM</option>
+                                        <option value="00:00">12:00 AM</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label for="closes-at" class="form-hint-label">Closes</label>
+                                        <select class="form-select" id="closes-at" name="closesAt" required>
+                                        <option value="" selected disabled>Select time</option>
+                                        <option value="05:00">5:00 AM</option>
+                                        <option value="05:30">5:30 AM</option>
+                                        <option value="06:00">6:00 AM</option>
+                                        <option value="06:30">6:30 AM</option>
+                                        <option value="07:00">7:00 AM</option>
+                                        <option value="07:30">7:30 AM</option>
+                                        <option value="08:00">8:00 AM</option>
+                                        <option value="08:30">8:30 AM</option>
+                                        <option value="09:00">9:00 AM</option>
+                                        <option value="09:30">9:30 AM</option>
+                                        <option value="10:00">10:00 AM</option>
+                                        <option value="10:30">10:30 AM</option>
+                                        <option value="11:00">11:00 AM</option>
+                                        <option value="11:30">11:30 AM</option>
+                                        <option value="12:00">12:00 PM</option>
+                                        <option value="12:30">12:30 PM</option>
+                                        <option value="13:00">1:00 PM</option>
+                                        <option value="13:30">1:30 PM</option>
+                                        <option value="14:00">2:00 PM</option>
+                                        <option value="14:30">2:30 PM</option>
+                                        <option value="15:00">3:00 PM</option>
+                                        <option value="15:30">3:30 PM</option>
+                                        <option value="16:00">4:00 PM</option>
+                                        <option value="16:30">4:30 PM</option>
+                                        <option value="17:00">5:00 PM</option>
+                                        <option value="17:30">5:30 PM</option>
+                                        <option value="18:00">6:00 PM</option>
+                                        <option value="18:30">6:30 PM</option>
+                                        <option value="19:00">7:00 PM</option>
+                                        <option value="19:30">7:30 PM</option>
+                                        <option value="20:00">8:00 PM</option>
+                                        <option value="20:30">8:30 PM</option>
+                                        <option value="21:00">9:00 PM</option>
+                                        <option value="21:30">9:30 PM</option>
+                                        <option value="22:00">10:00 PM</option>
+                                        <option value="22:30">10:30 PM</option>
+                                        <option value="23:00">11:00 PM</option>
+                                        <option value="23:30">11:30 PM</option>
+                                        <option value="00:00">12:00 AM</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+
+                    <div class="request-actions">
+                        <button type="reset" class="vendor-btn secondary">Clear form</button>
+                        <button type="submit" class="vendor-btn primary">Submit request</button>
+                    </div>
+                </form>
+            </main>
+        </div>
+
+        <!-- POP-UP: REQUEST SUBMITTED -->
+        <div class="vmodal" id="request-sent" role="dialog" aria-modal="true" aria-labelledby="request-sent-title">
+            <a class="vmodal-backdrop" href="#_" aria-label="Close"></a>
+            <div class="vmodal-box">
+                <div class="vmodal-head">
+                    <h2 class="vmodal-title" id="request-sent-title">Request submitted</h2>
+                    <a class="vmodal-close" href="#_" aria-label="Close"><i class="bi bi-x-lg" aria-hidden="true"></i></a>
+                </div>
+                <div class="vmodal-body">
+                    <p class="mb-0">Your request to add a new store was sent to the admin for review.</p>
+                </div>
+                <div class="vmodal-foot">
+                    <a class="vendor-btn secondary" href="request-store.html">Make another request</a>
+                    <a class="vendor-btn primary" href="manage-store.html">Back to my stores</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- shared team script: only needed to draw the dark-mode icon in the header -->
+        <script type="module" src="../../js/centralized.js"></script>
+    </body>
+</html>
