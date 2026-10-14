@@ -1,20 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>GreenDash - Starbucks</title>
+        <title>GreenDash - Stall</title>
         <link rel="stylesheet" href="../../bootstrap/css/bootstrap.min.css">
         <link rel="stylesheet" href="../../style/centralized.css">
         <link rel="stylesheet" href="../../style/user.css">
+        <link rel="stylesheet" href="../../style/user-stalls.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-        
-        <!-- website icon -->
         <link rel="icon" type="image/png" href="../../assets/main/GreenDash_CIRCLE.png">
-
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     </head>
     <body>
-        <!-- INCLUDE EVERYTHING FOR THE MAIN HEADER FOR ALL PAGES FROM HERE-->
         <header>
             <div class="main-header">
                 <img id="logo" src="../../assets/main/GreenDash_LOGO.png" alt="GreenDash Logo">
@@ -26,201 +22,130 @@
                     <i data-lucide="eclipse"></i>
                 </button>
             </div>
-
-            <!-- CHANGE THE NAVIGATION LINKS IF NEEDED ACCDG TO USER ROLE HERE-->
             <nav>
                 <div class="nav-links">
                     <a href="../../pages/user/profile.html">Profile</a>
                     <a href="../../pages/user/stalls-directory.html">Stalls directory</a>
                     <a href="../../pages/user/orders.html">Orders</a>
                 </div>
-
                 <button class="icon-button" id="cart" aria-label="View cart">
                     <i data-lucide="shopping-cart"></i>
                 </button>
             </nav>
         </header>
-        <!-- TO HERE!-->
 
-        <!-- STALL 1- Starbucks -->
         <main class="stall-info-page">
-            <section class="stall-header">
-                <img class="stall-banner" src="../../assets/stalls/starbucks-banner.png" alt="Banner for Starbucks">
-                <img class="stall-info-logo" src="../../assets/stalls/starbucks.png" alt="Logo of Starbucks">
+            <div class="stall-content">
+                <div class="stall-main-content">
+                    <section class="stall-header">
+                        <img class="stall-banner" id="stallBanner" alt="">
+                        <img class="stall-info-logo" id="stallLogo" alt="">
+                        <div class="stall-header-info">
+                            <h1 id="stallName"></h1>
+                            <p id="stallLocation"></p>
+                            <p id="stallHours"></p>
+                        </div>
+                    </section>
 
-                <!-- STALL MAIN INFORMATION -->
-                 <div class="stall-header-info">
-                    <h1>Starbucks</h1>
-                    <p>Green Court (Fidel A. Reyes Street)</p>
-                    <p>9:00 AM - 11:00 PM</p>
-                 </div>
-            </section>
-
-            
-            <section class="stall-menu-section">
-                <!-- SEARCH BAR -->
-                <div class="menu-search">
-                    <i data-lucide="search"></i>
-                    <input type="text" id="menuSearch" placeholder="Search Starbucks">
-                    <button type="button" id="filterButton" class="filterButton">
-                        <i data-lucide="sliders-horizontal"></i>
-                        Filters
-                    </button>
+                    <section class="stall-menu-section">
+                        <div class="menu-search">
+                            <i data-lucide="search"></i>
+                            <input type="text" id="menuSearch" placeholder="Search menu">
+                            <button type="button" id="filterButton" class="filterButton">
+                                <i data-lucide="sliders-horizontal"></i>
+                                Filters
+                            </button>
+                        </div>
+                        <div class="filter-panel" id="filterPanel">
+                            <h3>Filter Menu</h3>
+                            <div class="filter-section">
+                                <label for="priceRange">Maximum Price: &#8369; <span id="priceValue">1000</span></label>
+                                <input type="range" id="priceRange" min="0" max="1000" value="1000" step="50">
+                            </div>
+                            <button type="button" id="resetFilters" class="reset-filter-button">Reset Filters</button>
+                        </div>
+                        <div class="menu-categories">
+                            <button class="category-button-active" data-category="all">Popular</button>
+                            <button class="category-button" data-category="drinks">Featured Drinks</button>
+                            <button class="category-button" data-category="food">Featured Food</button>
+                            <button class="category-button" data-category="refreshers">Refreshers</button>
+                            <button class="category-button" data-category="coffee">Brewed Coffee</button>
+                        </div>
+                        <div class="menu-items-wrapper">
+                            <div class="container-fluid">
+                                <div class="row" id="menuItems"></div>
+                            </div>
+                        </div>
+                    </section>
                 </div>
-                <!-- FILTER PANEL -->
-                <div class="filter-panel" id="filterPanel">
-                    <h3>Filter Menu</h3>
-                    <div class="filter-section">
-                        <label for="priceRange">Maximum Price: &#8369; <span id="priceValue">1000</span></label>
-                        <input type="range" id="priceRange" min="0" max="1000" value="1000" step="50">
-                    </div>
-                    <div class="filter-section">
-                        <p>Category</p>
-                            <input type="checkbox" id="drinks" class="category-filter" value="drinks">
-                            <label for="drinks">Drinks</label>
-                            <input type="checkbox" id="food" class="category-filter" value="food">
-                            <label for="food">Food</label>
-                            <input type="checkbox" id="snacks" class="category-filter" value="snacks">
-                            <label for="snacks">Snacks</label>
-                            <input type="checkbox" id="desserts" class="category-filter" value="desserts">
-                            <label for="desserts">Desserts</label>
-                            <input type="checkbox" id="availableOnly">
-                            <label for="availableOnly">Available Items Only</label>
-                    </div>
-                    <!-- RESET FILTER BUTTON -->
-                    <button type="button" id="resetFilters" class="reset-filter-button">
-                        Reset Filters
-                    </button>
-                </div>
-
-                <!-- CATEGORY TABS -->
-                <div class="menu-categories">
-                    <button class="category-button-active" data-category="all">Popular</button>
-                    <button class="category-button" data-category="drinks">Featured Drinks</button>
-                    <button class="category-button" data-category="food">Featured Food</button>
-                    <button class="category-button" data-category="refreshers">Starbucks Refreshers</button>
-                    <button class="category-button" data-category="coffee">Brewed Coffee</button>
-                </div>
-
-                <!-- INSERT MENU ITEMS HERE -->
-                <div class="menu-items-wrapper">
-                    <div class="container-fluid">
-                        <div class="row">
-
-                            <!-- ROW 1 -->
-                            <div class="col-12 col-sm-6 col-md-4 col-lg-3 menu-column">
-                                <div class="menu-item">
-                                    <div class="menu-image-container">
-                                        <img src="../../assets/starbucksMenu/javachip.png" alt="Java Chip Frappuccino">
-                                        <button type="button" class="add-item-button">
-                                            +
-                                        </button>
-                                    </div>
-                                    <h3>Java Chip Frappuccino</h3>
-                                    <p>from &#8369; 210</p>
-                                </div>
+                <aside class="order-summary" aria-label="Your order">
+                    <div class="order-summary-header">
+                        <h2>Your order</h2>
+                        <div class="order-header-actions">
+                            <div class="mobile-pickup-time">
+                                <label for="pickupTimeMobile">Pick-up time</label>
+                                <select id="pickupTimeMobile">
+                                    <option value="">Select time</option>
+                                    <option>10:00 AM</option>
+                                    <option>10:30 AM</option>
+                                    <option>11:00 AM</option>
+                                </select>
                             </div>
-
-                            <div class="col-12 col-sm-6 col-md-4 col-lg-3 menu-column">
-                                <div class="menu-item">
-                                    <div class="menu-image-container">
-                                        <img src="../../assets/starbucksMenu/caramel.png" alt="Caramel Macchiato">
-                                        <button type="button" class="add-item-button">
-                                            +
-                                        </button>
-                                    </div>
-                                    <h3>Caramel Macchiato</h3>
-                                    <p>from &#8369; 210</p>
-                                </div>
-                            </div>
-
-                            <div class="col-12 col-sm-6 col-md-4 col-lg-3 menu-column">
-                                <div class="menu-item">
-                                    <div class="menu-image-container">
-                                        <img src="../../assets/starbucksMenu/matchalatte.png" alt="Pure Matcha Latte">
-                                        <button type="button" class="add-item-button">
-                                            +
-                                        </button>
-                                    </div>
-                                    <h3>Pure Matcha Latte</h3>
-                                    <p>from &#8369; 190</p>
-                                </div>
-                            </div>
-
-                            <div class="col-12 col-sm-6 col-md-4 col-lg-3 menu-column">
-                                <div class="menu-item">
-                                    <div class="menu-image-container">
-                                        <img src="../../assets/starbucksMenu/americano.png" alt="Caffe Americano">
-                                        <button type="button" class="add-item-button">
-                                            +
-                                        </button>
-                                    </div>
-                                    <h3>Caffe Americano</h3>
-                                    <p>from &#8369; 180</p>
-                                </div>
-                            </div>
-
-                            <!-- ROW 2 -->
-                            <div class="col-12 col-sm-6 col-md-4 col-lg-3 menu-column">
-                                <div class="menu-item">
-                                    <div class="menu-image-container">
-                                        <img src="../../assets/starbucksMenu/javachip.png" alt="Java Chip Frappuccino">
-                                        <button type="button" class="add-item-button">
-                                            +
-                                        </button>
-                                    </div>
-                                    <h3>Java Chip Frappuccino</h3>
-                                    <p>from &#8369; 210</p>
-                                </div>
-                            </div>
-
-                            <div class="col-12 col-sm-6 col-md-4 col-lg-3 menu-column">
-                                <div class="menu-item">
-                                    <div class="menu-image-container">
-                                        <img src="../../assets/starbucksMenu/caramel.png" alt="Caramel Macchiato">
-                                        <button type="button" class="add-item-button">
-                                            +
-                                        </button>
-                                    </div>
-                                    <h3>Caramel Macchiato</h3>
-                                    <p>from &#8369; 210</p>
-                                </div>
-                            </div>
-
-                            <div class="col-12 col-sm-6 col-md-4 col-lg-3 menu-column">
-                                <div class="menu-item">
-                                    <div class="menu-image-container">
-                                        <img src="../../assets/starbucksMenu/matchalatte.png" alt="Pure Matcha Latte">
-                                        <button type="button" class="add-item-button">
-                                            +
-                                        </button>
-                                    </div>
-                                    <h3>Pure Matcha Latte</h3>
-                                    <p>from &#8369; 190</p>
-                                </div>
-                            </div>
-
-                            <div class="col-12 col-sm-6 col-md-4 col-lg-3 menu-column">
-                                <div class="menu-item">
-                                    <div class="menu-image-container">
-                                        <img src="../../assets/starbucksMenu/americano.png" alt="Caffe Americano">
-                                        <button type="button" class="add-item-button">
-                                            +
-                                        </button>
-                                    </div>
-                                    <h3>Caffe Americano</h3>
-                                    <p>from &#8369; 180</p>
-                                </div>
-                            </div>
-
+                            <button type="button" class="close-order-button" id="closeOrderButton" aria-label="Close your order">&times;</button>
                         </div>
                     </div>
-                </div>    
-
-            </section>
+                    <div class="order-items" id="orderItems">
+                        <p class="empty-order-message">Your cart is empty!</p>
+                    </div>
+                    <div class="order-summary-footer">
+                        <div class="pickup-time-control">
+                            <label for="pickupTime">Pick-up time</label>
+                            <select id="pickupTime">
+                                <option value="">Select time</option>
+                                <option>10:00 AM</option>
+                                <option>10:30 AM</option>
+                                <option>11:00 AM</option>
+                            </select>
+                        </div>
+                        <button type="button" class="checkout-button" id="checkoutButton">Checkout - &#8369; 0</button>
+                    </div>
+                </aside>
+            </div>
         </main>
-        <script src="../../js/jquery-4.0.0.min.js"></script>
-        <script src="../../js/user.js"></script>
+        <div class="stall-modal-backdrop" id="itemModal" hidden>
+            <section class="item-modal" role="dialog" aria-modal="true" aria-labelledby="modalItemName">
+                <button type="button" class="modal-close-button" id="modalCloseButton" aria-label="Close item customization">&times;</button>
+                <div class="modal-item-overview">
+                    <img id="modalItemImage" alt="">
+                    <div>
+                        <h2 id="modalItemName"></h2>
+                        <p id="modalItemDescription">Blend of delicious ingredients made fresh for you.</p>
+                        <strong>From &#8369; <span id="modalBasePrice"></span></strong>
+                    </div>
+                </div>
+                <fieldset class="customization-group">
+                    <legend>Choice of milk</legend>
+                    <label><input type="radio" name="milk" value="Whole" data-price="0"> Whole <span>Free</span></label>
+                    <label><input type="radio" name="milk" value="Non-fat" data-price="0" checked> Non-fat <span>Free</span></label>
+                    <label><input type="radio" name="milk" value="Oatmilk" data-price="50"> Oatmilk <span>+&#8369; 50</span></label>
+                </fieldset>
+                <fieldset class="customization-group">
+                    <legend>Choice of size</legend>
+                    <label><input type="radio" name="size" value="Tall" data-price="10"> Tall <span>+&#8369; 10</span></label>
+                    <label><input type="radio" name="size" value="Grande" data-price="20" checked> Grande <span>+&#8369; 20</span></label>
+                    <label><input type="radio" name="size" value="Venti" data-price="45"> Venti <span>+&#8369; 45</span></label>
+                </fieldset>
+                <div class="modal-actions">
+                    <div class="quantity-control">
+                        <button type="button" id="decreaseQuantity" aria-label="Decrease quantity">−</button>
+                        <output id="itemQuantity">1</output>
+                        <button type="button" id="increaseQuantity" aria-label="Increase quantity">+</button>
+                    </div>
+                    <button type="button" class="add-to-cart-button" id="addToCartButton">Add to cart - &#8369; 0</button>
+                </div>
+            </section>
+        </div>
+        <script src="../../js/user-stalls.js"></script>
         <script type="module" src="../../js/centralized.js"></script>
     </body>
 </html>
