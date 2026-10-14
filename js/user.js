@@ -1,35 +1,3 @@
-// Profile page - order frequency chart
-$(document).ready(function () {
-    var chartCanvas = $('#orderFrequencyChart');
-    if (chartCanvas.length) {
-        var ctx = chartCanvas[0].getContext('2d');
-        var orderFrequencyChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                datasets: [{
-                    label: 'Number of Orders',
-                    data: [0, 1, 4, 6, 3, 6, 7, 3, 10, 2, 12, 0],
-                    backgroundColor: '#006937',
-                    borderColor: '#006937',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {stepSize: 2}
-
-                    }
-                }
-            }
-        });
-    }
-});
-
 // stall-info filter button
 if (window.jQuery) {
     window.jQuery('#filterButton').click(function () {
@@ -719,3 +687,34 @@ if (orderInfoModal) {
     });
 
 }
+
+// Profile page - order frequency chart
+$(document).ready(function () {
+    var chartCanvas = $('#orderFrequencyChart');
+    if (chartCanvas.length) {
+        var ctx = chartCanvas[0].getContext('2d');
+        var orderFrequencyChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'Number of Orders',
+                    data: [0, 1, 4, 6, 3, 6, 7, 3, 10, 2, 12, 0],
+                    backgroundColor: '#006937',
+                    borderColor: '#006937',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {stepSize: 2}
+                    }
+                }
+            }
+        });
+    }
+});
