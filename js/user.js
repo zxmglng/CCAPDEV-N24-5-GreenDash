@@ -688,6 +688,45 @@ if (orderInfoModal) {
 
 }
 
+
+// mock login :>
+window.onload = function () {
+    google.accounts.id.initialize({
+        client_id: "724785346741-nn8e5lr9aga88afsfa9bsa79s9ofj6k3.apps.googleusercontent.com",
+        callback: handleGoogleLogin,
+        hd: "dlsu.edu.ph"
+    });
+
+    google.accounts.id.renderButton(
+        document.getElementById("googleLoginButton"),
+        {
+            theme: "outline",
+            size: "large",
+            text: "continue_with",
+            width: 300
+        }
+    );
+};
+
+function handleGoogleLogin(response) {
+    var token = response.credential;
+
+    var payload = JSON.parse(
+        atob(token.split('.')[1])
+    );
+
+    var email = payload.email;
+
+    console.log(email);
+
+    if (email.endsWith("@dlsu.edu.ph")) {
+        window.location.href = "stalls-directory.html";
+    }
+    else {
+        alert("Only DLSU email accounts are allowed.");
+    }
+}
+
 // Profile page - order frequency chart
 $(document).ready(function () {
     var chartCanvas = $('#orderFrequencyChart');
