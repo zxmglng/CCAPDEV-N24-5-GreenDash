@@ -1,0 +1,112 @@
+/* vendors-request-store.css - pages/vendor/request-store.html (the pop-up is in vendors-modal.css) */
+
+.form-section-title {
+    font-family: var(--v-font-heading);
+    font-weight: 800;
+    font-size: clamp(1.4rem, 3vw, 1.9rem);
+    margin: 0 0 18px;
+}
+
+.request-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 clamp(20px, 4vw, 48px);
+}
+
+.request-col {
+    min-width: 0;
+}
+
+.request-field {
+    margin: 0 0 20px;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+}
+
+.request-field legend.form-label {
+    float: none;
+    font-size: 1rem;
+    width: auto;
+}
+
+.day-picker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.day-input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+}
+
+.day-pill {
+    display: inline-grid;
+    place-items: center;
+    min-width: 52px;
+    min-height: var(--v-tap);
+    padding: 0 14px;
+    border: 1px solid var(--v-border);
+    border-radius: 999px;
+    background: #ffffff;
+    font-weight: 700;
+    cursor: pointer;
+    user-select: none;
+}
+
+.day-input:checked + .day-pill {
+    background: var(--v-green-btn);
+    border-color: var(--v-green-btn);
+    color: #ffffff;
+}
+
+.day-input:focus-visible + .day-pill {
+    outline: 3px solid var(--v-green);
+    outline-offset: 2px;
+}
+
+.form-hint-label {
+    display: block;
+    color: var(--v-text-muted);
+    font-size: .85rem;
+    margin-bottom: 4px;
+}
+
+.hours-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.request-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 8px;
+    padding-top: 18px;
+    border-top: 1px solid #dcdcdc;
+}
+
+@media (max-width: 767.98px) {
+    .request-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 479.98px) {
+    .hours-pair {
+        grid-template-columns: 1fr;
+    }
+
+    .request-actions {
+        flex-direction: column-reverse;
+    }
+
+    .request-actions .vendor-btn {
+        width: 100%;
+    }
+}
