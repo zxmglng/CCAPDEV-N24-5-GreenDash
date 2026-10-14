@@ -3,6 +3,83 @@
     Please make sure to implement the styles in their respective .css file 
 */
 
+/* ------------------ USER LOGIN PAGE -------------------- */
+.login-page {
+    min-height: 100vh;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #ffffff;
+}
+
+.login-container {
+    width: 100%;
+    max-width: 520px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px;
+}
+
+.login-logo {
+    max-width: 600px;
+    margin-bottom: 30px;
+}
+
+.vendor-login-btn {
+    width: 310px;
+    height: 64px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Inter', sans-serif;
+    font-size: 18px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.google-login-btn {
+    width: 310px;
+    height: 64px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    font-family: 'Inter', sans-serif;
+    font-size: 18px;
+    text-decoration: none;
+    position: relative;
+    border: none;
+    background-color: #efefef;
+    color: #111111;
+    margin-bottom: 15px;
+    padding-left: 80px;
+}
+
+.google-logo {
+    width: 48px;
+    height: 48px;
+    position: absolute;
+    left: 24px;
+}
+
+.vendor-login-btn {
+    background-color: #006937;
+    color: #ffffff;
+    border: none;
+}
+
+.vendor-login-btn:hover {
+    text-decoration: none;
+    background-color: #013e21;
+    color: #ffffff;
+}
+
+.google-login-btn:hover {
+    text-decoration: none;
+    background-color: #e4e4e4;
+}
 
 /* ------------------ STALL-DIRECTORY PAGE ------------------- */
 
