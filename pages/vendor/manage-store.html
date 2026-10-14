@@ -1,0 +1,198 @@
+<!-- Vendor Manage Menu (individual store) -->
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>GreenDash - Manage Store</title>
+
+        <link rel="stylesheet" href="../../bootstrap/css/bootstrap-5.3.3.min.css">
+        <link rel="stylesheet" href="../../bootstrap-icons/bootstrap-icons.css">
+        <link rel="stylesheet" href="../../style/centralized.css">
+        <link rel="stylesheet" href="../../style/vendors-common.css">
+        <link rel="stylesheet" href="../../style/vendors-manage-store.css">
+        <link rel="stylesheet" href="../../style/vendors-modal.css">
+
+        <!-- website icon -->
+        <link rel="icon" type="image/png" href="../../assets/main/GreenDash_CIRCLE.png">
+    </head>
+    
+    <body class="vendor-page" data-page="manage-store">
+        <!-- INCLUDE EVERYTHING FOR THE MAIN HEADER FOR ALL PAGES FROM HERE-->
+        <header>
+            <div class="main-header">
+                <img id="logo" src="../../assets/main/GreenDash_LOGO.png" alt="GreenDash Logo">
+                <div class="location">
+                    <span>Your Location:</span>
+                    <strong>Gokongwei</strong>
+                </div>
+                <button class="icon-button" id="eclipse" aria-label="Toggle dark mode">
+                    <i data-lucide="eclipse"></i>
+                </button>
+            </div>
+
+            <!-- VENDOR NAVIGATION LINKS -->
+            <nav>
+                <div class="nav-links">
+                    <a href="../../pages/vendor/profile.html" class="active" aria-current="page">Profile</a>
+                    <a href="../../pages/vendor/orders.html">Order Requests</a>
+                    <a href="../../pages/vendor/transaction-history.html">Transaction History</a>
+                </div>
+            </nav>
+        </header>
+        <!-- TO HERE!-->
+
+        <div class="vendor-layout">
+            <!-- LEFT SIDEBAR (same on all 3 Profile sections) -->
+            <aside class="vendor-sidebar" aria-label="Profile sections">
+                <h2>Profile</h2>
+                <p class="vendor-greeting">Hello, Jonny!</p>
+
+                <ul class="sidebar-links">
+                    <li><a href="../../pages/vendor/profile.html">Your account</a></li>
+                    <li><a href="../../pages/vendor/manage-menu.html" class="active" aria-current="page">Manage store</a></li>
+                    <li><a href="../../pages/vendor/request-store.html">Request to add a new store</a></li>
+                </ul>
+            </aside>
+
+            <main class="vendor-content">
+                <h1 class="page-title">Manage store</h1>
+
+                <a class="back-link" href="../../pages/vendor/manage-menu.html">
+                    <i class="bi bi-chevron-left" aria-hidden="true"></i> All stores
+                </a>
+
+                <div class="store-panel">
+                    <!-- STORE HEADER: filled in by vendor.js -->
+                    <div class="store-header">
+                        <img class="store-header-logo" id="storeLogo" src="" alt="">
+                        <div class="store-header-info">
+                            <h2 id="storeName"></h2>
+                            <p id="storeAddress"></p>
+                            <p class="store-hours" id="storeHours"></p>
+                            <div class="store-status-row">
+                                <span class="status open" id="storeStatus">OPEN</span>
+                                <button type="button" class="vendor-btn secondary small" id="toggleOpenBtn">Mark as closed</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="menu-columns">
+                        <!-- COLUMN 1: CATEGORIES -->
+                        <section class="menu-column" aria-labelledby="categoriesTitle">
+                            <div class="column-head">
+                                <h2 id="categoriesTitle">Menu</h2>
+                                <button type="button" class="sort-btn" id="categorySort" aria-label="Sort categories"></button>
+                            </div>
+
+                            <label class="search-field">
+                                <i class="bi bi-search" aria-hidden="true"></i>
+                                <span class="visually-hidden">Search categories</span>
+                                <input type="search" id="categorySearch" placeholder="Search categories" autocomplete="off">
+                            </label>
+
+                            <button type="button" class="list-row add-row" id="addCategoryBtn">
+                                <span>Add new category</span>
+                                <i class="bi bi-plus-lg" aria-hidden="true"></i>
+                            </button>
+
+                            <ul class="row-list" id="categoryList"></ul>
+                        </section>
+
+                        <!-- COLUMN 2: ITEMS IN THE SELECTED CATEGORY -->
+                        <section class="menu-column" aria-labelledby="itemsTitle">
+                            <div class="column-head">
+                                <h2 id="itemsTitle">Menu items</h2>
+                                <button type="button" class="sort-btn" id="itemSort" aria-label="Change how items are sorted"></button>
+                            </div>
+
+                            <label class="search-field">
+                                <i class="bi bi-search" aria-hidden="true"></i>
+                                <span class="visually-hidden">Search items</span>
+                                <input type="search" id="itemSearch" placeholder="Search items" autocomplete="off">
+                            </label>
+
+                            <button type="button" class="list-row add-row" id="addItemBtn">
+                                <span>Add new item</span>
+                                <i class="bi bi-plus-lg" aria-hidden="true"></i>
+                            </button>
+
+                            <p class="column-note" id="itemsNote" aria-live="polite"></p>
+
+                            <ul class="row-list" id="itemList"></ul>
+                        </section>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- POP-UPS (filled by vendor-storemgmt.js) -->
+
+        <!-- ADD / EDIT CATEGORY -->
+        <div class="vmodal" id="category-modal" role="dialog" aria-modal="true" aria-labelledby="categoryModalTitle">
+            <button type="button" class="vmodal-backdrop" data-close aria-label="Close"></button>
+            <form class="vmodal-box" id="categoryForm" novalidate>
+                <div class="vmodal-head">
+                    <h2 class="vmodal-title" id="categoryModalTitle">Add category</h2>
+                    <button type="button" class="vmodal-close" data-close aria-label="Close"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+                </div>
+                <div class="vmodal-body">
+                    <label for="categoryName" class="form-label">Category name</label>
+                    <input type="text" class="form-control" id="categoryName" maxlength="40" autocomplete="off">
+                    <p class="field-error" id="categoryError" role="alert"></p>
+                </div>
+                <div class="vmodal-foot">
+                    <button type="button" class="vendor-btn danger push-left" id="deleteCategoryBtn">Delete category</button>
+                    <button type="submit" class="vendor-btn primary">Save category</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- ADD / EDIT ITEM -->
+        <div class="vmodal" id="item-modal" role="dialog" aria-modal="true" aria-labelledby="itemModalTitle">
+            <button type="button" class="vmodal-backdrop" data-close aria-label="Close"></button>
+            <form class="vmodal-box" id="itemForm" novalidate>
+                <div class="vmodal-head">
+                    <h2 class="vmodal-title" id="itemModalTitle">Add item</h2>
+                    <button type="button" class="vmodal-close" data-close aria-label="Close"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+                </div>
+                <div class="vmodal-body">
+                    <div class="item-top">
+                        <div class="item-photo-wrap">
+                            <div class="item-photo" id="itemPhotoPreview"><i class="bi bi-image" aria-hidden="true"></i></div>
+                            <input type="file" id="itemPhotoInput" accept="image/*" class="visually-hidden" tabindex="-1">
+                            <button type="button" class="vendor-btn secondary small" id="itemPhotoBtn">Upload photo</button>
+                            <button type="button" class="photo-remove" id="itemPhotoRemove" hidden>Remove photo</button>
+                        </div>
+                        <div class="item-top-fields">
+                            <label for="itemName" class="form-label">Item name</label>
+                            <input type="text" class="form-control" id="itemName" maxlength="60" autocomplete="off">
+
+                            <label for="itemPrice" class="form-label mt-3">Price (&#8369;)</label>
+                            <input type="number" class="form-control" id="itemPrice" min="0" step="0.01" inputmode="decimal">
+                        </div>
+                    </div>
+
+                    <label for="itemDescription" class="form-label mt-3">Description</label>
+                    <textarea class="form-control" id="itemDescription" rows="3" maxlength="200"></textarea>
+
+                    <fieldset class="mt-3">
+                        <legend class="form-label">Shows up under</legend>
+                        <div class="category-checks" id="itemCategoryChecks"></div>
+                    </fieldset>
+
+                    <p class="field-error" id="itemError" role="alert"></p>
+                </div>
+                <div class="vmodal-foot">
+                    <button type="button" class="vendor-btn danger push-left" id="deleteItemBtn">Delete item</button>
+                    <button type="button" class="vendor-btn secondary" id="toggleAvailableBtn">Mark as unavailable</button>
+                    <button type="submit" class="vendor-btn primary">Save all edits</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- shared team script: draws the dark-mode icon in the header -->
+        <script type="module" src="../../js/centralized.js"></script>
+        <script src="../../js/vendor-storemgmt.js"></script>
+    </body>
+</html>

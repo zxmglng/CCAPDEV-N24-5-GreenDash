@@ -1,21 +1,27 @@
+<!-- Vendor Profile Page -->
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>GreenDash - Vendor Profile</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>GreenDash - Vendor Profile</title>
+
         <link rel="stylesheet" href="../../bootstrap/css/bootstrap-5.3.3.min.css">
         <link rel="stylesheet" href="../../style/centralized.css">
-        <link rel="stylesheet" href="../../style/vendor.css">
+        <link rel="stylesheet" href="../../style/vendors-common.css">
+        <link rel="stylesheet" href="../../style/vendors-profile.css">
+
+        <!-- website icon -->
         <link rel="icon" type="image/png" href="../../assets/main/GreenDash_CIRCLE.png">
     </head>
     <body class="vendor-page">
+        <!-- INCLUDE EVERYTHING FOR THE MAIN HEADER FOR ALL PAGES FROM HERE-->
         <header>
             <div class="main-header">
                 <img id="logo" src="../../assets/main/GreenDash_LOGO.png" alt="GreenDash Logo">
                 <div class="location">
                     <strong>Starbucks</strong>
-                    <span>Green Court</span>
+                    <strong>Green Court</strong>
                 </div>
                 <button class="icon-button" id="eclipse" type="button" aria-label="Toggle dark mode">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
@@ -26,17 +32,53 @@
                     </svg>
                 </button>
             </div>
-            <nav aria-label="Vendor navigation">
+
+            <!-- VENDOR NAVIGATION LINKS -->
+            <nav>
                 <div class="nav-links">
-                    <a href="profile.html" aria-current="page">Profile</a>
-                    <a href="orders.html">Order Requests</a>
-                    <a href="transaction-history.html">Transaction History</a>
+                    <a href="../../pages/vendor/profile.html" class="active" aria-current="page">Profile</a>
+                    <a href="../../pages/vendor/orders.html">Order Requests</a>
+                    <a href="../../pages/vendor/transaction-history.html">Transaction History</a>
                 </div>
             </nav>
         </header>
+        <!-- TO HERE!-->
 
-        <main class="vendor-empty-page" aria-label="Vendor profile"></main>
+        <div class="vendor-layout">
+            <!-- LEFT SIDEBAR (same on all 3 Profile sections) -->
+            <aside class="vendor-sidebar" aria-label="Profile sections">
+                <h2>Profile</h2>
+                <p class="vendor-greeting">Hello, <span>Syx</span>!</p>
 
+                <ul class="sidebar-links">
+                    <li><a href="../../pages/vendor/profile.html" class="active" aria-current="page">Your account</a></li>
+                    <li><a href="../../pages/vendor/manage-menu.html">Manage store</a></li>
+                    <li><a href="../../pages/vendor/request-store.html">Request to add a new store</a></li>
+                </ul>
+            </aside>
+
+            <!-- ACCOUNT DETAILS -->
+            <main class="vendor-content">
+                <h1 class="page-title">Account Details</h1>
+
+                <dl class="account-details">
+                    <div class="account-row">
+                        <dt>Name:</dt>
+                        <dd>Jonny Craig</dd>
+                    </div>
+                    <div class="account-row">
+                        <dt>Registered email:</dt>
+                        <dd>jonny.business@gmail.com</dd>
+                    </div>
+                    <div class="account-row">
+                        <dt>Account type:</dt>
+                        <dd>Vendor</dd>
+                    </div>
+                </dl>
+            </main>
+        </div>
+
+        <!-- shared team script: only needed to draw the dark-mode icon in the header -->
         <script type="module" src="../../js/centralized.js"></script>
     </body>
 </html>
