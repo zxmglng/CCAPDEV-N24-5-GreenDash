@@ -696,28 +696,20 @@ https://support.google.com/cloud/answer/15549257?hl=en
 https://www.youtube.com/watch?v=tgO_ADSvY1I
 */
 function handleGoogleLogin(response) {
-    var token = response.credential;
-
     var payload = JSON.parse(
-        atob(token.split('.')[1])
+        atob(response.credential.spli('.')[1])
     );
 
-    var email = payload.email;
-
-    console.log(email);
-
-    if (email.endsWith("@dlsu.edu.ph")) {
+    if (payload.email.endsWith("@dlsu.edu.ph")) {
         window.location.href = "stalls-directory.html";
-    }
-    else {
-        alert("Only DLSU email accounts are allowed.");
     }
 }
 
 window.onload = function () {
     google.accounts.id.initialize({
         client_id: "724785346741-nn8e5lr9aga88afsfa9bsa79s9ofj6k3.apps.googleusercontent.com",
-        callback: handleGoogleLogin
+        callback: handleGoogleLogin,
+        hd: 'dlsu.edu.ph'
     });
 
     google.accounts.id.renderButton(
@@ -730,6 +722,50 @@ window.onload = function () {
         }
     );
 };
+
+// login handler
+function handleGoogleLogin(response) {
+    var payload = JSON.parse(
+        atob(response.credential.split('.')[1])
+    );
+    if (payload.email.endsWith('dlsu.edu.ph')) {
+        localStorage.setItem('userEmail', payload.email);
+        localStorage.setItem('userFirstName', payload.given_name);
+        localStorage.setItem('userLastName', payload.family_name);
+        localStorage.setItem('userFullName', payload.name);
+
+        if (payload.picture) {
+            localStorage.setItem('userPicture', payload.picture);
+        }
+        window.location.href = 'stalls-directory.html';
+    }
+}
+
+// replace login
+$(document).ready(function () {
+    var firstName = localStorage.getItem('userFirstName');
+    var lastName = localStorage.getItem('userLastName');
+    var fullName = localStorage.getItem('userFullName');
+    var email = localStorage.getItem('userEmail');
+    var picture = localStorage.getItem('userPicture');
+
+    if(fullName) {
+        $('#profileName').text(fullName);
+    }
+    if (email) {
+        $('#profileEmail').text(email);
+        $('#emailAddress').val(email);
+    }
+    if (firstName) {
+        $('#firstName').val(firstName);
+    }
+    if (lastName) {
+        $('#lastName').val(lastName);
+    }
+    if (picture) {
+        $('#profileAvatar').attr('src', picture);
+    }
+});
 
 // Profile page - order frequency chart
 $(document).ready(function () {
