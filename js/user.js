@@ -733,6 +733,7 @@ function handleGoogleLogin(response) {
         localStorage.setItem('userFirstName', payload.given_name);
         localStorage.setItem('userLastName', payload.family_name);
         localStorage.setItem('userFullName', payload.name);
+        localStorage.setItem('isLoggedIn', true);
 
         if (payload.picture) {
             localStorage.setItem('userPicture', payload.picture);
@@ -748,6 +749,9 @@ $(document).ready(function () {
     var fullName = localStorage.getItem('userFullName');
     var email = localStorage.getItem('userEmail');
     var picture = localStorage.getItem('userPicture');
+
+    var newProfilePic = null;
+    
 
     if(fullName) {
         $('#profileName').text(fullName);
@@ -765,6 +769,78 @@ $(document).ready(function () {
     if (picture) {
         $('#profileAvatar').attr('src', picture);
     }
+
+    // EDIT PROFILE BUTTON
+    $('#editProfileBtn').click(function () {
+        if ($(this).text().trim() == 'Edit Profile') {
+            $('#firstName').prop('readonly', false);
+            $('#lastName').prop('readonly', false);
+            $('#contactNumber').prop('readonly', false);
+            $('#profileAvatar').addClass('editable-avatar');
+
+            $(this).text('Save Changes');
+        }
+        else {
+            var newFirstName = $('#firstName').val().trim();
+            var newLastName = $('#lastName').val().trim();
+            var newContactNumber = $('#contactNumber').val().trim();
+
+            localStorage.setItem('userFirstName', newFirstName);
+            localStorage.setItem('userLastName', newLastName);
+            localStorage.setItem('userFullName', newFirstName + ' ' + newLastName);
+            localStorage.setItem('userContactNumber', newContactNumber);
+
+            if (newProfilePic) {
+                 localStorage.setItem('userPicture', newProfilePic);
+                 newProfilePic = null;
+            }
+
+            $('#profileName').text(newFirstName + ' ' + newLastName);
+            $('#firstName').prop('readonly', true);
+            $('#lastName').prop('readonly', true);
+            $('#contactNumber').prop('readonly', true);
+
+            $('#profileAvatar').removeClass('editable-avatar');
+
+            $(this).text('Edit Profile');
+            alert('Profile updated successfully!');
+        }
+    });
+
+    // PROFILE PIC
+    $('#profileAvatar').click(function () {
+        if ($('#editProfileBtn').text().trim() == 'Save Changes') {
+            $('#profilePictureInput').click();
+        }
+    });
+
+    $('#profilePictureInput').change(function () {
+        var file = this.files[0];
+
+        if (file) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                newProfilePic = e.target.result;
+
+                // preview only
+                $('#profileAvatar').attr('src', newProfilePic);
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // LOGOUT BUTTON
+    $('#logoutBtn').click(function () {
+        localStorage.removeItem('userFirstName');
+        localStorage.removeItem('userLastName');
+        localStorage.removeItem('userFullName');
+        localStorage.removeItem('userEmail');
+        localStorage.removeItem('userPicture');
+        localStorage.removeItem('userContactNumber');
+        localStorage.removeItem('isLoggedIn');
+
+        window.location.href = 'login.html';
+    });
 });
 
 // Profile page - order frequency chart
