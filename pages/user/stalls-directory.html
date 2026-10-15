@@ -4,9 +4,10 @@
 <html lang="en">
     <head>
         <title>GreenDash - Stalls</title>
+                <link rel="stylesheet" href="../../bootstrap/css/bootstrap.min.css">
+        <link rel="stylesheet" href="../../bootstrap-icons/bootstrap-icons.css">
         <link rel="stylesheet" href="../../style/centralized.css">
         <link rel="stylesheet" href="../../style/user.css">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
         
         <!-- website icon -->
         <link rel="icon" type="image/png" href="../../assets/main/GreenDash_CIRCLE.png">
@@ -46,8 +47,43 @@
         <main class="stalls-directory-page">
             <!-- SEARCH BAR -->
              <div class="search-container">
-                <i data-lucide="search"></i>
                 <input type="text" id="searchInput" placeholder="What are you in the mood for?">
+                <button type="button" id="stallFilterButton" class="filterButton">
+                    <i data-lucide="sliders-horizontal"></i>
+                    Filters
+                </button>
+             </div>
+
+             <div class="filter-panel" id="stallFilterPanel">
+                <h3>Filter Stalls</h3>
+                <div class="filter-section">
+                    <input type="checkbox" id="openOnly">
+                    <label for="openOnly">Open Stalls Only</label>
+                </div>
+
+                <div class="filter-section">
+                    <p>Type</p>
+                    <input type="checkbox" class="stall-type-filter" id="foodFilter" value="food">
+                    <label for="foodFilter">Food</label>
+                    <input type="checkbox" class="stall-type-filter" id="drinksFilter" value="drinks">
+                    <label for="drinksFilter">Drinks</label>
+                    <input type="checkbox" class="stall-type-filter" id="dessertFilter" value="dessert">
+                    <label for="dessertFilter">Dessert</label>
+                </div>
+
+                <div class="filter-section">
+                    <label for="locationFilter">Location</label>
+                    <select id="locationFilter">
+                        <option value="all">All Locations</option>
+                        <option value="agno">Agno</option>
+                        <option value="bloemen">Bloemen</option>
+                        <option value="green court">Green Court</option>
+                        <option value="gokongwei hall">Gokongwei Hall</option>
+                    </select>
+                </div>
+                <button type="button" id="resetStallFilters" class="reset-filter-button">
+                    Reset Filters
+                </button>
              </div>
 
              <!-- PAGE TITLE -->
@@ -57,7 +93,7 @@
               <div class="stall-list">
 
                 <!-- STALL 1 - Starbucka -->
-                 <div class="stall-card" data-name="starbucks" data-tags="coffee pastries drinks">
+                 <div class="stall-card" data-name="starbucks" data-tags="coffee pastries drinks" data-location="green court" data-type="drinks food" data-status="open" data-store="starbucks">
                     <img class="stall-logo" src="../../assets/stalls/starbucks.png" alt="Logo of Starbucks">
                     <div class="stall-info">
 
@@ -80,21 +116,21 @@
 
                         <div class="stall-bottom">
                             <div class="rating">
-                                <span class="fa fa-star checked"></span>
-                                <span class="fa fa-star checked"></span>
-                                <span class="fa fa-star checked"></span>
-                                <span class="fa fa-star checked"></span>
-                                <span class="fa fa-star checked"></span>
+                                <i class="bi bi-star-fill checked"></i>
+                                <i class="bi bi-star-fill checked"></i>
+                                <i class="bi bi-star-fill checked"></i>
+                                <i class="bi bi-star-fill checked"></i>
+                                <i class="bi bi-star-fill checked"></i>
                             </div>
                             <span class="status open">OPEN</span>
                         </div>
 
-                        <a class="view-stall-button" href="store-info.html">View Stall</a>
+                        <a class="view-stall-button" href="stall-info.html" data-store="starbucks">View Stall</a>
                     </div>
                  </div>
 
                 <!-- STALL 2 - DQ -->
-                <div class="stall-card" data-name="dq" data-tags="icecream blizzard freeze">
+                <div class="stall-card" data-name=" dairy queen dq" data-tags="icecream blizzard freeze" data-location="agno" data-type="dessert" data-status="closed" data-store="dq">
                     <img class="stall-logo" src="../../assets/stalls/dq.png" alt="Logo of DQ">
                     <div class="stall-info">
 
@@ -117,21 +153,21 @@
 
                         <div class="stall-bottom">
                             <div class="rating">
-                                <span class="fa fa-star checked"></span>
-                                <span class="fa fa-star checked"></span>
-                                <span class="fa fa-star checked"></span>
-                                <span class="fa fa-star checked"></span>
-                                <span class="fa fa-star"></span>
+                                <i class="bi bi-star-fill checked"></i>
+                                <i class="bi bi-star-fill checked"></i>
+                                <i class="bi bi-star-fill checked"></i>
+                                <i class="bi bi-star-fill checked"></i>
+                                <i class="bi bi-star-fill"></i>
                             </div>
                             <span class="status closed">CLOSED</span>
                         </div>
 
-                        <a class="view-stall-button" href="store-info.html">View Stall</a>
+                        <a class="view-stall-button" href="stall-info.html" data-store="dq">View Stall</a>
                     </div>
                  </div>
 
                  <!-- STALL 3 - Belgian Waffles -->
-                <div class="stall-card" data-name="belgian" data-tags="waffles hot snacks">
+                <div class="stall-card" data-name="the famous belgian waffles belgian" data-tags="waffles hot snacks" data-location="gokongwei hall" data-type="food dessert" data-status="closed" data-store="belgian">
                     <img class="stall-logo" src="../../assets/stalls/belgian.png" alt="Logo of Belgian Waffles">
                     <div class="stall-info">
 
@@ -154,21 +190,21 @@
 
                         <div class="stall-bottom">
                             <div class="rating">
-                                <span class="fa fa-star checked"></span>
-                                <span class="fa fa-star checked"></span>
-                                <span class="fa fa-star checked"></span>
-                                <span class="fa fa-star"></span>
-                                <span class="fa fa-star"></span>
+                                <i class="bi bi-star-fill checked"></i>
+                                <i class="bi bi-star-fill checked"></i>
+                                <i class="bi bi-star-fill checked"></i>
+                                <i class="bi bi-star-fill"></i>
+                                <i class="bi bi-star-fill"></i>
                             </div>
                             <span class="status closed">CLOSED</span>
                         </div>
 
-                        <a class="view-stall-button" href="store-info.html">View Stall</a>
+                        <a class="view-stall-button" href="stall-info.html" data-store="belgian">View Stall</a>
                     </div>
                  </div>
 
                  <!-- STALL 4 - Potato Corner -->
-                <div class="stall-card" data-name="potcor" data-tags="fries potato cheese">
+                <div class="stall-card" data-name=" potato corner potcor" data-tags="fries potato cheese" data-type="food" data-location="bloemen" data-status="closed" data-store="potcor">
                     <img class="stall-logo" src="../../assets/stalls/potcor.png" alt="Logo of Potato Corner">
                     <div class="stall-info">
 
@@ -191,21 +227,23 @@
 
                         <div class="stall-bottom">
                             <div class="rating">
-                                <span class="fa fa-star checked"></span>
-                                <span class="fa fa-star checked"></span>
-                                <span class="fa fa-star checked"></span>
-                                <span class="fa fa-star checked"></span>
-                                <span class="fa fa-star"></span>
+                                <i class="bi bi-star-fill checked"></i>
+                                <i class="bi bi-star-fill checked"></i>
+                                <i class="bi bi-star-fill checked"></i>
+                                <i class="bi bi-star-fill checked"></i>
+                                <i class="bi bi-star-fill"></i>
                             </div>
                             <span class="status closed">CLOSED</span>
                         </div>
 
-                        <a class="view-stall-button" href="store-info.html">View Stall</a>
+                        <a class="view-stall-button" href="store-info.html" data-store="potcor">View Stall</a>
                     </div>
                  </div>
               </div>
               <p class="stalls-empty" id="noStallsFound" hidden>No stalls match your search.</p>
         </main>
+        
+        <script src="../../js/jquery-4.0.0.min.js"></script>
         <script src="../../js/user.js"></script>
         <script type="module" src="../../js/centralized.js"></script>
     </body>

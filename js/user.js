@@ -5,29 +5,6 @@ if (window.jQuery) {
     });
 }
 
-const stallSearchInput = document.querySelector('#searchInput');
-
-if (stallSearchInput) {
-    const stallCards = document.querySelectorAll('.stall-card');
-    const noStallsMessage = document.querySelector('#noStallsFound');
-
-    stallSearchInput.addEventListener('input', () => {
-        const searchTerm = stallSearchInput.value.trim().toLowerCase();
-        let visibleStallCount = 0;
-
-        stallCards.forEach((card) => {
-            const searchContent = `${card.dataset.name || ''} ${card.dataset.tags || ''} ${card.textContent}`;
-            const matches = searchContent.toLowerCase().includes(searchTerm);
-            card.hidden = !matches;
-            visibleStallCount += Number(matches);
-        });
-
-        if (noStallsMessage) {
-            noStallsMessage.hidden = visibleStallCount > 0;
-        }
-    });
-}
-
 // Order data for the user orders page.
 const storeDetails = {
     starbucks: {
@@ -695,32 +672,26 @@ Sources:
 https://support.google.com/cloud/answer/15549257?hl=en
 https://www.youtube.com/watch?v=tgO_ADSvY1I
 */
-function handleGoogleLogin(response) {
-    var payload = JSON.parse(
-        atob(response.credential.spli('.')[1])
-    );
-
-    if (payload.email.endsWith("@dlsu.edu.ph")) {
-        window.location.href = "stalls-directory.html";
-    }
-}
-
 window.onload = function () {
-    google.accounts.id.initialize({
-        client_id: "724785346741-nn8e5lr9aga88afsfa9bsa79s9ofj6k3.apps.googleusercontent.com",
-        callback: handleGoogleLogin,
-        hd: 'dlsu.edu.ph'
-    });
+    var googleLoginButton = document.getElementById('googleLoginButton');
 
-    google.accounts.id.renderButton(
-        document.getElementById("googleLoginButton"),
-        {
-            theme: "outline",
-            size: "large",
-            text: "continue_with",
-            width: 300
-        }
-    );
+    if (googleLoginButton && window.google) {
+        google.accounts.id.initialize({
+            client_id: "724785346741-nn8e5lr9aga88afsfa9bsa79s9ofj6k3.apps.googleusercontent.com",
+            callback: handleGoogleLogin,
+            hd: 'dlsu.edu.ph'
+        });
+
+        google.accounts.id.renderButton(
+            googleLoginButton,
+            {
+                theme: "outline",
+                size: "large",
+                text: "continue_with",
+                width: 300
+            }
+        );
+    }
 };
 
 // login handler
@@ -728,7 +699,7 @@ function handleGoogleLogin(response) {
     var payload = JSON.parse(
         atob(response.credential.split('.')[1])
     );
-    if (payload.email.endsWith('dlsu.edu.ph')) {
+    if (payload.email.endsWith('@dlsu.edu.ph')) {
         localStorage.setItem('userEmail', payload.email);
         localStorage.setItem('userFirstName', payload.given_name);
         localStorage.setItem('userLastName', payload.family_name);
@@ -737,6 +708,9 @@ function handleGoogleLogin(response) {
 
         if (payload.picture) {
             localStorage.setItem('userPicture', payload.picture);
+        }
+        else {
+            localStorage.removeItem('userPicture');
         }
         window.location.href = 'stalls-directory.html';
     }
@@ -751,7 +725,7 @@ $(document).ready(function () {
     var picture = localStorage.getItem('userPicture');
 
     var newProfilePic = null;
-    
+
 
     if(fullName) {
         $('#profileName').text(fullName);
@@ -872,4 +846,96 @@ $(document).ready(function () {
             }
         });
     }
+});
+
+// STALLS directory
+$(document).ready(function () {
+    $('#stallFilterButton').click(function () {
+        $('#stallFilterPanel').slideToggle();
+    });
+
+    function filterStalls() {
+        var search = $('#searchInput').val().toLowerCase().trim();
+        var location = $('#locationFilter').val();
+        var openOnly = $('#openOnly').prop('checked');
+
+        var selectedTypes = [];
+        $('.stall-type-filter:checked').each(function () {
+            selectedTypes.push($(this).val());
+        });
+
+        var visibleStalls = 0;
+        $('.stall-card').each(function () {
+            var stall = $(this);
+            var name = stall.data('name');
+            var stallLocation = stall.data('location');
+            var tags = stall.data('tags');
+            var type = stall.data('type');
+            var status = stall.data('status');
+
+            // search
+            var matchesSearch = name.includes(search) || stallLocation.includes(search) || tags.includes(search);
+            // location 
+            var matchesLocation = location == 'all' || stallLocation == location;
+            // open status 
+            var matchesStatus = !openOnly || status == 'open';
+            //type 
+            var matchesType = true;
+            if (selectedTypes.length > 0) {
+                matchesType = false;
+
+                $.each(selectedTypes, function (index, selectedType) {
+                    if (type.includes(selectedType)) {
+                        matchesType = true;
+                    }
+                });
+            }
+
+            // show or hide
+            if (matchesSearch && matchesLocation && matchesStatus && matchesType) {
+                stall.show();
+                visibleStalls++;
+            }
+            else {
+                stall.hide();
+            }
+        });
+
+        if (visibleStalls == 0) {
+            $('#noStallsFound').prop('hidden', false);
+        }
+        else {
+            $('#noStallsFound').prop('hidden', true);
+        }
+    }
+
+    // search
+    $('#searchInput').on('input', function () {
+        filterStalls();
+    });
+
+    //filters 
+    $('#openOnly, .stall-type-filter').change(function () {
+        filterStalls();
+    });
+
+    $('#locationFilter').change(function () {
+        filterStalls();
+    });
+
+    // reset filters 
+    $('#resetStallFilters').click(function () {
+        $('#searchInput').val('');
+        $('#openOnly').prop('checked', false);
+        $('.stall-type-filter').prop('checked', false);
+        $('#locationFilter').val('all');
+
+        filterStalls();
+    });
+
+    $('.stall-card .view-stall-button').click(function () {
+        var selectedStore = $(this).data('store');
+        localStorage.setItem('selectedStore', selectedStore);
+    });
+
 });
