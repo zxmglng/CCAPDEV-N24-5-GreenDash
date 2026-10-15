@@ -280,6 +280,36 @@
     transition: 0.5s;
 }
 
+.closed-stall-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1500;
+    display: grid;
+    place-items: center;
+    background: rgba(0, 0, 0, 0.35);
+}
+
+.closed-stall-backdrop[hidden] { display: none; }
+
+.closed-stall-modal {
+    width: min(400px, calc(100vw - 32px));
+    padding: 28px;
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.25);
+    text-align: center;
+}
+
+.closed-stall-modal h2 {
+    color: #006937;
+    font-size: 22px;
+}
+
+.closed-stall-modal p {
+    color: #555555;
+    font-size: 13px;
+}
+
 .view-stall-button:hover {
     background-color: #013e21;
 }
@@ -518,6 +548,19 @@
 /* ------------------ STALL-INFO PAGE ------------------- */
 .stall-info-page {
     padding: 30px 40px 60px;
+    background-color: #ffffff;
+}
+
+.stall-content {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) clamp(100px, 22%, 290px);
+    gap: 28px;
+    max-width: 1440px;
+    margin: 0 auto;
+}
+
+.stall-main-content {
+    min-width: 0;
 }
 
 /* Stall header/banner */
@@ -528,26 +571,30 @@
 
 .stall-banner {
     width: 100%;
-    height: 190px;
+    height: 205px;
     object-fit: cover;
-    border-radius: 18px;
+    border-radius: 14px;
+    display: block;
 }
 
 .stall-info-logo {
-    width: 120px;
+    width: 106px;
+    height: 106px;
+    object-fit: cover;
     position: absolute;
-    top: 110px;
+    top: 148px;
     left: 50%;
     transform: translateX(-50%);
-    border-radius: 20px;
+    border: 5px solid #ffffff;
+    border-radius: 50%;
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
 }
 
 .stall-header-info h1 {
     font-family: 'League Spartan', 'Inter', sans-serif;
-    font-size: 38px;
+    font-size: 32px;
     font-weight: bold;
-    margin-top: 50px;
+    margin-top: 62px;
     margin-bottom: 5px;
     color: #111111;
 }
@@ -562,10 +609,31 @@
 /* Menu section */
 .stall-menu-section {
     background-color: #ffffff;
-    margin-top: 20px;
-    border-radius: 18px;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    margin-top: 24px;
+    border-radius: 14px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.14);
     overflow: hidden;
+}
+
+.order-summary {
+    min-height: 570px;
+    padding: 16px 20px;
+    background-color: #ffffff;
+    border-left: 1px solid #e5e5e5;
+}
+
+.order-summary h2 {
+    margin: 0;
+    color: #006937;
+    font-family: 'League Spartan', 'Inter', sans-serif;
+    font-size: 25px;
+}
+
+.empty-order-message {
+    margin-top: 230px;
+    color: #999999;
+    font-size: 13px;
+    text-align: center;
 }
 
 
@@ -751,6 +819,453 @@
     font-size: 40px;
     font-family: 'Inter', sans-serif;
     cursor: pointer;
+}
+
+@media (max-width: 767px) {
+    .stall-info-page {
+        padding: 20px 24px 40px;
+    }
+
+    .stall-menu-section .menu-column {
+        flex: 0 0 33.333333%;
+        max-width: 33.333333%;
+    }
+
+    .order-summary {
+        min-height: 100%;
+    }
+
+    .empty-order-message {
+        margin-top: 170px;
+    }
+}
+
+@media (max-width: 600px) {
+    .stall-info-page {
+        padding: 14px 14px 30px;
+    }
+
+    .stall-banner {
+        height: 150px;
+    }
+
+    .stall-info-logo {
+        top: 105px;
+        width: 88px;
+        height: 88px;
+    }
+
+    .stall-header-info h1 {
+        margin-top: 54px;
+        font-size: 28px;
+    }
+
+    .stall-header-info p {
+        font-size: 13px;
+    }
+
+    .menu-search {
+        padding: 12px;
+    }
+
+    .filterButton {
+        width: 42px;
+        font-size: 0;
+    }
+
+    .filterButton svg {
+        width: 18px;
+    }
+
+    .category-button, .category-button-active {
+        font-size: 12px;
+        padding: 11px 5px;
+    }
+
+    .menu-items-wrapper {
+        padding: 12px 5px 10px;
+    }
+
+    .menu-item h3 {
+        font-size: 11px;
+        margin-top: 5px;
+    }
+
+    .menu-item p {
+        font-size: 10px;
+    }
+
+    .add-item-button {
+        right: 5px;
+        bottom: 5px;
+        width: 22px;
+        height: 22px;
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 359px) {
+    .stall-content {
+        grid-template-columns: 1fr;
+    }
+
+    .order-summary {
+        min-height: 130px;
+        border-top: 1px solid #e5e5e5;
+        border-left: 0;
+    }
+
+    .empty-order-message {
+        margin-top: 45px;
+    }
+}
+
+/* ------------------ USER PAGE ------------------- */
+
+.stalls-directory-page {
+    padding: 35px 45px 60px;
+}
+
+
+/* Search bar */
+.search-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    background-color: #f4f4f4;
+    border-radius: 12px;
+    padding: 15px 20px;
+    margin-bottom: 30px;
+}
+
+#searchInput {
+    width: 100%;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    border: none;
+    outline: none;
+    background-color: transparent;
+}
+
+#searchInput::placeholder {
+    color: #3a3a3a;
+}
+
+
+/* Main page heading */
+.section-headers {
+    font-family: 'League Spartan', 'Inter', sans-serif;
+    font-size: 45px;
+    font-weight: bold;
+    color: #006937;
+    margin: 0 0 25px 10px;
+}
+
+
+/* List of stalls */
+.stall-list {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+
+/* Stall cards */
+.stall-card {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    background-color: #f4f4f4;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    transition: 0.5s;
+
+}
+
+.stall-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+
+}
+
+
+/* Logos */
+.stall-logo {
+    width: 180px;
+    border-radius: 15px;
+    padding: 1px;
+}
+
+/* Stall info */
+.stall-info {
+    flex: 1;
+    padding-left: 25px;
+}
+
+.stall-title-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.stall-title-row h3 {
+    font-family: 'League Spartan', 'Inter', sans-serif;
+    font-size: 28px;
+    margin: 0;
+    color: #000000;
+}
+
+.stall-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.stall-tags span {
+    background-color: #dbdedc;
+    color: #1b1b1b;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+
+}
+
+.stall-details {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    margin-top: 12px;
+}
+
+.stall-details p {
+    margin: 0px;
+    color: #404040;
+    font-size: 17px;
+}
+
+.stall-details p:first-child {
+    padding-right: 30px;
+    border-right: 2px solid #5f5f5f;
+}
+
+.stall-description {
+    margin: 10px 0;
+    color: #404040;
+    font-size: 15px;
+    line-height: 1.5;
+
+}
+
+.stall-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 8px;
+}
+
+.rating {
+    font-size: 18px;
+}
+
+.checked {
+    color: #fcc42c;
+}
+
+.rating .fa-star:not(.checked) {
+    color: #bebebe;
+}
+
+.status {
+    font-family: 'League Spartan', 'Inter', sans-serif;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 7px 14px;
+    border-radius: 20px;
+}
+
+.status.open {
+    background-color: #d9e5d2;
+    color: #006937
+}
+
+.status.closed {
+    background-color: #e0bebe;
+    color: #6b1809;
+}
+
+/* Stall button */
+.view-stall-button {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 8px 16px;
+    background-color: #006937;
+    color: #ffffff;
+    border: 0;
+    text-decoration: none;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.5s;
+}
+
+.view-stall-button:hover {
+    background-color: #013e21;
+}
+
+@media (max-width: 767px) {
+    .stalls-directory-page {
+        padding: 24px 20px 40px;
+    }
+
+    .stall-list {
+        gap: 16px;
+    }
+
+    .stall-card {
+        align-items: center;
+        padding: 14px;
+        border-radius: 15px;
+    }
+
+    .stall-logo {
+        flex: 0 0 110px;
+        width: 110px;
+        height: 110px;
+        object-fit: contain;
+        border-radius: 12px;
+    }
+
+    .stall-info {
+        min-width: 0;
+        padding-left: 16px;
+    }
+
+    .stall-title-row {
+        gap: 6px;
+    }
+
+    .stall-title-row h3 {
+        font-size: 20px;
+    }
+
+    .stall-tags {
+        gap: 4px;
+    }
+
+    .stall-tags span {
+        padding: 4px 8px;
+        font-size: 10px;
+    }
+
+    .stall-details {
+        flex-wrap: wrap;
+        gap: 4px 12px;
+        margin-top: 8px;
+    }
+
+    .stall-details p {
+        font-size: 12px;
+    }
+
+    .stall-details p:first-child {
+        padding-right: 12px;
+        border-right-width: 1px;
+    }
+
+    .stall-description {
+        margin: 7px 0;
+        font-size: 11px;
+        line-height: 1.35;
+    }
+
+    .stall-bottom {
+        margin-top: 5px;
+    }
+
+    .rating {
+        font-size: 13px;
+    }
+
+    .status {
+        padding: 5px 9px;
+        font-size: 12px;
+    }
+
+    .view-stall-button {
+        margin-top: 8px;
+        padding: 6px 11px;
+        border-radius: 8px;
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 480px) {
+    .stalls-directory-page {
+        padding: 18px 12px 30px;
+    }
+
+    .section-headers {
+        margin-left: 4px;
+        font-size: 32px;
+    }
+
+    .stall-card {
+        padding: 10px;
+        border-radius: 12px;
+    }
+
+    .stall-logo {
+        flex-basis: 82px;
+        width: 82px;
+        height: 82px;
+        border-radius: 10px;
+    }
+
+    .stall-info {
+        padding-left: 10px;
+    }
+
+    .stall-title-row h3 {
+        font-size: 16px;
+    }
+
+    .stall-tags span {
+        padding: 3px 6px;
+        font-size: 9px;
+    }
+
+    .stall-details {
+        display: block;
+    }
+
+    .stall-details p {
+        font-size: 10px;
+    }
+
+    .stall-details p:first-child {
+        padding-right: 0;
+        border-right: 0;
+    }
+
+    .stall-description {
+        font-size: 10px;
+    }
+
+    .rating {
+        font-size: 11px;
+    }
+
+    .status {
+        padding: 4px 7px;
+        font-size: 10px;
+    }
+
+    .view-stall-button {
+        padding: 5px 8px;
+        font-size: 10px;
+    }
 }
 
 
