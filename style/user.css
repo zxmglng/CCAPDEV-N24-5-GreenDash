@@ -515,46 +515,6 @@
     }
 }
 
-@media (max-width: 680px) {
-    /* COMPACT USER HEADER */
-    .main-header {
-        padding-left: 10px;
-    }
-    #logo {
-        width: min(40vw, 170px);
-        padding: 8px;
-    }
-    .location {
-        min-width: 0;
-        padding: 5px 6px;
-    }
-    .location span {
-        font-size: 12px;
-    }
-    .location strong {
-        font-size: 22px;
-    }
-    .icon-button#eclipse {
-        flex-shrink: 0;
-        margin-right: 8px;
-    }
-    nav {
-        overflow-x: auto;
-        justify-content: flex-start;
-    }
-    .nav-links {
-        flex: 0 0 auto;
-        width: max-content;
-    }
-    .nav-links a {
-        flex: 0 0 auto;
-        white-space: nowrap;
-    }
-    #cart {
-        flex: 0 0 auto;
-    }
-}
-
 /* ------------------ STALL-INFO PAGE ------------------- */
 .stall-info-page {
     padding: 30px 40px 60px;
