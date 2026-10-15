@@ -65,21 +65,26 @@
                 <dl class="account-details">
                     <div class="account-row">
                         <dt>Name:</dt>
-                        <dd>Jonny Craig</dd>
+                        <dd id="vendorProfileName">Jonny Craig</dd>
                     </div>
                     <div class="account-row">
                         <dt>Registered email:</dt>
-                        <dd>jonny.business@gmail.com</dd>
+                        <dd id="vendorProfileEmail">jonny.business@gmail.com</dd>
                     </div>
                     <div class="account-row">
                         <dt>Account type:</dt>
-                        <dd>Vendor</dd>
+                        <dd id="vendorProfileRole">Vendor</dd>
                     </div>
                 </dl>
+
+                <button id="vendorLogoutBtn" class="vendor-btn danger" type="button">
+                    Sign out
+                </button>
             </main>
         </div>
 
         <!-- shared team script: only needed to draw the dark-mode icon in the header -->
         <script type="module" src="../../js/centralized.js"></script>
+        <script src="../../js/vendor-auth.js"></script>
     </body>
 </html>

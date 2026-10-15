@@ -39,6 +39,7 @@
     font-size: 14px;
     text-decoration: none;
     cursor: pointer;
+    margin-bottom: 15px;
 }
 
 .google-login-btn {

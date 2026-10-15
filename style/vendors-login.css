@@ -1,0 +1,32 @@
+/* vendor-login.css - styling for the login page */
+
+.vendor-login-wrap {
+    max-width: 460px;
+    margin: 80px auto;
+    padding: 0 20px;
+    text-align: center;
+}
+
+.vendor-login-wrap img {
+    max-width: 260px;
+    margin-bottom: 24px;
+}
+
+.vendor-login-wrap .page-title {
+    margin-bottom: 8px;
+}
+
+.vendor-login-wrap p {
+    color: var(--v-text-muted);
+    margin-bottom: 24px;
+}
+
+.vendor-login-wrap .back-link {
+    display: inline-flex;
+    margin-top: 24px;
+}
+
+.google-btn {
+    display: flex;
+    justify-content: center;
+}
