@@ -1,297 +1,354 @@
 /* vendors-common.css - shared by every vendor page */
 
+/* =========================
+   DESIGN TOKENS
+========================= */
+
 :root {
-    --v-green: #006937;
-    --v-green-btn: #006937;
-    --v-green-soft: #d5e6cb;
-    --v-gray-bar: #f5f5f5;
-    --v-gray-active: #cbcbcb;
-    --v-red: #a12626;
-    --v-text: #1f1f1f;
-    --v-text-muted: #5c5f5e;
-    --v-border: #9a9a9a;
-    --v-shadow: 0 6px 18px rgba(0, 0, 0, .18);
-    --v-font-heading: "League Spartan", "Spartan", "Poppins", "Montserrat", "Segoe UI", Arial, sans-serif;
-    --v-font-body: "Inter", "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
-    --v-sidebar-w: clamp(220px, 24vw, 333px);
-    --v-gap: clamp(16px, 3vw, 36px);
-    --v-tap: 44px;
+    /* Dimensions */
+	--v-sidebar-w: clamp(220px, 24vw, 333px);
+	--v-gap: clamp(16px, 3vw, 36px);
+
+	/* Font color / Button / Status */
+	--v-green: #006937;
+	--v-green-soft: #d5e6cb;
+	--v-red: #a12626;
+
+	/* Neutral surface and text colors */
+	--v-gray-bar: #f5f5f5;
+	--v-gray-active: #cbcbcb;
+	--v-text: #1f1f1f;
+	--v-text-muted: #5c5f5e;
+	--v-border: #9a9a9a;
+	--v-shadow: 0 6px 18px rgba(0, 0, 0, .18);
+
+	/* Fonts */
+	--v-font-heading: "League Spartan", "Spartan", "Poppins", "Montserrat", "Segoe UI", Arial, sans-serif;
+	--v-font-body: "Inter", "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+
+	/* Minimum height-width for interactive elements */
+	--v-tap: 44px;
 }
 
+/* =========================
+   GLOBAL RESETS & BASE
+========================= */
+
+/* Hide elements with a hidden attribute */
 [hidden] {
-    display: none !important;
+	display: none !important;
 }
 
+/* Make padding/borders/margin within declared size */
+* {
+    box-sizing: border-box;
+}
+
+/* Base body styling */
 body.vendor-page {
-    font-family: var(--v-font-body);
-    color: var(--v-text);
-    background: #ffffff;
+    margin: 0;
+	font-family: var(--v-font-body);
+	color: var(--v-text);
+	background: #ffffff;
 }
 
+/* Images; prevent overflow */
 .vendor-page img {
-    max-width: 100%;
+	max-width: 100%;
 }
 
+/* Header line spacing */
 .vendor-page header {
-    line-height: normal;
+	line-height: normal;
 }
 
-.vendor-page nav {
-    overflow-x: auto;
+/* Main page headings */
+.vendor-page .page-title {
+	font-family: var(--v-font-heading);
+	font-weight: 800;
+	font-size: 36px;
+	line-height: 1.1;
+	color: var(--v-green);
+	margin: 0 0 24px;
 }
 
-.vendor-page .location {
-    min-width: 176px;
-}
+/* =========================
+   VENDOR LAYOUT
+========================= */
 
-@media (max-width: 680px) {
-
-    .vendor-page .main-header {
-        padding-left: 10px;
-    }
-
-    .vendor-page #logo {
-        width: min(40vw, 170px);
-        padding: 8px;
-    }
-
-    .vendor-page .location {
-        min-width: 0;
-        padding: 5px 6px;
-    }
-
-    .vendor-page .location span {
-        font-size: 12px;
-    }
-
-    .vendor-page .location strong {
-        font-size: 22px;
-    }
-
-    .vendor-page .icon-button#eclipse {
-        flex-shrink: 0;
-        margin-right: 8px;
-    }
-
-    .vendor-page .nav-links {
-        flex: 0 0 auto;
-        width: max-content;
-    }
-}
-
+/* Flex container holding sidebar and vendor-content */
 .vendor-layout {
-    display: grid;
-    grid-template-columns: var(--v-sidebar-w) minmax(0, 1fr);
-    min-height: calc(100vh - 151px);
+	display: flex;
+	align-items: stretch;
+	min-height: calc(100vh);
+    width: 100%;
 }
 
+/* =========================
+   VENDOR SIDEBAR
+========================= */
+
+/* Navigation panel */
 .vendor-sidebar {
-    background: var(--v-green-soft);
+	flex: 0 0 var(--v-sidebar-w);
+    width: var(--v-sidebar-w);
+    min-height: calc(100vh);
+
+    background-color: var(--v-green-soft);
+    
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
+/* Navigation panel title */
 .vendor-sidebar h2 {
-    font-family: var(--v-font-heading);
-    font-weight: 800;
-    font-size: clamp(1.8rem, 3vw, 2.6rem);
-    color: var(--v-green);
-    margin: 0;
-    padding: 24px 24px 0;
+	font-family: var(--v-font-heading);
+	font-weight: 800;
+	/*font-size: clamp(1.8rem, 3vw, 2.6rem);*/
+    font-size: 36px;
+	color: var(--v-green);
+	margin: 0;
+	padding: 24px 24px 0;
 }
 
+/* Greeting under Nav panel title */
 .vendor-greeting {
-    font-weight: 700;
-    font-size: 1.15rem;
-    color: var(--v-text);
-    margin: 6px 0 22px;
-    padding: 0 26px;
+	font-weight: 700;
+	font-size: 1.15rem;
+	color: var(--v-text);
+	padding: 0 24px 12px;
 }
 
+/* =========================
+   SIDEBAR LINKS
+========================= */
+
+/* Unstyled list     */
 .sidebar-links {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    border-top: 1px solid var(--v-border);
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	border-top: 1px solid var(--v-border);
 }
 
+/* Each Navigation panel item gets a bottom divider. */
 .sidebar-links li {
-    border-bottom: 1px solid var(--v-border);
+	border-bottom: 1px solid var(--v-border);
 }
 
+/* Navigatiokn panel link */
 .sidebar-links a {
-    display: flex;
-    align-items: center;
-    min-height: 64px;
-    padding: 0 24px;
-    color: var(--v-text-muted);
-    text-decoration: none;
+	display: flex;
+	align-items: center;
+	min-height: 64px;
+	padding: 0 24px;
+	color: var(--v-text-muted);
+	text-decoration: none;
 }
 
+/* Active navigation panel page */
 .sidebar-links a.active {
-    background: var(--v-gray-active);
-    color: var(--v-text);
+	background: var(--v-gray-active);
+	color: var(--v-text);
 }
 
+/* =========================
+   VENDOR CONTENT
+========================= */
+
+/* Main-content container: fill any empty space */
 .vendor-content {
-    padding: clamp(18px, 3vw, 36px) var(--v-gap) 48px;
-    min-width: 0;
+    flex: 1 1 auto;
+	min-width: 0;
+    padding: clamp(18px, 3vw, 36px) var(--v-gap);
+    background-color: #ffffff;
 }
 
-.page-title {
-    font-family: var(--v-font-heading);
-    font-weight: 800;
-    font-size: clamp(2rem, 5vw, 3.4rem);
-    line-height: 1.1;
-    color: var(--v-green);
-    margin: 0 0 24px;
-}
+/* =========================
+   PANEL CARD
+========================= */
 
+/* Store panel cards: used by manage-store, request-store */
 .store-panel {
-    background: #ffffff;
-    border: 1px solid var(--v-border);
-    border-radius: 22px;
-    box-shadow: var(--v-shadow);
-    padding: clamp(16px, 3vw, 32px);
+	background: #ffffff;
+	border: 1px solid var(--v-border);
+	border-radius: 22px;
+	box-shadow: var(--v-shadow);
+	padding: clamp(16px, 3vw, 32px);
 }
 
+/* =========================
+   STATUS PILL
+========================= */
+
+/* Status pills */
 .status {
-    display: inline-block;
-    padding: 3px 18px;
-    border-radius: 999px;
-    color: #ffffff;
-    font-weight: 700;
-    font-size: .9rem;
+	display: inline-block;
+	padding: 3px 18px;
+	border-radius: 999px;
+	color: #ffffff;
+	font-weight: 700;
+	font-size: .9rem;
 }
 
+/* Open = green */
 .status.open {
-    background: var(--v-green-btn);
+	background: var(--v-green);
 }
 
+/* Closed = red */
 .status.closed {
-    background: var(--v-red);
+	background: var(--v-red);
 }
 
+/* =========================
+   BUTTONS
+========================= */
+
+/* Button base style */
 .vendor-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: var(--v-tap);
-    padding: 0 22px;
-    border: 0;
-    border-radius: 10px;
-    font-weight: 700;
-    font-size: .95rem;
-    text-decoration: none;
-    cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: var(--v-tap);
+	padding: 0 22px;
+	border: 0;
+	border-radius: 10px;
+	font-weight: 700;
+	font-size: .95rem;
+	text-decoration: none;
+	cursor: pointer;
 }
 
+/* Button primary (green) */
 .vendor-btn.primary {
-    background: var(--v-green-btn);
-    color: #ffffff;
+	background: var(--v-green);
+	color: #ffffff;
 }
 
-.vendor-btn.secondary {
-    background: var(--v-gray-active);
-    color: var(--v-text);
-}
-
+/* Button danger (red) */
 .vendor-btn.danger {
-    background: transparent;
-    color: var(--v-red);
-    box-shadow: inset 0 0 0 2px var(--v-red);
+	background: transparent;
+	color: var(--v-red);
+	box-shadow: inset 0 0 0 2px var(--v-red);
 }
 
+/* Button secondary (gray) */
+.vendor-btn.secondary {
+	background: var(--v-gray-active);
+	color: var(--v-text);
+}
+
+/* Button pill, used in tables */
 .vendor-btn.small {
-    min-height: 36px;
-    padding: 0 14px;
-    font-size: .85rem;
-    border-radius: 999px;
+	min-height: 36px;
+	padding: 0 14px;
+	font-size: .85rem;
+	border-radius: 999px;
 }
 
+/* Utility to push an element to the left (auto right margin). */
 .push-left {
-    margin-right: auto;
+	margin-right: auto;
 }
 
+/* =========================
+   FORM CONTROLS
+========================= */
+
+/* Form labels*/
 .vendor-page .form-label {
-    font-weight: 700;
-    margin-bottom: 6px;
+	font-weight: 700;
+	margin-bottom: 6px;
 }
 
+/* Form control (input) */
 .vendor-page .form-control {
-    min-height: var(--v-tap);
-    border-radius: 10px;
-    font-size: 1rem;
+	min-height: var(--v-tap);
+	border-radius: 10px;
+	font-size: 1rem;
 }
 
+/* Form select */
 .vendor-page .form-select {
-    min-height: var(--v-tap);
-    border-radius: 10px;
-    font-size: 1rem;
+	min-height: var(--v-tap);
+	border-radius: 10px;
+	font-size: 1rem;
 }
 
+/* Error message */
 .field-error {
-    color: var(--v-red);
-    font-size: .9rem;
-    font-weight: 600;
-    margin: 8px 0 0;
+	color: var(--v-red);
+	font-size: .9rem;
+	font-weight: 600;
+	margin: 8px 0 0;
 }
 
+/* Empty error; hidden */
 .field-error:empty {
-    margin: 0;
+	margin: 0;
 }
 
+/* Helper text under a field */
 .form-hint {
-    color: var(--v-text-muted);
-    font-size: .85rem;
-    margin: 6px 0 0;
+	color: var(--v-text-muted);
+	font-size: .85rem;
+	margin: 6px 0 0;
 }
 
+/* =========================
+   RESPONSIVE LAYOUT
+========================= */
+
+/* Collapses the sidebar and content into a single column and
+   converts the sidebar links into a horizontal scroll strip. */
 @media (max-width: 768px) {
-    .vendor-layout {
-        grid-template-columns: 1fr;
-        min-height: 0;
-    }
+	.vendor-layout {
+		grid-template-columns: 1fr;
+		min-height: 0;
+	}
 
-    .vendor-sidebar {
-        border-radius: 0;
-    }
+	.vendor-sidebar {
+		border-radius: 0;
+	}
 
-    .vendor-sidebar h2 {
-        font-size: 1.6rem;
-        padding: 14px 16px 0;
-    }
+	.vendor-sidebar h2 {
+		font-size: 1.6rem;
+		padding: 14px 16px 0;
+	}
 
-    .vendor-greeting {
-        margin: 2px 0 10px;
-        padding: 0 16px;
-        font-size: 1rem;
-    }
+	.vendor-greeting {
+		margin: 2px 0 10px;
+		padding: 0 16px;
+		font-size: 1rem;
+	}
 
-    .sidebar-links {
-        display: flex;
-        overflow-x: auto;
-    }
+	.sidebar-links {
+		display: flex;
+		overflow-x: auto;
+	}
 
-    .sidebar-links li {
-        border-bottom: 0;
-        border-right: 1px solid var(--v-border);
-        flex: 0 0 auto;
-    }
+	.sidebar-links li {
+		border-bottom: 0;
+		border-right: 1px solid var(--v-border);
+		flex: 0 0 auto;
+	}
 
-    .sidebar-links a {
-        min-height: var(--v-tap);
-        padding: 0 18px;
-        white-space: nowrap;
-    }
+	.sidebar-links a {
+		min-height: var(--v-tap);
+		padding: 0 18px;
+		white-space: nowrap;
+	}
 
-    .vendor-content {
-        padding: 18px 16px 40px;
-    }
+	.vendor-content {
+		padding: 18px 16px 40px;
+	}
 
-    .page-title {
-        margin-bottom: 16px;
-    }
+	.page-title {
+		margin-bottom: 16px;
+	}
 
-    .store-panel {
-        border-radius: 16px;
-    }
+	.store-panel {
+		border-radius: 16px;
+	}
 }

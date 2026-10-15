@@ -1,74 +1,94 @@
 /* vendors-manage-menu.css - pages/vendor/manage-menu.html */
 
+/* =========================
+   STORE GRID
+========================= */
+
+/* Grid for store cards; responsive */
 .store-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(230px, 257px));
-    gap: 28px 34px;
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(230px, 257px));
+	gap: 28px 34px;
 }
 
+/* =========================
+   STORE CARD
+========================= */
+
+/* Store cards; opens store details */
 .store-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    padding: 14px 14px 18px;
-    background: #ffffff;
-    border: 1px solid var(--v-border);
-    border-radius: 22px;
-    color: inherit;
-    text-decoration: none;
-    text-align: center;
-    transition: box-shadow 0.15s ease, transform 0.15s ease;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 2px;
+	padding: 14px 14px 18px;
+	background: #ffffff;
+	border: 1px solid var(--v-border);
+	border-radius: 22px;
+	color: inherit;
+	text-decoration: none;
+	text-align: center;
+	transition: box-shadow 0.15s ease, transform 0.15s ease;
 }
 
+/* Store card on hover; lift + shadow */
 .store-card:hover {
-    box-shadow: 0 6px 18px rgba(0, 0, 0, .15);
-    transform: translateY(-2px);
+	box-shadow: 0 6px 18px rgba(0, 0, 0, .15);
+	transform: translateY(-2px);
 }
 
+/* Store card keyboard navigation */
 .store-card:focus-visible {
-    outline: 3px solid var(--v-green);
-    outline-offset: 3px;
+	outline: 3px solid var(--v-green);
+	outline-offset: 3px;
 }
 
+/* Logo contained in a store card */
 .store-card-logo {
-    width: 70%;
-    max-width: 150px;
-    aspect-ratio: 1;
-    object-fit: contain;
-    border-radius: 50%;
-    margin-bottom: 8px;
+	width: 70%;
+	max-width: 150px;
+	aspect-ratio: 1;
+	object-fit: contain;
+	border-radius: 50%;
+	margin-bottom: 8px;
 }
 
+/* Store Name */
 .store-card-name {
-    font-family: var(--v-font-heading);
-    font-weight: 800;
-    font-size: 1.5rem;
-    line-height: 1.15;
+	font-family: var(--v-font-heading);
+	font-weight: 800;
+	font-size: 1.5rem;
+	line-height: 1.15;
 }
 
+/* Location under store name */
 .store-card-location {
-    color: var(--v-text-muted);
-    font-size: 1.15rem;
-    margin-bottom: 4px;
+	color: var(--v-text-muted);
+	font-size: 1.15rem;
+	margin-bottom: 4px;
 }
 
+/* =========================
+   RESPONSIVE 
+========================= */
+
+/* Force 2-column grid on small screens; shrink padding and font-size */
 @media (max-width: 576px) {
-    .store-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 14px;
-    }
+	.store-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 14px;
+	}
 
-    .store-card {
-        padding: 12px 8px 14px;
-        border-radius: 16px;
-    }
+	.store-card {
+		padding: 12px 8px 14px;
+		border-radius: 16px;
+	}
 
-    .store-card-name {
-        font-size: 1.1rem;
-    }
+	.store-card-name {
+		font-size: 1.1rem;
+	}
 
-    .store-card-location {
-        font-size: .95rem;
-    }
+	.store-card-location {
+		font-size: .95rem;
+	}
 }
