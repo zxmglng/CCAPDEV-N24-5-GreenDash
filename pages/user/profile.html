@@ -6,7 +6,6 @@
         <link rel="stylesheet" href="../../bootstrap-icons/bootstrap-icons.css">
         <link rel="stylesheet" href="../../style/centralized.css">
         <link rel="stylesheet" href="../../style/user.css">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
         
         <!-- bootstrap icons -->
          <link rel="stylesheet" href="../../bootstrap-icons/font/bootstrap-icons.css">
@@ -56,10 +55,11 @@
                     <div class="col-lg-5 d-flex">
                         <section class="profile-card">
                             <div class="profile-top">
-                                <img src="../../assets/main/defaultAvatar.png" alt="User Avatar" class="profile-avatar">
-
-                                <h2>Juan Dela Cruz</h2>
-                                <p class="profile-email">juan_delacruz@dlsu.edu.ph</p>
+                                <img src="../../assets/main/defaultAvatar.png" alt="User Avatar" id="profileAvatar" class="profile-avatar">
+                                <input type="file" id="profilePictureInput" accept="image/*" hidden>
+                                <!-- DUMMY DATA PLACEHOLDER HEHE -->
+                                <h2 id="profileName">Juan Dela Cruz</h2>
+                                <p id="profileEmail" class="profile-email">juan_delacruz@dlsu.edu.ph</p>
                                 <span class="profile-role-badge">Student</span>
                             </div>
 
@@ -85,13 +85,13 @@
 
                                     <div class="col-md-6">
                                         <label for="contactNumber" class="profile-label">Contact Number</label>
-                                        <input type="number" id="contactNumber" class="profile-input" value="09123456789" readonly>
+                                        <input type="tel" id="contactNumber" class="profile-input" value="" readonly>
                                     </div>
                                 </div>
 
                                 <div class="profile-button-group">
-                                    <button type="button" class="edit-profile-btn">Edit Profile</button>
-                                    <button type="button" class="logout-btn">Logout</button>
+                                    <button type="button" id="editProfileBtn" class="edit-profile-btn">Edit Profile</button>
+                                    <button type="button" id="logoutBtn" class="logout-btn">Logout</button>
                                 </div>
                             </div>
                         </section>

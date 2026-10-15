@@ -1,62 +1,7 @@
-// Profile page - order frequency chart
-$(document).ready(function () {
-    var chartCanvas = $('#orderFrequencyChart');
-    if (chartCanvas.length) {
-        var ctx = chartCanvas[0].getContext('2d');
-        var orderFrequencyChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                datasets: [{
-                    label: 'Number of Orders',
-                    data: [0, 1, 4, 6, 3, 6, 7, 3, 10, 2, 12, 0],
-                    backgroundColor: '#006937',
-                    borderColor: '#006937',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {stepSize: 2}
-
-                    }
-                }
-            }
-        });
-    }
-});
-
 // stall-info filter button
 if (window.jQuery) {
     window.jQuery('#filterButton').click(function () {
         window.jQuery('#filterPanel').slideToggle();
-    });
-}
-
-const stallSearchInput = document.querySelector('#searchInput');
-
-if (stallSearchInput) {
-    const stallCards = document.querySelectorAll('.stall-card');
-    const noStallsMessage = document.querySelector('#noStallsFound');
-
-    stallSearchInput.addEventListener('input', () => {
-        const searchTerm = stallSearchInput.value.trim().toLowerCase();
-        let visibleStallCount = 0;
-
-        stallCards.forEach((card) => {
-            const searchContent = `${card.dataset.name || ''} ${card.dataset.tags || ''} ${card.textContent}`;
-            const matches = searchContent.toLowerCase().includes(searchTerm);
-            card.hidden = !matches;
-            visibleStallCount += Number(matches);
-        });
-
-        if (noStallsMessage) {
-            noStallsMessage.hidden = visibleStallCount > 0;
-        }
     });
 }
 
@@ -719,3 +664,278 @@ if (orderInfoModal) {
     });
 
 }
+
+
+/*
+MOCK LOGIN / LOGIN WITH GOOGLE :>
+Sources: 
+https://support.google.com/cloud/answer/15549257?hl=en
+https://www.youtube.com/watch?v=tgO_ADSvY1I
+*/
+window.onload = function () {
+    var googleLoginButton = document.getElementById('googleLoginButton');
+
+    if (googleLoginButton && window.google) {
+        google.accounts.id.initialize({
+            client_id: "724785346741-nn8e5lr9aga88afsfa9bsa79s9ofj6k3.apps.googleusercontent.com",
+            callback: handleGoogleLogin,
+            hd: 'dlsu.edu.ph'
+        });
+
+        google.accounts.id.renderButton(
+            googleLoginButton,
+            {
+                theme: "outline",
+                size: "large",
+                text: "continue_with",
+                width: 300
+            }
+        );
+    }
+};
+
+// login handler
+function handleGoogleLogin(response) {
+    var payload = JSON.parse(
+        atob(response.credential.split('.')[1])
+    );
+    if (payload.email.endsWith('@dlsu.edu.ph')) {
+        localStorage.setItem('userEmail', payload.email);
+        localStorage.setItem('userFirstName', payload.given_name);
+        localStorage.setItem('userLastName', payload.family_name);
+        localStorage.setItem('userFullName', payload.name);
+        localStorage.setItem('isLoggedIn', true);
+
+        if (payload.picture) {
+            localStorage.setItem('userPicture', payload.picture);
+        }
+        else {
+            localStorage.removeItem('userPicture');
+        }
+        window.location.href = 'stalls-directory.html';
+    }
+}
+
+// replace login
+$(document).ready(function () {
+    var firstName = localStorage.getItem('userFirstName');
+    var lastName = localStorage.getItem('userLastName');
+    var fullName = localStorage.getItem('userFullName');
+    var email = localStorage.getItem('userEmail');
+    var picture = localStorage.getItem('userPicture');
+
+    var newProfilePic = null;
+
+
+    if(fullName) {
+        $('#profileName').text(fullName);
+    }
+    if (email) {
+        $('#profileEmail').text(email);
+        $('#emailAddress').val(email);
+    }
+    if (firstName) {
+        $('#firstName').val(firstName);
+    }
+    if (lastName) {
+        $('#lastName').val(lastName);
+    }
+    if (picture) {
+        $('#profileAvatar').attr('src', picture);
+    }
+
+    // EDIT PROFILE BUTTON
+    $('#editProfileBtn').click(function () {
+        if ($(this).text().trim() == 'Edit Profile') {
+            $('#firstName').prop('readonly', false);
+            $('#lastName').prop('readonly', false);
+            $('#contactNumber').prop('readonly', false);
+            $('#profileAvatar').addClass('editable-avatar');
+
+            $(this).text('Save Changes');
+        }
+        else {
+            var newFirstName = $('#firstName').val().trim();
+            var newLastName = $('#lastName').val().trim();
+            var newContactNumber = $('#contactNumber').val().trim();
+
+            localStorage.setItem('userFirstName', newFirstName);
+            localStorage.setItem('userLastName', newLastName);
+            localStorage.setItem('userFullName', newFirstName + ' ' + newLastName);
+            localStorage.setItem('userContactNumber', newContactNumber);
+
+            if (newProfilePic) {
+                 localStorage.setItem('userPicture', newProfilePic);
+                 newProfilePic = null;
+            }
+
+            $('#profileName').text(newFirstName + ' ' + newLastName);
+            $('#firstName').prop('readonly', true);
+            $('#lastName').prop('readonly', true);
+            $('#contactNumber').prop('readonly', true);
+
+            $('#profileAvatar').removeClass('editable-avatar');
+
+            $(this).text('Edit Profile');
+            alert('Profile updated successfully!');
+        }
+    });
+
+    // PROFILE PIC
+    $('#profileAvatar').click(function () {
+        if ($('#editProfileBtn').text().trim() == 'Save Changes') {
+            $('#profilePictureInput').click();
+        }
+    });
+
+    $('#profilePictureInput').change(function () {
+        var file = this.files[0];
+
+        if (file) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                newProfilePic = e.target.result;
+
+                // preview only
+                $('#profileAvatar').attr('src', newProfilePic);
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // LOGOUT BUTTON
+    $('#logoutBtn').click(function () {
+        localStorage.removeItem('userFirstName');
+        localStorage.removeItem('userLastName');
+        localStorage.removeItem('userFullName');
+        localStorage.removeItem('userEmail');
+        localStorage.removeItem('userPicture');
+        localStorage.removeItem('userContactNumber');
+        localStorage.removeItem('isLoggedIn');
+
+        window.location.href = 'login.html';
+    });
+});
+
+// Profile page - order frequency chart
+$(document).ready(function () {
+    var chartCanvas = $('#orderFrequencyChart');
+    if (chartCanvas.length) {
+        var ctx = chartCanvas[0].getContext('2d');
+        var orderFrequencyChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'Number of Orders',
+                    data: [0, 1, 4, 6, 3, 6, 7, 3, 10, 2, 12, 0],
+                    backgroundColor: '#006937',
+                    borderColor: '#006937',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {stepSize: 2}
+                    }
+                }
+            }
+        });
+    }
+});
+
+// STALLS directory
+$(document).ready(function () {
+    $('#stallFilterButton').click(function () {
+        $('#stallFilterPanel').slideToggle();
+    });
+
+    function filterStalls() {
+        var search = $('#searchInput').val().toLowerCase().trim();
+        var location = $('#locationFilter').val();
+        var openOnly = $('#openOnly').prop('checked');
+
+        var selectedTypes = [];
+        $('.stall-type-filter:checked').each(function () {
+            selectedTypes.push($(this).val());
+        });
+
+        var visibleStalls = 0;
+        $('.stall-card').each(function () {
+            var stall = $(this);
+            var name = stall.data('name');
+            var stallLocation = stall.data('location');
+            var tags = stall.data('tags');
+            var type = stall.data('type');
+            var status = stall.data('status');
+
+            // search
+            var matchesSearch = name.includes(search) || stallLocation.includes(search) || tags.includes(search);
+            // location 
+            var matchesLocation = location == 'all' || stallLocation == location;
+            // open status 
+            var matchesStatus = !openOnly || status == 'open';
+            //type 
+            var matchesType = true;
+            if (selectedTypes.length > 0) {
+                matchesType = false;
+
+                $.each(selectedTypes, function (index, selectedType) {
+                    if (type.includes(selectedType)) {
+                        matchesType = true;
+                    }
+                });
+            }
+
+            // show or hide
+            if (matchesSearch && matchesLocation && matchesStatus && matchesType) {
+                stall.show();
+                visibleStalls++;
+            }
+            else {
+                stall.hide();
+            }
+        });
+
+        if (visibleStalls == 0) {
+            $('#noStallsFound').prop('hidden', false);
+        }
+        else {
+            $('#noStallsFound').prop('hidden', true);
+        }
+    }
+
+    // search
+    $('#searchInput').on('input', function () {
+        filterStalls();
+    });
+
+    //filters 
+    $('#openOnly, .stall-type-filter').change(function () {
+        filterStalls();
+    });
+
+    $('#locationFilter').change(function () {
+        filterStalls();
+    });
+
+    // reset filters 
+    $('#resetStallFilters').click(function () {
+        $('#searchInput').val('');
+        $('#openOnly').prop('checked', false);
+        $('.stall-type-filter').prop('checked', false);
+        $('#locationFilter').val('all');
+
+        filterStalls();
+    });
+
+    $('.stall-card .view-stall-button').click(function () {
+        var selectedStore = $(this).data('store');
+        localStorage.setItem('selectedStore', selectedStore);
+    });
+
+});
