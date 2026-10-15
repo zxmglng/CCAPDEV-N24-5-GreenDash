@@ -91,13 +91,13 @@
     border-top: 1px solid #dcdcdc;
 }
 
-@media (max-width: 767.98px) {
+@media (max-width: 768px) {
     .request-grid {
         grid-template-columns: 1fr;
     }
 }
 
-@media (max-width: 479.98px) {
+@media (max-width: 480px) {
     .hours-pair {
         grid-template-columns: 1fr;
     }

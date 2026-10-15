@@ -1,0 +1,5 @@
+/* admin-users.css - page-specific tweaks for manage-users.html */
+
+.users-table td:first-child {
+    font-weight: 600;
+}
