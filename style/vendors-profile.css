@@ -21,7 +21,7 @@
     overflow-wrap: anywhere;
 }
 
-@media (max-width: 575.98px) {
+@media (max-width: 576px) {
     .account-row {
         flex-direction: column;
         gap: 2px;

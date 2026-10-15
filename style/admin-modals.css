@@ -1,0 +1,96 @@
+/* admin-modals.css - reusable modal for admin pages */
+
+.admin-modal {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, .35);
+    z-index: 1000;
+}
+
+.admin-modal.open {
+    display: flex;
+}
+
+.admin-modal-card {
+    width: min(560px, 100%);
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+
+    padding: 28px 28px 24px;
+    background: #ffffff;
+    border-radius: 18px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, .25);
+}
+
+.admin-modal-card h2 {
+    margin: 0 0 18px;
+    font-family: var(--a-font-heading);
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--a-text);
+}
+
+.admin-modal-card .modal-row {
+    margin-bottom: 14px;
+}
+
+.admin-modal-card .modal-label {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: var(--a-text);
+}
+
+.admin-modal-card .modal-value {
+    color: var(--a-text);
+}
+
+.admin-modal-card .modal-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 22px;
+}
+
+.admin-modal-card .modal-actions .admin-btn {
+    flex: 1 1 0;
+}
+
+.admin-modal-card .close-x {
+    float: right;
+    border: 0;
+    background: transparent;
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--a-text-muted);
+}
+
+.admin-modal-card .close-x:hover {
+    color: var(--a-text);
+}
+
+.modal-hint {
+    margin: 0 0 12px;
+    color: var(--a-text-muted);
+}
+
+.admin-modal-card .form-control,
+.admin-modal-card .form-select {
+    min-height: var(--a-tap);
+    border-radius: 10px;
+}
+
+.field-error {
+    color: var(--a-red);
+    font-size: .9rem;
+    font-weight: 600;
+    margin: 8px 0 0;
+}
+
+.field-error:empty {
+    display: none;
+}
