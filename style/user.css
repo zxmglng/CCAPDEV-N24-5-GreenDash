@@ -1268,6 +1268,21 @@
     }
 }
 
+/* Keep directory cards as a compact version of the desktop layout. */
+@media (max-width: 767px) {
+    .stalls-directory-page .stall-title-row {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .stalls-directory-page .stall-details {
+        flex-direction: row;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+}
+
 
 /* ------------------ ORDERS PAGE ------------------- */
 /* Orders page layout and card styles */
