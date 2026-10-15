@@ -1,0 +1,95 @@
+<!-- Admin Dashboard -->
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>GreenDash - Admin Dashboard</title>
+
+        <link rel="stylesheet" href="../../bootstrap/css/bootstrap-5.3.3.min.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+        <link rel="stylesheet" href="../../style/centralized.css">
+        <link rel="stylesheet" href="../../style/admin.css">
+
+        <!-- website icon -->
+        <link rel="icon" type="image/png" href="../../assets/main/GreenDash_CIRCLE.png">
+    </head>
+    <body class="admin-page">
+        <!-- INCLUDE EVERYTHING FOR THE MAIN HEADER FOR ALL PAGES FROM HERE-->
+        <header>
+            <div class="main-header">
+                <img id="logo" src="../../assets/main/GreenDash_LOGO.png" alt="GreenDash Logo">
+                <button class="icon-button" id="eclipse" type="button" aria-label="Toggle dark mode">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M12 2a7 7 0 1 0 10 10"></path>
+                    </svg>
+                </button>
+            </div>
+        </header>
+        <!-- TO HERE!-->
+
+        <div class="admin-layout">
+            <!-- LEFT SIDEBAR -->
+            <aside class="admin-sidebar" aria-label="Admin dashboard">
+                <span>Dashboard</span>
+
+                <!-- STALL DROPDOWN -->
+                <button
+                    class="sidebar-link"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#stallsMenu"
+                    aria-expanded="true"
+                    aria-controls="stallsMenu"
+                >
+                    <span>Stalls</span>
+                    <span class="caret"><i class="bi bi-arrow-down"></i></span>
+                </button>
+
+                <div class="collapse show" id="stallsMenu">
+                    <div class="submenu">
+                        <a href="manage-stores.html" class="submenu-link active" aria-current="page">
+                            Manage
+                        </a>
+
+                        <a href="store-requests.html" class="submenu-link">
+                            Requests
+                        </a>
+                    </div>
+                </div>
+
+                <!-- USER DROPDOWN -->
+                <button
+                    class="sidebar-link"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#usersMenu"
+                    aria-expanded="false"
+                    aria-controls="usersMenu"
+                >
+                    <span>Users</span>
+                    <span class="caret"><i class="bi bi-arrow-down"></i></span>
+                </button>
+
+                <div class="collapse" id="usersMenu">
+                    <div class="submenu">
+                        <a href="manage-users.html" class="submenu-link">
+                            Manage
+                        </a>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main page -->
+            <main class="admin-content">
+                <h1 class="page-title">Hello, Admin</h1>
+            </main>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="../../js/centralized.js"></script>
+    </body>
+</html>
