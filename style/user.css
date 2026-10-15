@@ -23,7 +23,8 @@
 }
 
 .login-logo {
-    max-width: 600px;
+    width: min(600px, 100%);
+    height: auto;
     margin-bottom: 30px;
 }
 
@@ -58,7 +59,13 @@
 }
 
 #googleLoginButton {
+    width: min(310px, 100%);
     margin-bottom: 15px;
+}
+
+#googleLoginButton > div,
+#googleLoginButton iframe {
+    max-width: 100%;
 }
 
 .google-logo {
@@ -83,6 +90,47 @@
 .google-login-btn:hover {
     text-decoration: none;
     background-color: #e4e4e4;
+}
+
+@media (max-width: 600px) {
+    .login-page {
+        padding: 16px;
+    }
+
+    .login-container {
+        max-width: 360px;
+        padding: 20px 0;
+    }
+
+    .login-logo {
+        width: min(320px, 90vw);
+        margin-bottom: 24px;
+    }
+
+    #googleLoginButton,
+    .vendor-login-btn {
+        width: min(300px, 100%);
+    }
+
+    .vendor-login-btn {
+        height: 42px;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 359px) {
+    .login-page {
+        padding: 12px;
+    }
+
+    .login-logo {
+        width: 84vw;
+        margin-bottom: 20px;
+    }
+
+    .login-container {
+        padding: 12px 0;
+    }
 }
 
 /* ------------------ STALL-DIRECTORY PAGE ------------------- */
