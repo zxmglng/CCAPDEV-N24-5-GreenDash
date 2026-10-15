@@ -44,6 +44,10 @@
                             <h1 id="stallName"></h1>
                             <p id="stallLocation"></p>
                             <p id="stallHours"></p>
+                            <button type="button" class="stall-review-button" id="openReviewsButton">
+                                <span class="review-stars" aria-hidden="true">★★★★★</span>
+                                Reviews
+                            </button>
                         </div>
                     </section>
 
@@ -143,6 +147,57 @@
                     </div>
                     <button type="button" class="add-to-cart-button" id="addToCartButton">Add to cart - &#8369; 0</button>
                 </div>
+            </section>
+        </div>
+        <div class="review-modal-backdrop" id="reviewModal" hidden>
+            <section class="review-modal" role="dialog" aria-modal="true" aria-labelledby="reviewModalTitle">
+                <div class="review-modal-header">
+                    <div>
+                        <p class="review-eyebrow">REVIEWS</p>
+                        <h2 id="reviewModalTitle"></h2>
+                    </div>
+                    <button type="button" class="review-close-button" id="closeReviewsButton" aria-label="Close reviews">&times;</button>
+                </div>
+                <div class="review-toolbar">
+                    <label for="reviewStarFilter">Filter</label>
+                    <select id="reviewStarFilter">
+                        <option value="all">All stars</option>
+                        <option value="5">5 stars</option>
+                        <option value="4">4 stars</option>
+                        <option value="3">3 stars</option>
+                        <option value="2">2 stars</option>
+                        <option value="1">1 star</option>
+                    </select>
+                    <label for="reviewSort">Sort</label>
+                    <select id="reviewSort">
+                        <option value="newest">Newest to oldest</option>
+                        <option value="oldest">Oldest to newest</option>
+                    </select>
+                </div>
+                <div class="review-list" id="reviewList"></div>
+                <p class="review-eligibility-message" id="reviewEligibilityMessage" hidden>
+                    You can read reviews, but you need a completed order from this stall to leave one.
+                </p>
+                <form class="review-form" id="stallReviewForm">
+                    <h3>Write a review</h3>
+                    <div class="review-rating-input" role="radiogroup" aria-label="Your rating">
+                        <button type="button" data-rating="1" aria-label="1 star">☆</button>
+                        <button type="button" data-rating="2" aria-label="2 stars">☆</button>
+                        <button type="button" data-rating="3" aria-label="3 stars">☆</button>
+                        <button type="button" data-rating="4" aria-label="4 stars">☆</button>
+                        <button type="button" data-rating="5" aria-label="5 stars">☆</button>
+                    </div>
+                    <textarea id="stallReviewText" maxlength="500" placeholder="Share your experience (optional)"></textarea>
+                    <button type="button" class="cancel-review-button" id="cancelReviewEdit" hidden>Cancel edit</button>
+                    <button type="submit" class="submit-review-button">Post review</button>
+                </form>
+            </section>
+        </div>
+        <div class="review-message-backdrop" id="reviewMessage" hidden>
+            <section class="review-message" role="alertdialog" aria-labelledby="reviewMessageTitle">
+                <h2 id="reviewMessageTitle">you havent ordered from this stall yet!</h2>
+                <p>You can leave a review after completing an order from this stall.</p>
+                <button type="button" class="submit-review-button" id="closeReviewMessage">Okay</button>
             </section>
         </div>
         <script src="../../js/user-stalls.js"></script>

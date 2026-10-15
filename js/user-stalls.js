@@ -55,10 +55,19 @@ const stalls = {
 
 const params = new URLSearchParams(window.location.search);
 const stall = stalls[params.get('stall')] || stalls.starbucks;
+const stallId = params.get('stall') || 'starbucks';
+
+const completedOrderStalls = new Set(['starbucks', 'dairy-queen', 'potato-corner']);
+const reviewStorageKey = `greendash-reviews-${stallId}`;
+const sampleReviews = [
+    { rating: 5, text: 'The drinks were delicious and my order was ready on time.', date: '2026-10-07', author: 'GreenDash user' },
+    { rating: 4, text: 'Good food and friendly service.', date: '2026-09-29', author: 'GreenDash user' },
+    { rating: 5, text: '', date: '2026-09-18', author: 'GreenDash user' }
+];
 
 window.scrollTo(0, 0);
 
-function updateOrderDrawerOffset() {
+function updateOrderPanel() {
     const header = document.querySelector('header');
     const orderSummary = document.querySelector('.order-summary');
     if (header && orderSummary) {
@@ -67,14 +76,232 @@ function updateOrderDrawerOffset() {
     }
 }
 
-updateOrderDrawerOffset();
-window.addEventListener('resize', updateOrderDrawerOffset);
-window.addEventListener('scroll', updateOrderDrawerOffset, { passive: true });
+updateOrderPanel();
+window.addEventListener('resize', updateOrderPanel);
+window.addEventListener('scroll', updateOrderPanel, { passive: true });
 
 document.title = `GreenDash - ${stall.name}`;
 document.querySelector('#stallName').textContent = stall.name;
 document.querySelector('#stallLocation').textContent = stall.location;
 document.querySelector('#stallHours').textContent = stall.hours;
+
+const reviewModal = document.querySelector('#reviewModal');
+const reviewMessage = document.querySelector('#reviewMessage');
+const reviewList = document.querySelector('#reviewList');
+let selectedReviewRating = 0;
+let editingReviewId = null;
+
+function getReviewId(review, index) {
+    if (review.id) {
+        return review.id;
+    }
+
+    return `${review.author}-${review.date}-${index}`;
+}
+
+function getReviews() {
+    const savedReviews = localStorage.getItem(reviewStorageKey);
+
+    if (!savedReviews) {
+        return sampleReviews;
+    }
+
+    try {
+        const reviews = JSON.parse(savedReviews);
+
+        if (Array.isArray(reviews)) {
+            return reviews;
+        }
+
+        return sampleReviews;
+    } catch (error) {
+        console.error('Unable to load stall reviews.', error);
+        return sampleReviews;
+    }
+}
+
+function renderReviews() {
+    const filter = document.querySelector('#reviewStarFilter').value;
+    const sort = document.querySelector('#reviewSort').value;
+    const reviews = getReviews()
+        .filter((review) => filter === 'all' || review.rating === Number(filter))
+        .sort((a, b) => {
+            const difference = new Date(a.date) - new Date(b.date);
+
+            if (sort === 'oldest') {
+                return difference;
+            }
+
+            return -difference;
+        });
+
+    if (reviews.length === 0) {
+        reviewList.innerHTML = '<p class="review-empty">No reviews match this filter.</p>';
+        return;
+    }
+
+    reviewList.innerHTML = reviews.map((review, index) => {
+        let reviewText = '<p class="review-no-text">No written review.</p>';
+        let reviewActions = '';
+
+        if (review.text) {
+            reviewText = `<p>${review.text}</p>`;
+        }
+
+        if (review.author === 'You') {
+            reviewActions = `
+                <div class="review-actions">
+                    <button type="button" class="edit-review-button" data-review-id="${getReviewId(review, index)}">Edit</button>
+                    <button type="button" class="delete-review-button" data-review-id="${getReviewId(review, index)}">Delete</button>
+                </div>`;
+        }
+
+        return `
+            <article class="review-card" data-review-id="${getReviewId(review, index)}">
+                <div class="review-card-heading">
+                    <strong>${review.author}</strong>
+                    <time datetime="${review.date}">${new Date(`${review.date}T00:00:00`).toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' })}</time>
+                </div>
+                <div class="review-card-stars" aria-label="${review.rating} out of 5 stars">${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</div>
+                ${reviewText}
+                ${reviewActions}
+            </article>`;
+    }).join('');
+}
+
+function openReviews() {
+    document.querySelector('#reviewModalTitle').textContent = `${stall.name} reviews`;
+    renderReviews();
+    const canReview = completedOrderStalls.has(stallId);
+    document.querySelector('#stallReviewForm').hidden = !canReview;
+    document.querySelector('#reviewEligibilityMessage').hidden = canReview;
+    reviewModal.hidden = false;
+}
+
+document.querySelector('#openReviewsButton').addEventListener('click', openReviews);
+document.querySelector('#closeReviewsButton').addEventListener('click', () => {
+    reviewModal.hidden = true;
+});
+document.querySelector('#closeReviewMessage').addEventListener('click', () => {
+    reviewMessage.hidden = true;
+});
+reviewModal.addEventListener('click', (event) => {
+    if (event.target === reviewModal) reviewModal.hidden = true;
+});
+reviewMessage.addEventListener('click', (event) => {
+    if (event.target === reviewMessage) reviewMessage.hidden = true;
+});
+reviewList.addEventListener('click', (event) => {
+    const reviewId = event.target.dataset.reviewId;
+
+    if (!reviewId) {
+        return;
+    }
+
+    const reviews = getReviews();
+    const reviewIndex = reviews.findIndex((review, index) => getReviewId(review, index) === reviewId);
+
+    if (reviewIndex === -1 || reviews[reviewIndex].author !== 'You') {
+        return;
+    }
+
+    if (event.target.classList.contains('edit-review-button')) {
+        const review = reviews[reviewIndex];
+        editingReviewId = reviewId;
+        selectedReviewRating = review.rating;
+        document.querySelector('#stallReviewText').value = review.text;
+        document.querySelector('#cancelReviewEdit').hidden = false;
+        document.querySelector('#stallReviewForm .submit-review-button').textContent = 'Save changes';
+        document.querySelectorAll('.review-rating-input button').forEach((star) => {
+            star.textContent = '☆';
+
+            if (Number(star.dataset.rating) <= selectedReviewRating) {
+                star.textContent = '★';
+            }
+        });
+        return;
+    }
+
+    if (event.target.classList.contains('delete-review-button')) {
+        const shouldDelete = window.confirm('Delete your review?');
+
+        if (!shouldDelete) {
+            return;
+        }
+
+        reviews.splice(reviewIndex, 1);
+        try {
+            localStorage.setItem(reviewStorageKey, JSON.stringify(reviews));
+        } catch (error) {
+            console.error('Unable to delete the stall review.', error);
+            return;
+        }
+        renderReviews();
+    }
+});
+document.querySelector('#reviewStarFilter').addEventListener('change', renderReviews);
+document.querySelector('#reviewSort').addEventListener('change', renderReviews);
+
+document.querySelectorAll('.review-rating-input button').forEach((button) => {
+    button.addEventListener('click', () => {
+        selectedReviewRating = Number(button.dataset.rating);
+        document.querySelectorAll('.review-rating-input button').forEach((star) => {
+            star.textContent = '☆';
+
+            if (Number(star.dataset.rating) <= selectedReviewRating) {
+                star.textContent = '★';
+            }
+        });
+    });
+});
+
+document.querySelector('#stallReviewForm').addEventListener('submit', (event) => {
+    event.preventDefault();
+    if (!selectedReviewRating) return;
+    const review = {
+        id: `review-${Date.now()}`,
+        rating: selectedReviewRating,
+        text: document.querySelector('#stallReviewText').value.trim(),
+        date: new Date().toISOString().slice(0, 10),
+        author: 'You'
+    };
+    const reviews = getReviews();
+
+    if (editingReviewId) {
+        const reviewIndex = reviews.findIndex((savedReview, index) => getReviewId(savedReview, index) === editingReviewId);
+
+        if (reviewIndex !== -1) {
+            review.id = editingReviewId;
+            review.date = reviews[reviewIndex].date;
+            reviews[reviewIndex] = review;
+        }
+    } else {
+        reviews.push(review);
+    }
+
+    try {
+        localStorage.setItem(reviewStorageKey, JSON.stringify(reviews));
+    } catch (error) {
+        console.error('Unable to save stall review.', error);
+        return;
+    }
+    document.querySelector('#stallReviewText').value = '';
+    selectedReviewRating = 0;
+    editingReviewId = null;
+    document.querySelector('#cancelReviewEdit').hidden = true;
+    document.querySelector('#stallReviewForm .submit-review-button').textContent = 'Post review';
+    document.querySelectorAll('.review-rating-input button').forEach((star) => { star.textContent = '☆'; });
+    renderReviews();
+});
+
+document.querySelector('#cancelReviewEdit').addEventListener('click', () => {
+    editingReviewId = null;
+    selectedReviewRating = 0;
+    document.querySelector('#stallReviewText').value = '';
+    document.querySelector('#cancelReviewEdit').hidden = true;
+    document.querySelector('#stallReviewForm .submit-review-button').textContent = 'Post review';
+    document.querySelectorAll('.review-rating-input button').forEach((star) => { star.textContent = '☆'; });
+});
 
 const banner = document.querySelector('#stallBanner');
 banner.src = stall.banner;
@@ -195,7 +422,7 @@ modal.addEventListener('click', (event) => {
 });
 
 document.querySelector('#cart').addEventListener('click', () => {
-    updateOrderDrawerOffset();
+    updateOrderPanel();
     document.body.classList.toggle('cart-open');
 });
 
@@ -205,7 +432,12 @@ document.querySelector('#closeOrderButton').addEventListener('click', () => {
 
 document.querySelector('#filterButton').addEventListener('click', () => {
     const panel = document.querySelector('#filterPanel');
-    panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+
+    if (panel.style.display === 'block') {
+        panel.style.display = 'none';
+    } else {
+        panel.style.display = 'block';
+    }
 });
 
 document.querySelector('#menuSearch').addEventListener('input', (event) => {
