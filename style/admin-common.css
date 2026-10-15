@@ -1,24 +1,30 @@
 /* admin-common.css - shared layout & shell for all admin pages */
 
 :root {
+
+    /* Sidebar dimension and palette */
     --a-sidebar-w: clamp(220px, 24vw, 333px);
     --a-sidebar-bg: #19483b;
     --a-sidebar-submenu-bg: #123d32;
     --a-sidebar-hover: #2d705d;
     --a-sidebar-accent: #014428ee;
 
+    /* Font color/Button */
     --a-green: #006937;
-    --a-green-btn: #006937;
     --a-red: #b22222;
     --a-red-btn: #c62828;
+
+    /* Font color/outlines/elements */
     --a-gray-bar: #f0f0f0;
     --a-border: #cfcfcf;
     --a-text: #1f1f1f;
     --a-text-muted: #5c5f5e;
 
+    /* Fonts */
     --a-font-heading: "League Spartan", "Spartan", "Poppins", "Montserrat", "Segoe UI", Arial, sans-serif;
     --a-font-body: "Inter", "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
 
+    /* Minimum height-width for interactive elements */
     --a-tap: 44px;
 }
 
@@ -26,6 +32,12 @@
    GENERAL PAGE STYLES
 ========================= */
 
+/* Make padding/borders/margin within declared size */
+* {
+    box-sizing: border-box;
+}
+
+/* Base body styling */
 body.admin-page {
     margin: 0;
     font-family: var(--a-font-body);
@@ -33,22 +45,31 @@ body.admin-page {
     background-color: #ffffff;
 }
 
-* {
-    box-sizing: border-box;
-}
-
+/* Header line spacing */
 .admin-page header {
     line-height: normal;
+}
+
+/* Main page headings (Greeting, Stalls/User Directory, R) */
+.admin-page .page-title {
+    font-family: var(--a-font-heading);
+    font-weight: 800;
+    font-size: 36px;
+    line-height: 1.1;
+    color: var(--a-green);
+    padding-top: 16px;
+    padding-bottom: 16px;
 }
 
 /* =========================
    ADMIN LAYOUT
 ========================= */
 
+/* Flex container holding sidebar and admin-content; fill viewport */
 .admin-layout {
     display: flex;
     align-items: stretch;
-    min-height: calc(100vh - 151px);
+    min-height: calc(100vh);
     width: 100%;
 }
 
@@ -56,29 +77,34 @@ body.admin-page {
    LEFT SIDEBAR
 ========================= */
 
+/* Navigation panel */
 .admin-sidebar {
+    /* Maintain item size */
     flex: 0 0 var(--a-sidebar-w);
     width: var(--a-sidebar-w);
-    min-height: calc(100vh - 151px);
+    min-height: calc(100vh);
 
     padding: 20px 23px;
 
     background-color: var(--a-sidebar-bg);
     color: #ffffff;
 
+    /* Horizontal scroll for overflow */
     overflow-x: hidden;
     overflow-y: auto;
 }
 
+/* Navigation panel title (Dashboard) */
 .admin-sidebar > span {
     display: block;
-    padding: 5px 12px 30px;
+    padding: 10px 8px 20px;
 
     color: #ffffff;
     font-size: 20px;
     font-weight: 700;
 }
 
+/* Sidebar dropdown buttons */
 .sidebar-link {
     display: flex;
     align-items: center;
@@ -96,7 +122,7 @@ body.admin-page {
     background-color: transparent;
     color: #ffffff;
 
-    font-family: var(--a-font-heading);
+    font-family: var(--a-font-body);
     font-size: 20px;
     font-weight: 700;
     text-align: left;
@@ -105,29 +131,34 @@ body.admin-page {
     text-decoration: none;
 }
 
+/* Sidebar dropdown button on hover */
 .sidebar-link:hover,
 .sidebar-link.active {
     background-color: var(--a-sidebar-hover);
-    color: #ffffff;
 }
 
+/* Sidebar drowdown button keyboard navigation outline */
 .sidebar-link:focus-visible,
 .submenu-link:focus-visible {
     outline: 2px solid #c5f0d7;
     outline-offset: 3px;
 }
 
+/* Dropdown arrows */
 .sidebar-link > .caret {
     display: flex;
     align-items: center;
     justify-content: center;
+    /* Control animation on stransition; */
     transition: transform 0.2s ease;
 }
 
+/* Rotate Dropdown arrows when aria-expanded="true" */
 .sidebar-link[aria-expanded="true"] > .caret {
     transform: rotate(180deg);
 }
 
+/* Bootstrap icon size*/
 .sidebar-link i {
     font-size: 22px;
     line-height: 1;
@@ -137,12 +168,15 @@ body.admin-page {
    SUBMENU
 ========================= */
 
+/* Submenu Links Container */
 .submenu {
+    /* force expand */
     margin: 0 -23px 8px;
     padding: 20px 32px 20px 23px;
     background-color: var(--a-sidebar-submenu-bg);
 }
 
+/* Submenu Links (Manage/Requests) */
 .submenu-link {
     display: block;
     width: 100%;
@@ -158,10 +192,12 @@ body.admin-page {
     text-decoration: none;
 }
 
+/* Remove bottom margin of the last submenu link */
 .submenu-link:last-child {
     margin-bottom: 0;
 }
 
+/* Submenu links on hover */
 .submenu-link:hover,
 .submenu-link.active {
     background-color: var(--a-sidebar-hover);
@@ -172,26 +208,20 @@ body.admin-page {
    MAIN CONTENT
 ========================= */
 
+/* Main-content container: fill any empty space*/
 .admin-content {
     flex: 1 1 auto;
+    /* allow content to overflow/truncate */
     min-width: 0;
     padding: 12px 20px;
     background-color: #ffffff;
-}
-
-.admin-page .page-title {
-    font-family: var(--a-font-heading);
-    font-weight: 800;
-    font-size: 36px;
-    line-height: 1.1;
-    color: var(--a-green);
-    margin: 0 0 16px;
 }
 
 /* =========================
    RESPONSIVE
 ========================= */
 
+/* Adjustment for Tablets */
 @media (max-width: 768px) {
     .admin-sidebar {
         padding: 20px 16px;
@@ -213,6 +243,7 @@ body.admin-page {
     }
 }
 
+/* Adjustment for smaller mobile devices */
 @media (max-width: 480px) {
     .admin-sidebar {
         padding: 16px 10px;

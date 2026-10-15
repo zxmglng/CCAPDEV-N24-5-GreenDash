@@ -1,5 +1,6 @@
 /* admin-users.css - page-specific tweaks for manage-users.html */
 
+/* Bold first column */
 .users-table td:first-child {
     font-weight: 600;
 }
