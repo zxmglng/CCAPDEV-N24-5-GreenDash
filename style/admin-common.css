@@ -27,6 +27,136 @@
     --a-tap: 44px;
 }
 
+/* =========================
+   DARK MODE
+========================= */
+
+body.dark-mode {
+    --a-sidebar-bg: #142e26;
+    --a-sidebar-submenu-bg: #0f2620;
+    --a-sidebar-hover: #245a4b;
+
+    --a-green: #8fbc99;
+    --a-red: #e58b7d;
+    --a-red-btn: #b3453a;
+
+    --a-gray-bar: #2d332f;
+    --a-border: #444444;
+    --a-text: #e0e0e0;
+    --a-text-muted: #b0b0b0;
+}
+
+body.admin-page.dark-mode,
+body.dark-mode .admin-content {
+    background-color: #1b1e1c;
+}
+
+body.dark-mode .store-card,
+body.dark-mode .store-panel,
+body.dark-mode .vmodal-box,
+body.dark-mode .list-row,
+body.dark-mode .day-pill {
+    background-color: #252a27;
+    color: var(--v-text);
+    border-color: var(--v-border);
+}
+
+body.dark-mode .store-panel,
+body.dark-mode .store-card {
+    box-shadow: 0 6px 18px rgba(0, 0, 0, .4);
+}
+
+body.dark-mode .vendor-btn.primary,
+body.dark-mode .status.open,
+body.dark-mode .day-input:checked + .day-pill {
+    background-color: #005a30;
+    border-color: #005a30;
+}
+
+/* TABLES DARK MODE */
+
+body.dark-mode .admin-table-wrap,
+body.dark-mode .admin-table thead th {
+    background-color: #252a27;
+    color: var(--a-text);
+    border-color: var(--a-border);
+}
+
+body.dark-mode .admin-table tbody td {
+    color: var(--a-text);
+    border-bottom-color: var(--a-border);
+}
+
+body.dark-mode .admin-table tbody tr:hover td {
+    background-color: #2d332f;
+}
+
+body.dark-mode .admin-table .empty-row td {
+    color: var(--a-text-muted);
+}
+
+/* MODALS DARK MODE */
+
+body.dark-mode .admin-modal {
+    background: rgba(0, 0, 0, .55);
+}
+
+body.dark-mode .admin-modal-card {
+    background-color: #252a27;
+    color: var(--a-text);
+}
+
+body.dark-mode .admin-modal-card h2,
+body.dark-mode .admin-modal-card .modal-label,
+body.dark-mode .admin-modal-card .modal-value,
+body.dark-mode .modal-hint {
+    color: var(--a-text);
+}
+
+body.dark-mode .admin-modal-card .form-control,
+body.dark-mode .admin-modal-card .form-select {
+    background-color: #2d332f;
+    color: var(--a-text);
+    border-color: var(--a-border);
+}
+
+body.dark-mode .admin-modal-card .form-control::placeholder {
+    color: var(--a-text-muted);
+}
+
+body.dark-mode .admin-modal-card .form-control:focus,
+body.dark-mode .admin-modal-card .form-select:focus {
+    background-color: #2d332f;
+    color: var(--a-text);
+    border-color: var(--a-green);
+    box-shadow: 0 0 0 2px rgba(143, 188, 153, .25);
+}
+
+body.dark-mode .admin-modal-card .close-x {
+    color: var(--a-text-muted);
+}
+
+body.dark-mode .admin-modal-card .close-x:hover {
+    color: var(--a-text);
+}
+
+body.dark-mode .field-error {
+    color: var(--a-red);
+}
+
+body.dark-mode .picker-item {
+    background-color: #252a27;
+    border-color: var(--a-border);
+}
+
+body.dark-mode .picker-item.selected {
+    background-color: #2d4935;
+    border-color: var(--a-green);
+}
+
+body.dark-mode .picker-item span {
+    color: var(--a-text);
+}
 
 /* =========================
    GENERAL PAGE STYLES
