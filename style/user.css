@@ -5,7 +5,6 @@
 
 /* ------------------ USER LOGIN PAGE -------------------- */
 .login-page {
-    min-height: 100vh;
     margin: 0;
     display: flex;
     align-items: center;
@@ -1722,15 +1721,47 @@
     .profile-page {
         padding: 25px 18px 40px;
     }
-
+    /* space between profile card and activity card */
+    .profile-page .row {
+        row-gap: 22px;
+    }
+    .profile-card, .activity-card {
+        padding: 20px;
+        border-radius: 18px;
+    }
+    /* profile top */
+    .profile-avatar {
+        width: 100px;
+        height: 100px;
+        margin-bottom: 10px;
+    }
+    .profile-top h2 {
+        font-size: 27px;
+    }
+    .profile-email {
+        font-size: 14px;
+        margin-bottom: 15px;
+    }
+    /* profile information */
+    .profile-information h3 {
+        font-size: 24px;
+        margin-top: 14px;
+        margin-bottom: 14px;
+    }
+    .profile-input {
+        padding: 9px 12px;
+        font-size: 13px;
+    }
+    /* buttons */
     .profile-button-group {
         flex-direction: column;
+        gap: 10px;
+        margin-top: 25px;
     }
-
     .edit-profile-btn, .logout-btn {
         width: 100%;
+        padding: 10px 16px;
     }
-
     .activity-stats {
         flex-direction: column;
     }

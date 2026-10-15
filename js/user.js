@@ -938,4 +938,10 @@ $(document).ready(function () {
         localStorage.setItem('selectedStore', selectedStore);
     });
 
+    $('.closed-store-link').click(function (event) {
+        event.preventDefault();
+        alert('Sorry, this store is currently closed and cannot be viewed at the moment.')
+
+    });
+
 });
