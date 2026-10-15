@@ -190,6 +190,7 @@ const orders = [
         items: [{ name: 'Classic Belgian Waffle', detail: 'Chocolate', quantity: 1, total: 158 }]
     }
 ];
+
 const userOrderStatusStorageKey = 'greendash.user.order-status.v1';
 let savedUserOrderStatuses = {};
 try {
@@ -677,7 +678,7 @@ window.onload = function () {
 
     if (googleLoginButton && window.google) {
         google.accounts.id.initialize({
-            client_id: "724785346741-nn8e5lr9aga88afsfa9bsa79s9ofj6k3.apps.googleusercontent.com",
+            client_id: "480778889925-f2akgk8hkv2b6rtoqhc9laag22l21irc.apps.googleusercontent.com",
             callback: handleGoogleLogin,
             hd: 'dlsu.edu.ph'
         });
@@ -712,7 +713,10 @@ function handleGoogleLogin(response) {
         else {
             localStorage.removeItem('userPicture');
         }
-        window.location.href = 'stalls-directory.html';
+        var redirectTarget = document
+            .getElementById('googleLoginButton')
+            .dataset.loginRedirect || 'stalls-directory.html';
+        window.location.href = redirectTarget;
     }
 }
 
