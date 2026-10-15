@@ -1,7 +1,6 @@
 /* admin-common.css - shared layout & shell for all admin pages */
 
 :root {
-
     /* Sidebar dimension and palette */
     --a-sidebar-w: clamp(220px, 24vw, 333px);
     --a-sidebar-bg: #19483b;
@@ -27,6 +26,7 @@
     /* Minimum height-width for interactive elements */
     --a-tap: 44px;
 }
+
 
 /* =========================
    GENERAL PAGE STYLES
@@ -164,6 +164,48 @@ body.admin-page {
     line-height: 1;
 }
 
+/* Signout button */
+.sidebar-signout {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    width: 100%;
+    min-height: 46px;
+
+    margin-top: 16px;
+    padding: 10px 15px;
+
+    border: none;
+    border-radius: 17px;
+
+    background-color: transparent;
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: 700;
+    text-align: left;
+    text-decoration: none;
+
+    cursor: pointer;
+}
+
+/* Signout button on hover */
+.sidebar-signout:hover {
+    background-color: var(--a-sidebar-hover);
+}
+
+/* Signout keyboard navigation outline */
+.sidebar-signout:focus-visible {
+    outline: 2px solid #c5f0d7;
+    outline-offset: 3px;
+}
+
+/* Bootstrap icon size*/
+.sidebar-signout i {
+    font-size: 22px;
+    line-height: 1;
+}
+
 /* =========================
    SUBMENU
 ========================= */
@@ -203,6 +245,8 @@ body.admin-page {
     background-color: var(--a-sidebar-hover);
     color: #ffffff;
 }
+
+
 
 /* =========================
    MAIN CONTENT

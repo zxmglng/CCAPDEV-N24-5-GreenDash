@@ -1,9 +1,5 @@
 /* vendors-common.css - shared by every vendor page */
 
-/* =========================
-   DESIGN TOKENS
-========================= */
-
 :root {
     /* Dimensions */
 	--v-sidebar-w: clamp(220px, 24vw, 333px);

@@ -57,3 +57,22 @@ if (cartButton) {
         // Handle cart button click
     });
 }
+
+// Admin logout
+const adminLogoutButton = document.querySelector('#adminLogoutBtn');
+
+if (adminLogoutButton) {
+    // Lock down admin pages: if not signed in, send to the landing page.
+    if (sessionStorage.getItem('adminAuthenticated') !== 'true') {
+        window.location.href = '../../index.html';
+    }
+
+    adminLogoutButton.addEventListener('click', (event) => {
+        if (!confirm('Sign out of the admin panel?')) {
+            event.preventDefault();
+            return;
+        }
+        sessionStorage.removeItem('adminAuthenticated');
+        window.location.href = '../../index.html';
+    });
+}
