@@ -1,0 +1,92 @@
+/* admin-login.css - styling for the login page */
+
+.admin-login-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.admin-login-card {
+    width: 100%;
+    max-width: 420px;
+    padding: 32px 28px;
+    background: #ffffff;
+    border: 1px solid var(--a-border);
+    border-radius: 18px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, .1);
+    text-align: center;
+}
+
+.admin-login-card img {
+    width: 220px;
+    max-width: 80%;
+    margin-bottom: 20px;
+}
+
+.admin-login-card h1 {
+    font-family: var(--a-font-heading);
+    font-weight: 800;
+    font-size: 1.8rem;
+    color: var(--a-green);
+    margin: 0 0 8px;
+}
+
+.admin-login-card p {
+    color: var(--a-text-muted);
+    margin: 0 0 24px;
+}
+
+.admin-login-field {
+    text-align: left;
+    margin-bottom: 16px;
+}
+
+.admin-login-field label {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: var(--a-text);
+}
+
+.admin-login-field input {
+    width: 100%;
+    min-height: var(--a-tap);
+    padding: 0 14px;
+    border: 1px solid var(--a-border);
+    border-radius: 10px;
+    font-size: 1rem;
+    color: var(--a-text);
+    background: #ffffff;
+}
+
+.admin-login-field input:focus-visible {
+    outline: 2px solid var(--a-green);
+    outline-offset: 2px;
+}
+
+.admin-login-submit {
+    width: 100%;
+    min-height: var(--a-tap);
+    margin-top: 8px;
+    border: 0;
+    border-radius: 10px;
+    background: var(--a-green);
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.admin-login-submit:hover {
+    background: #004a26;
+}
+
+.admin-login-error {
+    color: var(--a-red);
+    font-size: .9rem;
+    font-weight: 600;
+    margin: 12px 0 0;
+    min-height: 1.2em;
+}
