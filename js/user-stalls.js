@@ -132,7 +132,7 @@ function getReviewId(review, index) {
         return review.id;
     }
 
-    return `${review.author}-${review.date}-${index}`;
+    return `${review.author}-${review.date}-${review.rating}-${review.text || ''}`;
 }
 
 function getReviews() {
@@ -154,6 +154,13 @@ function getReviews() {
         console.error('Unable to load stall reviews.', error);
         return sampleReviews;
     }
+}
+
+function updateReviewFormVisibility() {
+    const canReview = completedOrderStalls.has(stallId);
+    const hasPostedReview = getReviews().some((review) => review.author === 'You');
+    document.querySelector('#stallReviewForm').hidden = !canReview || hasPostedReview;
+    document.querySelector('#reviewEligibilityMessage').hidden = canReview;
 }
 
 function renderReviews() {
@@ -208,9 +215,7 @@ function renderReviews() {
 function openReviews() {
     document.querySelector('#reviewModalTitle').textContent = `${stall.name} reviews`;
     renderReviews();
-    const canReview = completedOrderStalls.has(stallId);
-    document.querySelector('#stallReviewForm').hidden = !canReview;
-    document.querySelector('#reviewEligibilityMessage').hidden = canReview;
+    updateReviewFormVisibility();
     reviewModal.hidden = false;
 }
 
@@ -245,6 +250,7 @@ reviewList.addEventListener('click', (event) => {
         const review = reviews[reviewIndex];
         editingReviewId = reviewId;
         selectedReviewRating = review.rating;
+        document.querySelector('#stallReviewForm').hidden = false;
         document.querySelector('#stallReviewText').value = review.text;
         document.querySelector('#cancelReviewEdit').hidden = false;
         document.querySelector('#stallReviewForm .submit-review-button').textContent = 'Save changes';
@@ -272,7 +278,9 @@ reviewList.addEventListener('click', (event) => {
             console.error('Unable to delete the stall review.', error);
             return;
         }
+        editingReviewId = null;
         renderReviews();
+        updateReviewFormVisibility();
     }
 });
 document.querySelector('#reviewStarFilter').addEventListener('change', renderReviews);
@@ -328,6 +336,7 @@ document.querySelector('#stallReviewForm').addEventListener('submit', (event) =>
     document.querySelector('#stallReviewForm .submit-review-button').textContent = 'Post review';
     document.querySelectorAll('.review-rating-input button').forEach((star) => { star.textContent = '☆'; });
     renderReviews();
+    updateReviewFormVisibility();
 });
 
 document.querySelector('#cancelReviewEdit').addEventListener('click', () => {

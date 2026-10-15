@@ -403,6 +403,13 @@ border-color: var(--border-color);
 color: var(--text-color);
 }
 
+body.dark-mode .menu-item h3,
+body.dark-mode .menu-item p,
+body.dark-mode .menu-item .menu-price,
+body.dark-mode .menu-item .price {
+    color: var(--text-color);
+}
+
 body.dark-mode .menu-search #menuSearch,
 body.dark-mode .filter-panel #priceSort,
 body.dark-mode .pickup-time-control select,
