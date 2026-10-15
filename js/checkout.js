@@ -92,6 +92,17 @@ if (!checkoutData || !checkoutData.items || checkoutData.items.length === 0) {
         pickupOption.textContent = pickupTime;
         checkoutPickupTime.appendChild(pickupOption);
     });
+
+    const savedPickupTime = checkoutData.pickupTime || 'now';
+    if ([...checkoutPickupTime.options].some((option) => option.value === savedPickupTime)) {
+        checkoutPickupTime.value = savedPickupTime;
+    }
+
+    checkoutPickupTime.addEventListener('change', () => {
+        checkoutData.pickupTime = checkoutPickupTime.value;
+        sessionStorage.setItem(checkoutStorageKey, JSON.stringify(checkoutData));
+    });
+
     document.querySelector('#checkoutTotal').textContent = `₱${checkoutData.total}`;
 
     document.querySelector('#checkoutItems').innerHTML = checkoutData.items.map((item) => `

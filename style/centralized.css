@@ -26,6 +26,43 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=League+Spartan:wght@100..900&display=swap');
 
 
+/* Shared theme variables: new components should use these instead of hardcoded theme colors. */
+:root {
+    --page-background: #ffffff;
+    --surface-background: #f4f4f4;
+    --header-background: #d5e6cb;
+    --text-color: #111111;
+    --muted-text-color: #666666;
+    --border-color: #cccccc;
+    --primary-color: #006937;
+    --button-color: #00843d;
+}
+
+body.dark-mode {
+    --page-background: #1b1e1c;
+    --surface-background: #252a27;
+    --elevated-background: #2d332f;
+    --modal-background: #343a36;
+    --header-background: #303431;
+    --nav-background: #252a27;
+    --text-color: #e0e0e0;
+    --muted-text-color: #b0b0b0;
+    --border-color: #444444;
+    --primary-color: #8fbc99;
+    --button-color: #6fa47b;
+    --badge-background: #2d332f;
+    --search-background: #202522;
+    --search-button-background: #6fa47b;
+    --search-button-color: #e0e0e0;
+}
+
+body:not(.dark-mode) {
+    --badge-background: #dbdedc;
+    --search-background: #f4f4f4;
+    --search-button-background: #006937;
+    --search-button-color: #ffffff;
+}
+
 /* Prevents the default box-sizing behavior of the browser, which can cause layout issues. */
 *,
 *::before,
@@ -35,8 +72,10 @@
 
 body {
     font-family: 'Inter', sans-serif;        /* default to inter */
-    background-color: #ffffff;             /* default to white */
+    background-color: var(--page-background);
+    color: var(--text-color);
     margin: 0;
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 /* --- HEADER & NAVIGATION BAR --- */
@@ -51,14 +90,14 @@ nav {
     display: flex;
     align-items: center;
     width: 100%;
-    background-color: #ffffff;
+    background-color: var(--page-background);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
 }
 
 .main-header {
     display: flex;
     font-family: 'League Spartan', 'Inter';   /* default to league spartan */
-    background-color: #d5e6cb;
+    background-color: var(--header-background);
     margin: 0 auto;
     padding: 10px 0 10px 20px;
     width: 100%;
@@ -165,6 +204,357 @@ nav {
 .location-select:focus {
     outline: 2px solid #006937;
     outline-offset: 2px;
+}
+
+/* Shared dark-mode styles */
+body.dark-mode .stall-card,
+body.dark-mode .menu-item,
+body.dark-mode .payment-form,
+body.dark-mode .checkout-order {
+background-color: var(--surface-background);
+border-color: var(--border-color);
+}
+
+body.dark-mode .review-modal,
+body.dark-mode .item-modal,
+body.dark-mode .empty-cart-modal,
+body.dark-mode .checkout-message,
+body.dark-mode .closed-stall-modal,
+body.dark-mode .order-info-modal .modal-content,
+body.dark-mode .order-review-modal .modal-content {
+background-color: var(--modal-background);
+border-color: var(--border-color);
+}
+
+body.dark-mode .stall-info-page,
+body.dark-mode .checkout-page,
+body.dark-mode .orders-page,
+body.dark-mode .profile-page,
+body.dark-mode .stalls-directory-page,
+body.dark-mode .vendor-page,
+body.dark-mode .vendor-empty-page,
+body.dark-mode .vendor-orders-layout {
+background-color: var(--page-background);
+color: var(--text-color);
+}
+
+body.dark-mode .stall-header-info h1,
+body.dark-mode .stall-header-info p,
+body.dark-mode .review-modal h2,
+body.dark-mode .review-message h2,
+body.dark-mode .filter-panel h3,
+body.dark-mode .category-button,
+body.dark-mode .category-button-active,
+body.dark-mode .customization-group legend,
+body.dark-mode .customization-group label,
+body.dark-mode .modal-item-overview h2,
+body.dark-mode .modal-item-overview p,
+body.dark-mode .order-summary h2,
+body.dark-mode .order-item h3,
+body.dark-mode .order-item p,
+body.dark-mode .vendor-orders-heading h1,
+body.dark-mode .vendor-sort-control,
+body.dark-mode .vendor-page label,
+body.dark-mode .vendor-page p {
+color: var(--text-color);
+}
+
+/* Profile page surfaces and controls use the shared dark-mode palette. */
+body.dark-mode .profile-card,
+body.dark-mode .activity-card {
+    background-color: var(--surface-background);
+    border-color: var(--border-color);
+}
+
+body.dark-mode .profile-top h2,
+body.dark-mode .profile-email,
+body.dark-mode .profile-information h3,
+body.dark-mode .profile-label,
+body.dark-mode .activity-card h2,
+body.dark-mode .activity-description,
+body.dark-mode .chart-section h3,
+body.dark-mode .chart-section p,
+body.dark-mode .stat-text h3 {
+    color: var(--text-color);
+}
+
+body.dark-mode .profile-input {
+    background-color: var(--search-background);
+    border-color: var(--border-color);
+    color: var(--text-color);
+}
+
+body.dark-mode .profile-divider {
+    border-top-color: var(--border-color);
+}
+
+body.dark-mode .profile-role-badge,
+body.dark-mode .stat-icon-circle {
+    background-color: #2d4935;
+    color: #a8d5b0;
+}
+
+body.dark-mode .stat-box,
+body.dark-mode .chart-container {
+    background-color: var(--elevated-background);
+    border-color: var(--border-color);
+}
+
+body.dark-mode .stat-label {
+    color: var(--primary-color);
+}
+
+body.dark-mode .logout-btn {
+    background-color: var(--surface-background);
+    color: #e58b7d;
+    border-color: #e58b7d;
+}
+
+/* Orders page cards and order details use the shared dark-mode palette. */
+body.dark-mode .orders-section-heading,
+body.dark-mode .orders-empty,
+body.dark-mode .orders-page #orderSearchInput::placeholder,
+body.dark-mode .order-title-line h3,
+body.dark-mode .order-location,
+body.dark-mode .order-items,
+body.dark-mode .order-date,
+body.dark-mode .order-payment {
+    color: var(--text-color);
+}
+
+body.dark-mode .order-card {
+    background-color: var(--surface-background);
+    border-color: var(--border-color);
+}
+
+body.dark-mode .order-info-modal .modal-content,
+body.dark-mode .order-review-modal .modal-content,
+body.dark-mode #cancelUserOrderModal .modal-content {
+    background-color: var(--modal-background);
+    color: var(--text-color);
+}
+
+body.dark-mode .order-info-modal .modal-header,
+body.dark-mode .order-review-modal .modal-header,
+body.dark-mode #cancelUserOrderModal .modal-header {
+    border-bottom-color: var(--border-color);
+}
+
+body.dark-mode .order-info-modal .modal-title,
+body.dark-mode .order-modal-rating-label,
+body.dark-mode .order-modal-store h3,
+body.dark-mode .order-modal-store p,
+body.dark-mode .order-modal-date,
+body.dark-mode .order-modal-items h3,
+body.dark-mode .order-modal-item-description strong,
+body.dark-mode .order-modal-item-price,
+body.dark-mode .order-summary-row strong,
+body.dark-mode .order-summary-total,
+body.dark-mode .order-review-label,
+body.dark-mode .order-review-context {
+    color: var(--text-color);
+}
+
+body.dark-mode .order-modal-item-description span,
+body.dark-mode .order-summary-row {
+    color: var(--muted-text-color);
+}
+
+body.dark-mode .order-modal-store img {
+    background-color: var(--surface-background);
+}
+
+body.dark-mode .order-modal-item {
+    border-bottom-color: var(--border-color);
+}
+
+body.dark-mode .order-summary-total {
+    border-top-color: var(--border-color);
+}
+
+body.dark-mode .order-review-comment {
+    background-color: var(--search-background);
+    border-color: var(--border-color);
+    color: var(--text-color);
+}
+
+body.dark-mode .order-info-modal .modal-footer .review-order-button {
+    background-color: var(--surface-background);
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+body.dark-mode .stall-review-button,
+body.dark-mode .review-toolbar select,
+body.dark-mode .review-card,
+body.dark-mode .review-message,
+body.dark-mode .review-page-content,
+body.dark-mode .order-summary,
+body.dark-mode .filter-panel,
+body.dark-mode .price-filter,
+body.dark-mode .menu-item,
+body.dark-mode .menu-items-wrapper,
+body.dark-mode .menu-categories,
+body.dark-mode .item-modal,
+body.dark-mode .quantity-control button,
+body.dark-mode .review-form textarea {
+background-color: var(--surface-background);
+border-color: var(--border-color);
+color: var(--text-color);
+}
+
+body.dark-mode .menu-search #menuSearch,
+body.dark-mode .filter-panel #priceSort,
+body.dark-mode .pickup-time-control select,
+body.dark-mode .mobile-pickup-time select {
+background-color: var(--search-background);
+border-color: var(--border-color);
+color: var(--text-color);
+}
+
+body.dark-mode .pickup-time-control label,
+body.dark-mode .mobile-pickup-time label,
+body.dark-mode .pickup-time-control select,
+body.dark-mode .mobile-pickup-time select {
+color: #e0e0e0;
+}
+
+body.dark-mode .menu-categories {
+border-color: var(--border-color);
+}
+
+body.dark-mode .category-button-active {
+color: var(--primary-color);
+border-color: var(--primary-color);
+}
+
+body.dark-mode .stall-review-button,
+body.dark-mode .apply-filter-button,
+body.dark-mode .reset-filter-button {
+border-color: var(--primary-color);
+}
+
+body.dark-mode .reset-filter-button {
+background-color: var(--surface-background);
+color: var(--primary-color);
+}
+
+body.dark-mode .closed-stall-modal h2,
+body.dark-mode .closed-stall-modal p {
+color: var(--text-color);
+}
+
+body.dark-mode .stall-tags span {
+    background-color: var(--badge-background);
+    color: var(--text-color);
+}
+
+body.dark-mode .stall-card h3,
+body.dark-mode .stall-card p,
+body.dark-mode .payment-form h2,
+body.dark-mode .payment-form label,
+body.dark-mode .checkout-order h2,
+body.dark-mode .checkout-order-item h3,
+body.dark-mode .checkout-message h2 {
+    color: var(--text-color);
+}
+
+body.dark-mode .stall-card .stall-details p,
+body.dark-mode .stall-card .stall-description,
+body.dark-mode .checkout-order-item p {
+    color: var(--muted-text-color);
+}
+
+body.dark-mode .submit-order-button,
+body.dark-mode .view-stall-button,
+body.dark-mode .checkout-button {
+    background-color: var(--button-color);
+}
+
+body.dark-mode .status.open {
+    background-color: #d9e5d2;
+    color: #006937;
+}
+
+body.dark-mode .status.closed {
+    background-color: #e0bebe;
+    color: #6b1809;
+}
+
+body.dark-mode .main-header,
+body.dark-mode .main-header .location,
+body.dark-mode .main-header .location-select,
+body.dark-mode nav,
+body.dark-mode nav .nav-links,
+body.dark-mode nav .nav-links a,
+body.dark-mode nav .icon-button,
+body.dark-mode nav .icon-button svg,
+body.dark-mode .main-header .icon-button,
+body.dark-mode .main-header .icon-button svg {
+    color: #ffffff;
+}
+
+body.dark-mode nav {
+    background-color: var(--nav-background);
+}
+
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode h4,
+body.dark-mode h5,
+body.dark-mode h6,
+body.dark-mode .section-headers,
+body.dark-mode .stall-title-row h3 {
+    color: #ffffff;
+}
+
+body.dark-mode .search-container,
+body.dark-mode .menu-search,
+body.dark-mode .vendor-search-container,
+body.dark-mode .vendor-history-search,
+body.dark-mode .search-field,
+body.dark-mode input[type="search"] {
+    background-color: var(--search-background);
+    border-color: var(--border-color);
+    color: #ffffff;
+}
+
+body.dark-mode .search-container input,
+body.dark-mode .menu-search input,
+body.dark-mode .vendor-search-container input,
+body.dark-mode .vendor-history-search input,
+body.dark-mode .search-field input,
+body.dark-mode input[type="search"] {
+    background-color: transparent;
+    color: #e0e0e0;
+}
+
+body.dark-mode .search-container input::placeholder,
+body.dark-mode .menu-search input::placeholder,
+body.dark-mode .vendor-search-container input::placeholder,
+body.dark-mode .vendor-history-search input::placeholder,
+body.dark-mode .search-field input::placeholder,
+body.dark-mode input[type="search"]::placeholder {
+    color: #b0b0b0;
+}
+
+body.dark-mode .search-container button,
+body.dark-mode .menu-search button,
+body.dark-mode .vendor-search-container button,
+body.dark-mode .vendor-history-search button,
+body.dark-mode .search-field button,
+body.dark-mode .filterButton {
+    background-color: var(--search-button-background);
+    color: var(--search-button-color);
+}
+
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea {
+    background-color: var(--elevated-background);
+    color: #e0e0e0;
+    border-color: var(--border-color);
 }
 
 @media (max-width: 900px) {
