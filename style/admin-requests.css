@@ -1,0 +1,6 @@
+/* admin-requests.css - page-specific tweaks for store-requests.html */
+
+/* Buttons in the requests table are wider so they align nicely. */
+.requests-table .row-actions .admin-btn {
+    min-width: 130px;
+}

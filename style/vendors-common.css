@@ -1,12 +1,12 @@
 /* vendors-common.css - shared by every vendor page */
 
 :root {
-    --v-green: #016937;
-    --v-green-btn: #00703c;
+    --v-green: #006937;
+    --v-green-btn: #006937;
     --v-green-soft: #d5e6cb;
     --v-gray-bar: #f5f5f5;
     --v-gray-active: #cbcbcb;
-    --v-red: #8a1f1f;
+    --v-red: #a12626;
     --v-text: #1f1f1f;
     --v-text-muted: #5c5f5e;
     --v-border: #9a9a9a;
@@ -32,15 +32,61 @@ body.vendor-page {
     max-width: 100%;
 }
 
+.vendor-page header {
+    line-height: normal;
+}
+
+.vendor-page nav {
+    overflow-x: auto;
+}
+
+.vendor-page .location {
+    min-width: 176px;
+}
+
+@media (max-width: 680px) {
+
+    .vendor-page .main-header {
+        padding-left: 10px;
+    }
+
+    .vendor-page #logo {
+        width: min(40vw, 170px);
+        padding: 8px;
+    }
+
+    .vendor-page .location {
+        min-width: 0;
+        padding: 5px 6px;
+    }
+
+    .vendor-page .location span {
+        font-size: 12px;
+    }
+
+    .vendor-page .location strong {
+        font-size: 22px;
+    }
+
+    .vendor-page .icon-button#eclipse {
+        flex-shrink: 0;
+        margin-right: 8px;
+    }
+
+    .vendor-page .nav-links {
+        flex: 0 0 auto;
+        width: max-content;
+    }
+}
+
 .vendor-layout {
     display: grid;
     grid-template-columns: var(--v-sidebar-w) minmax(0, 1fr);
-    min-height: calc(100vh - 165px);
+    min-height: calc(100vh - 151px);
 }
 
 .vendor-sidebar {
     background: var(--v-green-soft);
-    border-bottom-right-radius: 18px;
 }
 
 .vendor-sidebar h2 {
@@ -199,7 +245,7 @@ body.vendor-page {
     margin: 6px 0 0;
 }
 
-@media (max-width: 767.98px) {
+@media (max-width: 768px) {
     .vendor-layout {
         grid-template-columns: 1fr;
         min-height: 0;
