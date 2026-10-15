@@ -6,31 +6,28 @@
     You can add a subfolder in the pages directory if you think it will help organize 
     the pages better. =)
 --> 
-<!DOCTYPE html lang="en">
+<!DOCTYPE html>
+<html lang="en">
     <head>
-        <title>GreenDash</title>
+        <title>GreenDash - Login</title>
+        <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+        <link rel="stylesheet" href="bootstrap-icons/bootstrap-icons.css">
         <link rel="stylesheet" href="style/centralized.css">
-        <link rel="stylesheet" href="style/main.css">
-
-        <!-- website icon -->
-        <link rel="icon" type="image/png" href="../../assets/main/GreenDash_CIRCLE.png">
+        <link rel="stylesheet" href="style/user.css">
     </head>
-    <body>
 
-        <h1> TEMPORARY: Redirecting to the appropriate pages </h1>
-        <h3> 10/01: Will fix this last; I need the Github Pages deployment link for the
-            Google Form to be able to test the login functionality. - Chelsea
-        </h3>
+    <body class="login-page">
+        <main class="login-container">
+            <img src="assets/main/GreenDash_LOGO.png" alt="Greendash Logo" class="login-logo">
+            <div id="googleLoginButton" data-login-redirect="pages/user/stalls-directory.html"></div>
+            <a href="pages/vendor/login.html" class="vendor-login-btn">
+                Sign in as a food vendor
+            </a>
+        </main>
 
-        <h2> ADMIN SIDE: </h2>
-        <p> <a href="pages/admin/home.html">Go to Admin Home</a> </p>
+        <script src="https://accounts.google.com/gsi/client" async defer></script>
+        <script src="js/jquery-4.0.0.min.js"></script>
+        <script src="js/user.js"></script>
 
-        <h2> USER SIDE: </h2> 
-        <p><a href="pages/user/login.html">Go to User Login</a> </p>
-        <p><a href="pages/user/stalls-directory.html">Go to User Home (Stalls Directory)</a> </p>
-
-        <h2> VENDOR SIDE: </h2>
-        <p> <a href="pages/vendor/orders.html">Go to Vendor Home (Order Requests)</a> </p>
     </body>
-
 </html>
