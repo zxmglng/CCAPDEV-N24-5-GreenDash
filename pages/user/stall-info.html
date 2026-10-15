@@ -16,7 +16,14 @@
                 <img id="logo" src="../../assets/main/GreenDash_LOGO.png" alt="GreenDash Logo">
                 <div class="location">
                     <span>Your Location:</span>
-                    <strong>Gokongwei</strong>
+                    <select class="location-select" aria-label="Choose your location">
+                        <option>Gokongwei</option>
+                        <option>La Salle Hall</option>
+                        <option>Bloemen</option>
+                        <option>Razon</option>
+                        <option>Andrew</option>
+                        <option>Yuchengco</option>
+                    </select>
                 </div>
                 <button class="icon-button" id="eclipse" aria-label="Toggle dark mode">
                     <i data-lucide="eclipse"></i>
@@ -66,7 +73,18 @@
                                 <label for="priceRange">Maximum Price: &#8369; <span id="priceValue">1000</span></label>
                                 <input type="range" id="priceRange" min="0" max="1000" value="1000" step="50">
                             </div>
-                            <button type="button" id="resetFilters" class="reset-filter-button">Reset Filters</button>
+                            <div class="filter-section">
+                                <label for="priceSort">Sort by price</label>
+                                <select id="priceSort">
+                                    <option value="default">Default order</option>
+                                    <option value="lowest">Lowest to highest</option>
+                                    <option value="highest">Highest to lowest</option>
+                                </select>
+                            </div>
+                            <div class="filter-actions">
+                                <button type="button" id="applyFilters" class="apply-filter-button">Apply Filters</button>
+                                <button type="button" id="resetFilters" class="reset-filter-button">Reset Filters</button>
+                            </div>
                         </div>
                         <div class="menu-categories">
                             <button class="category-button-active" data-category="all">Popular</button>
@@ -76,9 +94,18 @@
                             <button class="category-button" data-category="coffee">Brewed Coffee</button>
                         </div>
                         <div class="menu-items-wrapper">
-                            <div class="container-fluid">
-                                <div class="row" id="menuItems"></div>
+                            <button type="button" class="menu-carousel-button menu-carousel-previous"
+                                id="previousMenuItem" aria-label="Previous menu item">&#8249;</button>
+                            <div class="menu-carousel-window">
+                                <div class="container-fluid">
+                                    <div class="row" id="menuItems"></div>
+                                </div>
                             </div>
+                            <p class="no-menu-items-message" id="noMenuItemsMessage" hidden>
+                                No item found.
+                            </p>
+                            <button type="button" class="menu-carousel-button menu-carousel-next"
+                                id="nextMenuItem" aria-label="Next menu item">&#8250;</button>
                         </div>
                     </section>
                 </div>
@@ -90,9 +117,6 @@
                                 <label for="pickupTimeMobile">Pick-up time</label>
                                 <select id="pickupTimeMobile">
                                     <option value="">Select time</option>
-                                    <option>10:00 AM</option>
-                                    <option>10:30 AM</option>
-                                    <option>11:00 AM</option>
                                 </select>
                             </div>
                             <button type="button" class="close-order-button" id="closeOrderButton" aria-label="Close your order">&times;</button>
@@ -106,9 +130,6 @@
                             <label for="pickupTime">Pick-up time</label>
                             <select id="pickupTime">
                                 <option value="">Select time</option>
-                                <option>10:00 AM</option>
-                                <option>10:30 AM</option>
-                                <option>11:00 AM</option>
                             </select>
                         </div>
                         <button type="button" class="checkout-button" id="checkoutButton">Checkout - &#8369; 0</button>
@@ -198,6 +219,13 @@
                 <h2 id="reviewMessageTitle">you havent ordered from this stall yet!</h2>
                 <p>You can leave a review after completing an order from this stall.</p>
                 <button type="button" class="submit-review-button" id="closeReviewMessage">Okay</button>
+            </section>
+        </div>
+        <div class="empty-cart-backdrop" id="emptyCartMessage" hidden>
+            <section class="empty-cart-modal" role="alertdialog" aria-modal="true"
+                aria-labelledby="emptyCartTitle">
+                <h2 id="emptyCartTitle">Please add items to your cart!</h2>
+                <button type="button" class="submit-review-button" id="closeEmptyCartMessage">Okay</button>
             </section>
         </div>
         <script src="../../js/user-stalls.js"></script>

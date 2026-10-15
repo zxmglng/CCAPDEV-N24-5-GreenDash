@@ -22,7 +22,14 @@
                 <img id="logo" src="../../assets/main/GreenDash_LOGO.png" alt="GreenDash Logo">
                 <div class="location">
                     <span>Your Location:</span>
-                    <strong>Gokongwei</strong>
+                    <select class="location-select" aria-label="Choose your location">
+                        <option>Gokongwei</option>
+                        <option>La Salle Hall</option>
+                        <option>Bloemen</option>
+                        <option>Razon</option>
+                        <option>Andrew</option>
+                        <option>Yuchengco</option>
+                    </select>
                 </div>
                 <button class="icon-button" id="eclipse" aria-label="Toggle dark mode">
                     <i data-lucide="eclipse"></i>
@@ -181,7 +188,7 @@
                         </div>
                         
                         <div class="stall-details">
-                            <p>Location: Gokongwei Hall</p>
+                            <p>Location: Bloemen</p>
                             <p>8:00 AM - 5:00 PM</p>
                         </div>
                         <p class="stall-description">
@@ -242,9 +249,17 @@
               </div>
               <p class="stalls-empty" id="noStallsFound" hidden>No stalls match your search.</p>
         </main>
-        
         <script src="../../js/jquery-4.0.0.min.js"></script>
+        <div class="closed-stall-backdrop" id="closedStallMessage" hidden>
+            <section class="closed-stall-modal" role="alertdialog" aria-modal="true"
+                aria-labelledby="closedStallTitle">
+                <h2 id="closedStallTitle">This stall is currently closed.</h2>
+                <p>Please check back during the stall's operating hours.</p>
+                <button type="button" class="view-stall-button" id="closeClosedStallMessage">Okay</button>
+            </section>
+        </div>
         <script src="../../js/user.js"></script>
+        <script src="../../js/user-stalls-directory.js"></script>
         <script type="module" src="../../js/centralized.js"></script>
     </body>
 </html>

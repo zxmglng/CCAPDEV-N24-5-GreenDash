@@ -11,45 +11,6 @@ const stalls = {
             ['Pure Matcha Latte', 190, 'matchalatte.png'],
             ['Caffe Americano', 180, 'americano.png']
         ]
-    },
-    'dairy-queen': {
-        name: 'Dairy Queen',
-        location: 'Agno',
-        hours: '8:00 AM - 5:00 PM',
-        logo: '../../assets/stalls/dq.png',
-        banner: '../../assets/stalls/starbucks-banner.png',
-        menu: [
-            ['Classic Blizzard', 179, 'javachip.png'],
-            ['Vanilla Cone', 99, 'caramel.png'],
-            ['Chocolate Sundae', 129, 'matchalatte.png'],
-            ['DQ Freeze', 149, 'americano.png']
-        ]
-    },
-    'belgian-waffles': {
-        name: 'The Famous Belgian Waffles',
-        location: 'Gokongwei Hall',
-        hours: '8:00 AM - 5:00 PM',
-        logo: '../../assets/stalls/belgian.png',
-        banner: '../../assets/stalls/starbucks-banner.png',
-        menu: [
-            ['Classic Belgian Waffle', 145, 'javachip.png'],
-            ['Chocolate Waffle', 165, 'caramel.png'],
-            ['Strawberry Waffle', 175, 'matchalatte.png'],
-            ['Cheese Waffle', 155, 'americano.png']
-        ]
-    },
-    'potato-corner': {
-        name: 'Potato Corner',
-        location: 'Bloemen',
-        hours: '8:00 AM - 5:00 PM',
-        logo: '../../assets/stalls/potcor.png',
-        banner: '../../assets/stalls/starbucks-banner.png',
-        menu: [
-            ['Regular Fries', 90, 'javachip.png'],
-            ['Cheese Fries', 110, 'caramel.png'],
-            ['BBQ Fries', 110, 'matchalatte.png'],
-            ['Mega Fries', 210, 'americano.png']
-        ]
     }
 };
 
@@ -84,6 +45,81 @@ document.title = `GreenDash - ${stall.name}`;
 document.querySelector('#stallName').textContent = stall.name;
 document.querySelector('#stallLocation').textContent = stall.location;
 document.querySelector('#stallHours').textContent = stall.hours;
+
+function convertTimeToMinutes(time) {
+    const parts = time.match(/(\d+):(\d+)\s*(AM|PM)/i);
+    let hour = Number(parts[1]);
+    const minute = Number(parts[2]);
+
+    if (parts[3].toUpperCase() === 'PM' && hour !== 12) {
+        hour += 12;
+    }
+
+    if (parts[3].toUpperCase() === 'AM' && hour === 12) {
+        hour = 0;
+    }
+
+    return hour * 60 + minute;
+}
+
+function formatMinutesAsTime(minutes) {
+    let hour = Math.floor(minutes / 60);
+    const minute = minutes % 60;
+    let period = 'AM';
+
+    if (hour >= 12) {
+        period = 'PM';
+    }
+
+    if (hour > 12) {
+        hour -= 12;
+    }
+
+    if (hour === 0) {
+        hour = 12;
+    }
+
+    return `${hour}:${String(minute).padStart(2, '0')} ${period}`;
+}
+
+function populatePickupTimes() {
+    const hours = stall.hours.match(/(\d+):(\d+)\s*(AM|PM)/gi);
+
+    if (!hours || hours.length !== 2) {
+        return;
+    }
+
+    const openingMinutes = convertTimeToMinutes(hours[0]);
+    const closingMinutes = convertTimeToMinutes(hours[1]);
+    const pickupSelects = [
+        document.querySelector('#pickupTimeMobile'),
+        document.querySelector('#pickupTime')
+    ];
+
+    pickupSelects.forEach((select) => {
+        const pickupNowOption = document.createElement('option');
+        pickupNowOption.value = 'now';
+        pickupNowOption.textContent = 'Pick up now';
+        select.appendChild(pickupNowOption);
+
+        for (let start = openingMinutes; start + 15 <= closingMinutes; start += 15) {
+            const option = document.createElement('option');
+            option.value = `${formatMinutesAsTime(start)} - ${formatMinutesAsTime(start + 15)}`;
+            option.textContent = option.value;
+            select.appendChild(option);
+        }
+    });
+}
+
+populatePickupTimes();
+
+document.querySelector('#pickupTimeMobile').addEventListener('change', (event) => {
+    document.querySelector('#pickupTime').value = event.target.value;
+});
+
+document.querySelector('#pickupTime').addEventListener('change', (event) => {
+    document.querySelector('#pickupTimeMobile').value = event.target.value;
+});
 
 const reviewModal = document.querySelector('#reviewModal');
 const reviewMessage = document.querySelector('#reviewMessage');
@@ -315,27 +351,83 @@ const menuItems = document.querySelector('#menuItems');
 const cart = [];
 let selectedItem = null;
 let selectedQuantity = 1;
+let activeCategory = 'all';
+let menuAnimationDirection = 'next';
+const menuCategories = ['all', 'drinks', 'food', 'refreshers', 'coffee'];
 
 const modal = document.querySelector('#itemModal');
 const modalPrice = document.querySelector('#modalBasePrice');
 const addToCartButton = document.querySelector('#addToCartButton');
 
-stall.menu.forEach(([name, price, image]) => {
+stall.menu.forEach(([name, price, image], index) => {
     const item = document.createElement('div');
     item.className = 'col-12 col-sm-6 col-md-4 col-lg-3 menu-column';
+    item.dataset.category = index === 0 ? 'all coffee' : menuCategories[index];
     item.dataset.name = name.toLowerCase();
     item.dataset.price = String(price);
     item.innerHTML = `
         <div class="menu-item">
             <div class="menu-image-container">
                 <img src="../../assets/starbucksMenu/${image}" alt="${name}">
-                <button type="button" class="add-item-button" aria-label="Add ${name}" data-menu-name="${name}" data-menu-price="${price}" data-menu-image="${image}">+</button>
+                <button type="button" class="add-item-button" aria-label="Add ${name}" data-menu-name="${name}" data-menu-price="${price}" data-menu-image="${image}">
+                    <span aria-hidden="true">+</span>
+                </button>
             </div>
             <h3>${name}</h3>
             <p>from &#8369; ${price}</p>
         </div>`;
     menuItems.appendChild(item);
 });
+
+function belongsToCategory(item, category) {
+    if (category === 'all') {
+        return true;
+    }
+
+    return item.dataset.category.split(' ').includes(category);
+}
+
+function showMenuCategory(category, direction = 'next') {
+    activeCategory = category;
+    menuAnimationDirection = direction;
+
+    document.querySelectorAll('.menu-column').forEach((item) => {
+        item.hidden = !belongsToCategory(item, activeCategory);
+    });
+
+    document.querySelectorAll('.category-button, .category-button-active').forEach((button) => {
+        button.className = 'category-button';
+
+        if (button.dataset.category === activeCategory) {
+            button.className = 'category-button-active';
+        }
+    });
+
+    menuItems.classList.remove('menu-slide-next', 'menu-slide-previous');
+    void menuItems.offsetWidth;
+    menuItems.classList.add(`menu-slide-${menuAnimationDirection}`);
+    applyMenuFilters();
+}
+
+document.querySelectorAll('.menu-categories button').forEach((button) => {
+    button.addEventListener('click', () => {
+        showMenuCategory(button.dataset.category);
+    });
+});
+
+document.querySelector('#previousMenuItem').addEventListener('click', () => {
+    const categoryIndex = menuCategories.indexOf(activeCategory);
+    const previousIndex = (categoryIndex - 1 + menuCategories.length) % menuCategories.length;
+    showMenuCategory(menuCategories[previousIndex], 'previous');
+});
+
+document.querySelector('#nextMenuItem').addEventListener('click', () => {
+    const categoryIndex = menuCategories.indexOf(activeCategory);
+    const nextIndex = (categoryIndex + 1) % menuCategories.length;
+    showMenuCategory(menuCategories[nextIndex]);
+});
+
+showMenuCategory(activeCategory);
 
 function getCustomizationPrice() {
     const milk = document.querySelector('input[name="milk"]:checked');
@@ -370,12 +462,39 @@ function renderOrder() {
         orderItems.innerHTML = cart.map((item) => `
             <div class="order-item">
                 <img src="../../assets/starbucksMenu/${item.image}" alt="${item.name}">
-                <div><h3>${item.name}</h3><p>${item.size} · ${item.quantity}</p></div>
+                <div><h3>${item.name}</h3><p>${item.size} · ${item.milk || 'No milk customization'} · ${item.quantity}</p></div>
                 <strong>&#8369; ${item.total}</strong>
             </div>`).join('');
     }
     const total = cart.reduce((sum, item) => sum + item.total, 0);
     document.querySelector('#checkoutButton').innerHTML = `Checkout - &#8369; ${total}`;
+}
+
+function openCheckout() {
+    const desktopPickupTime = document.querySelector('#pickupTime').value;
+    const mobilePickupTime = document.querySelector('#pickupTimeMobile').value;
+    const pickupTime = desktopPickupTime || mobilePickupTime;
+    const total = cart.reduce((sum, item) => sum + item.total, 0);
+
+    if (total === 0) {
+        document.querySelector('#emptyCartMessage').hidden = false;
+        return;
+    }
+
+    const checkoutData = {
+        stall: {
+            name: stall.name,
+            location: stall.location,
+            hours: stall.hours,
+            logo: stall.logo
+        },
+        items: cart,
+        pickupTime,
+        total
+    };
+
+    sessionStorage.setItem('greendash-checkout', JSON.stringify(checkoutData));
+    window.location.href = 'checkout.html';
 }
 
 document.querySelectorAll('.add-item-button').forEach((button) => {
@@ -402,9 +521,11 @@ document.querySelector('#decreaseQuantity').addEventListener('click', () => {
 
 addToCartButton.addEventListener('click', () => {
     const size = document.querySelector('input[name="size"]:checked').value;
+    const milk = document.querySelector('input[name="milk"]:checked').value;
     cart.push({
         ...selectedItem,
         size,
+        milk,
         quantity: selectedQuantity,
         total: getCustomizationPrice() * selectedQuantity
     });
@@ -430,6 +551,16 @@ document.querySelector('#closeOrderButton').addEventListener('click', () => {
     document.body.classList.remove('cart-open');
 });
 
+document.querySelector('#checkoutButton').addEventListener('click', openCheckout);
+document.querySelector('#closeEmptyCartMessage').addEventListener('click', () => {
+    document.querySelector('#emptyCartMessage').hidden = true;
+});
+document.querySelector('#emptyCartMessage').addEventListener('click', (event) => {
+    if (event.target === document.querySelector('#emptyCartMessage')) {
+        document.querySelector('#emptyCartMessage').hidden = true;
+    }
+});
+
 document.querySelector('#filterButton').addEventListener('click', () => {
     const panel = document.querySelector('#filterPanel');
 
@@ -442,23 +573,59 @@ document.querySelector('#filterButton').addEventListener('click', () => {
 
 document.querySelector('#menuSearch').addEventListener('input', (event) => {
     const search = event.target.value.trim().toLowerCase();
-    document.querySelectorAll('.menu-column').forEach((item) => {
-        item.hidden = !item.dataset.name.includes(search);
-    });
+    document.querySelector('#menuSearch').value = search;
+    applyMenuFilters();
 });
 
 document.querySelector('#priceRange').addEventListener('input', (event) => {
     document.querySelector('#priceValue').textContent = event.target.value;
-    document.querySelectorAll('.menu-column').forEach((item) => {
-        item.hidden = Number(item.dataset.price) > Number(event.target.value);
+});
+
+function applyMenuFilters() {
+    const search = document.querySelector('#menuSearch').value.trim().toLowerCase();
+    const maximumPrice = Number(document.querySelector('#priceRange').value);
+    const menuItemElements = [...document.querySelectorAll('.menu-column')];
+
+    menuItemElements.forEach((item) => {
+        item.hidden = !belongsToCategory(item, activeCategory)
+            || !item.dataset.name.includes(search)
+            || Number(item.dataset.price) > maximumPrice;
     });
+
+    const hasVisibleItems = menuItemElements.some((item) => !item.hidden);
+    document.querySelector('#noMenuItemsMessage').hidden = hasVisibleItems;
+}
+
+function sortMenuItems() {
+    const sortOrder = document.querySelector('#priceSort').value;
+    const menuItemElements = [...document.querySelectorAll('.menu-column')];
+
+    if (sortOrder === 'lowest' || sortOrder === 'highest') {
+        menuItemElements.sort((firstItem, secondItem) => {
+            const priceDifference = Number(firstItem.dataset.price) - Number(secondItem.dataset.price);
+
+            if (sortOrder === 'lowest') {
+                return priceDifference;
+            }
+
+            return -priceDifference;
+        });
+    }
+
+    menuItemElements.forEach((item) => menuItems.appendChild(item));
+}
+
+document.querySelector('#applyFilters').addEventListener('click', () => {
+    sortMenuItems();
+    applyMenuFilters();
+    document.querySelector('#filterPanel').style.display = 'none';
 });
 
 document.querySelector('#resetFilters').addEventListener('click', () => {
     document.querySelector('#priceRange').value = 1000;
     document.querySelector('#priceValue').textContent = '1000';
+    document.querySelector('#priceSort').value = 'default';
     document.querySelector('#menuSearch').value = '';
-    document.querySelectorAll('.menu-column').forEach((item) => {
-        item.hidden = false;
-    });
+    sortMenuItems();
+    applyMenuFilters();
 });

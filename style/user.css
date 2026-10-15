@@ -280,6 +280,36 @@
     transition: 0.5s;
 }
 
+.closed-stall-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1500;
+    display: grid;
+    place-items: center;
+    background: rgba(0, 0, 0, 0.35);
+}
+
+.closed-stall-backdrop[hidden] { display: none; }
+
+.closed-stall-modal {
+    width: min(400px, calc(100vw - 32px));
+    padding: 28px;
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.25);
+    text-align: center;
+}
+
+.closed-stall-modal h2 {
+    color: #006937;
+    font-size: 22px;
+}
+
+.closed-stall-modal p {
+    color: #555555;
+    font-size: 13px;
+}
+
 .view-stall-button:hover {
     background-color: #013e21;
 }
