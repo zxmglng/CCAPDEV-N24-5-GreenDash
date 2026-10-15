@@ -4,6 +4,7 @@
    TOOLBAR (search + buttons)
 ========================= */
 
+/* Horizontal Toolbar: Search, Filter, Sort, Action buttons; wraps into multiple lines when space runs out */
 .admin-toolbar {
     display: flex;
     align-items: center;
@@ -12,18 +13,22 @@
     margin-bottom: 14px;
 }
 
+/* Searchbar Wrapper */
 .admin-search {
+    /* child elements will be positioned relative to this (search icon) */
     position: relative;
     flex: 1 1 260px;
     min-width: 0;
 }
 
+/* Searchbar text input */
 .admin-search input {
     width: 100%;
+    /* margin on the left for search icon */
     min-height: var(--a-tap);
     padding: 0 16px 0 44px;
 
-    border: 0;
+    border: none;
     border-radius: 12px;
     background: var(--a-gray-bar);
 
@@ -31,10 +36,12 @@
     color: var(--a-text);
 }
 
+/* Placeholder text inside the search input */
 .admin-search input::placeholder {
     color: var(--a-text-muted);
 }
 
+/* Search icon */
 .admin-search i {
     position: absolute;
     top: 50%;
@@ -45,7 +52,7 @@
     pointer-events: none;
 }
 
-/* Icon-only buttons (filter / sort) */
+/* Sort Button */
 .admin-icon-btn {
     display: inline-flex;
     align-items: center;
@@ -61,11 +68,12 @@
     cursor: pointer;
 }
 
+/* Sort button on Hover */
 .admin-icon-btn:hover {
     color: #004a26;
 }
 
-/* Solid / outline action buttons */
+/* Action buttons base */
 .admin-btn {
     display: inline-flex;
     align-items: center;
@@ -85,22 +93,27 @@
     white-space: nowrap;
 }
 
+/* Primary buttons (add, edit) */
 .admin-btn.primary {
-    background: var(--a-green-btn);
+    background: var(--a-green);
     color: #ffffff;
 }
 
+/* Danger buttons (remove, deny) */
 .admin-btn.danger {
     background: var(--a-red-btn);
     color: #ffffff;
 }
 
+/* Ghsot buttons (cancel) */
 .admin-btn.ghost {
     background: transparent;
     color: var(--a-green);
     box-shadow: inset 0 0 0 2px var(--a-green);
 }
 
+
+/* Pill-shaped button inside tables (Stall > Requests) */
 .admin-btn.small {
     min-height: 36px;
     padding: 0 16px;
@@ -108,6 +121,7 @@
     border-radius: 999px;
 }
 
+/* Right-aligned buttons */
 .push-right {
     margin-left: auto;
 }
@@ -116,6 +130,7 @@
    FILTER / SORT CONTROLS
 ========================= */
 
+/* Dropdown filters, sort, and month filter */
 .admin-select,
 .admin-input {
     min-height: var(--a-tap);
@@ -128,14 +143,17 @@
     font-size: .95rem;
 }
 
+/* Filter and sort cursor */
 .admin-select {
     cursor: pointer;
 }
 
+/* Month filter cursor */
 .admin-input {
     cursor: text;
 }
 
+/* Keyboard navigation */
 .admin-select:focus-visible,
 .admin-input:focus-visible {
     outline: 2px solid var(--a-green);
@@ -146,6 +164,7 @@
    PICKER LIST (remove modals)
 ========================= */
 
+/* Radio item list */
 .picker-list {
     display: flex;
     flex-direction: column;
@@ -156,6 +175,7 @@
     padding: 2px;
 }
 
+/* Single radio item */
 .picker-item {
     display: flex;
     align-items: center;
@@ -168,15 +188,18 @@
     transition: background 0.15s, border-color 0.15s;
 }
 
+/* Radio item on hover */
 .picker-item:hover {
     border-color: var(--a-green);
 }
 
+/* Radio item when selected */ 
 .picker-item.selected {
     border-color: var(--a-green);
     background: #eaf5ee;
 }
 
+/* Radio button */
 .picker-item input[type="radio"] {
     flex: none;
     width: 18px;
@@ -185,6 +208,7 @@
     accent-color: var(--a-green);
 }
 
+/* Empty mesage; no items to pick */
 .picker-empty {
     padding: 20px 4px;
     margin: 0;
@@ -196,6 +220,7 @@
    TABLE
 ========================= */
 
+/* Table container; rounded corners */
 .admin-table-wrap {
     background: #ffffff;
     border: 1px solid var(--a-border);
@@ -204,12 +229,14 @@
     box-shadow: 0 4px 14px rgba(0, 0, 0, .06);
 }
 
+/* Base table */
 .admin-table {
     width: 100%;
     border-collapse: collapse;
     font-size: 1rem;
 }
 
+/* Table headers */
 .admin-table thead th {
     padding: 14px 18px;
     text-align: left;
@@ -219,6 +246,7 @@
     border-bottom: 1px solid var(--a-border);
 }
 
+/* Table body data */ 
 .admin-table tbody td {
     padding: 14px 18px;
     border-bottom: 1px solid var(--a-border);
@@ -226,18 +254,22 @@
     vertical-align: middle;
 }
 
+/* Table body last row; remove border */
 .admin-table tbody tr:last-child td {
     border-bottom: 0;
 }
 
+/* Table row on hover */
 .admin-table tbody tr:hover td {
     background: #fafafa;
 }
 
+/* Table row curser */
 .admin-table tbody tr {
     cursor: pointer;
 }
 
+/* Col-actions; right-align */ 
 .admin-table .col-actions {
     text-align: right;
     width: 1%;
@@ -250,7 +282,7 @@
     gap: 8px;
 }
 
-/* Status pill reused from vendor pages */
+/* Status pill */
 .status {
     display: inline-block;
     padding: 3px 16px;
@@ -260,9 +292,15 @@
     color: #ffffff;
 }
 
-.status.open    { background: var(--a-green-btn); }
-.status.closed  { background: var(--a-red-btn); }
-.status.pending { background: #b07a00; }
+/* Open status = green */
+.status.open    {
+    background: var(--a-green);
+}
+
+/* Closed status = red */
+.status.closed  {
+    background: var(--a-red-btn);
+}
 
 /* Empty state inside the table */
 .admin-table .empty-row td {

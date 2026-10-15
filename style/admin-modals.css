@@ -1,5 +1,6 @@
 /* admin-modals.css - reusable modal for admin pages */
 
+/* Base modal overlay */
 .admin-modal {
     position: fixed;
     inset: 0;
@@ -11,10 +12,12 @@
     z-index: 1000;
 }
 
+/* Modal when open */
 .admin-modal.open {
     display: flex;
 }
 
+/* Modal card-style panel */
 .admin-modal-card {
     width: min(560px, 100%);
     max-height: calc(100vh - 40px);
@@ -26,6 +29,7 @@
     box-shadow: 0 20px 60px rgba(0, 0, 0, .25);
 }
 
+/* Modal heading */
 .admin-modal-card h2 {
     margin: 0 0 18px;
     font-family: var(--a-font-heading);
@@ -34,10 +38,12 @@
     color: var(--a-text);
 }
 
+/* Each row in a modal */
 .admin-modal-card .modal-row {
     margin-bottom: 14px;
 }
 
+/* Row label; bold */
 .admin-modal-card .modal-label {
     display: block;
     font-weight: 700;
@@ -45,20 +51,24 @@
     color: var(--a-text);
 }
 
+/* Row value */
 .admin-modal-card .modal-value {
     color: var(--a-text);
 }
 
+/* Container for action buttons in modal*/
 .admin-modal-card .modal-actions {
     display: flex;
     gap: 12px;
     margin-top: 22px;
 }
 
+/* Action buttons; share width */
 .admin-modal-card .modal-actions .admin-btn {
     flex: 1 1 0;
 }
 
+/* Close button on top right */
 .admin-modal-card .close-x {
     float: right;
     border: 0;
@@ -69,21 +79,25 @@
     color: var(--a-text-muted);
 }
 
+/* Close button on hover */
 .admin-modal-card .close-x:hover {
     color: var(--a-text);
 }
 
+/* Helper text below heading */
 .modal-hint {
     margin: 0 0 12px;
     color: var(--a-text-muted);
 }
 
+/* Form inputs and selects */
 .admin-modal-card .form-control,
 .admin-modal-card .form-select {
     min-height: var(--a-tap);
     border-radius: 10px;
 }
 
+/* Error message */
 .field-error {
     color: var(--a-red);
     font-size: .9rem;
@@ -91,6 +105,7 @@
     margin: 8px 0 0;
 }
 
+/* Hide error element when empty */
 .field-error:empty {
     display: none;
 }
