@@ -1,112 +1,149 @@
 /* vendors-request-store.css - pages/vendor/request-store.html (the pop-up is in vendors-modal.css) */
 
+/* =========================
+   REQUEST FORM LAYOUT
+========================= */
+
+/* Form heading */
 .form-section-title {
-    font-family: var(--v-font-heading);
-    font-weight: 800;
-    font-size: clamp(1.4rem, 3vw, 1.9rem);
-    margin: 0 0 18px;
+	font-family: var(--v-font-heading);
+	font-weight: 800;
+	font-size: clamp(1.4rem, 3vw, 1.9rem);
+	margin: 0 0 18px;
 }
 
+/* Request form grid; two columns */
 .request-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0 clamp(20px, 4vw, 48px);
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 0 clamp(20px, 4vw, 48px);
 }
 
+/* Prevent content overflow in each column */
 .request-col {
-    min-width: 0;
+	min-width: 0;
 }
 
+/* Field row; reset for field sets */
 .request-field {
-    margin: 0 0 20px;
-    padding: 0;
-    border: 0;
-    min-width: 0;
+	margin: 0 0 20px;
+	padding: 0;
+	border: 0;
+	min-width: 0;
 }
 
+/* Renders a fieldset legend inside a request field like a
+   normal form label. Undoes Bootstrap's floated legend so it
+   sits inline above the input. */
 .request-field legend.form-label {
-    float: none;
-    font-size: 1rem;
-    width: auto;
+	float: none;
+	font-size: 1rem;
+	width: auto;
 }
 
+/* =========================
+   DAY PICKER
+========================= */
+
+/* Day of the week wrapper */
 .day-picker {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
 }
 
+/* Hidden checkbox */
 .day-input {
-    position: absolute;
-    opacity: 0;
-    width: 1px;
-    height: 1px;
-    pointer-events: none;
+	position: absolute;
+	opacity: 0;
+	width: 1px;
+	height: 1px;
+	pointer-events: none;
 }
 
+/* Day pill */
 .day-pill {
-    display: inline-grid;
-    place-items: center;
-    min-width: 52px;
-    min-height: var(--v-tap);
-    padding: 0 14px;
-    border: 1px solid var(--v-border);
-    border-radius: 999px;
-    background: #ffffff;
-    font-weight: 700;
-    cursor: pointer;
-    user-select: none;
+	display: inline-grid;
+	place-items: center;
+	min-width: 52px;
+	min-height: var(--v-tap);
+	padding: 0 14px;
+	border: 1px solid var(--v-border);
+	border-radius: 999px;
+	background: #ffffff;
+	font-weight: 700;
+	cursor: pointer;
+	user-select: none;
 }
 
+/* Day pill when checked */
 .day-input:checked + .day-pill {
-    background: var(--v-green-btn);
-    border-color: var(--v-green-btn);
-    color: #ffffff;
+	background: var(--v-green);
+	border-color: var(--v-green);
+	color: #ffffff;
 }
 
+/* Day pill keyboard navigation */
 .day-input:focus-visible + .day-pill {
-    outline: 3px solid var(--v-green);
-    outline-offset: 2px;
+	outline: 3px solid var(--v-green);
+	outline-offset: 2px;
 }
 
+/* =========================
+   HOURS PAIR
+========================= */
+
+/* Helper text in operating hours */
 .form-hint-label {
-    display: block;
-    color: var(--v-text-muted);
-    font-size: .85rem;
-    margin-bottom: 4px;
+	display: block;
+	color: var(--v-text-muted);
+	font-size: .85rem;
+	margin-bottom: 4px;
 }
 
+/* Opening-closing time grid */
 .hours-pair {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 12px;
 }
 
+/* =========================
+   FORM ACTIONS
+========================= */
+
+/* Form action buttons */
 .request-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-    margin-top: 8px;
-    padding-top: 18px;
-    border-top: 1px solid #dcdcdc;
+	display: flex;
+	justify-content: flex-end;
+	gap: 12px;
+	margin-top: 8px;
+	padding-top: 18px;
+	border-top: 1px solid #dcdcdc;
 }
 
+/* =========================
+   RESPONSIVE
+========================= */
+
+/* Collapse the two-column request grid into one column */
 @media (max-width: 768px) {
-    .request-grid {
-        grid-template-columns: 1fr;
-    }
+	.request-grid {
+		grid-template-columns: 1fr;
+	}
 }
 
+/* Stack opening-closing hours vertically; primary button first; action buttons full-width
 @media (max-width: 480px) {
-    .hours-pair {
-        grid-template-columns: 1fr;
-    }
+	.hours-pair {
+		grid-template-columns: 1fr;
+	}
 
-    .request-actions {
-        flex-direction: column-reverse;
-    }
+	.request-actions {
+		flex-direction: column-reverse;
+	}
 
-    .request-actions .vendor-btn {
-        width: 100%;
-    }
+	.request-actions .vendor-btn {
+		width: 100%;
+	}
 }
