@@ -348,3 +348,119 @@ body.vendor-page {
 		border-radius: 16px;
 	}
 }
+
+/* Vendor profile, store-management, and request pages use their own surfaces. */
+body.dark-mode.vendor-page {
+	background-color: #1b1e1c;
+	color: #e0e0e0;
+}
+
+body.dark-mode .vendor-layout,
+body.dark-mode .vendor-content {
+	background-color: #1b1e1c;
+	color: #e0e0e0;
+}
+
+body.dark-mode .vendor-sidebar {
+	background-color: #252a27;
+}
+
+body.dark-mode .vendor-sidebar h2,
+body.dark-mode.vendor-page .page-title,
+body.dark-mode.vendor-page .back-link {
+	color: #a8d5b0;
+}
+
+body.dark-mode .vendor-greeting {
+	color: #e0e0e0;
+}
+
+body.dark-mode .sidebar-links,
+body.dark-mode .sidebar-links li {
+	border-color: #444444;
+}
+
+body.dark-mode .sidebar-links a {
+	color: #b0b0b0;
+}
+
+body.dark-mode .sidebar-links a.active {
+	background-color: #343a36;
+	color: #ffffff;
+}
+
+body.dark-mode .store-panel,
+body.dark-mode .store-card,
+body.dark-mode .list-row,
+body.dark-mode .day-pill {
+	background-color: #252a27;
+	border-color: #444444;
+	color: #e0e0e0;
+}
+
+body.dark-mode .list-row.selected {
+	background-color: #343a36;
+}
+
+body.dark-mode .store-card-location,
+body.dark-mode .store-header-info p,
+body.dark-mode .column-note,
+body.dark-mode .row-meta,
+body.dark-mode .form-hint,
+body.dark-mode .form-hint-label {
+	color: #b0b0b0;
+}
+
+body.dark-mode .search-field {
+	background-color: #202522;
+	color: #e0e0e0;
+}
+
+body.dark-mode .search-field input,
+body.dark-mode.vendor-page .form-control,
+body.dark-mode.vendor-page .form-select,
+body.dark-mode.vendor-page textarea {
+	background-color: #202522;
+	border-color: #444444;
+	color: #e0e0e0;
+}
+
+body.dark-mode .search-field input::placeholder,
+body.dark-mode.vendor-page .form-control::placeholder,
+body.dark-mode.vendor-page textarea::placeholder {
+	color: #b0b0b0;
+}
+
+body.dark-mode.vendor-page .form-control:focus,
+body.dark-mode.vendor-page .form-select:focus,
+body.dark-mode.vendor-page textarea:focus {
+	border-color: #8fbc99;
+	box-shadow: 0 0 0 0.2rem rgba(143, 188, 153, 0.2);
+}
+
+body.dark-mode.vendor-page .form-select option {
+	background-color: #252a27;
+	color: #e0e0e0;
+}
+
+body.dark-mode .vendor-btn.secondary {
+	background-color: #444a46;
+	color: #e0e0e0;
+}
+
+body.dark-mode .request-actions {
+	border-top-color: #444444;
+}
+
+body.dark-mode .vmodal-box {
+	background-color: #252a27;
+	color: #e0e0e0;
+}
+
+body.dark-mode .vmodal-foot {
+	border-top-color: #444444;
+}
+
+body.dark-mode .item-photo {
+	color: rgba(255, 255, 255, 0.7);
+}

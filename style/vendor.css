@@ -1107,3 +1107,129 @@
         animation-duration: 0.01ms;
     }
 }
+
+body.dark-mode .vendor-orders-layout,
+body.dark-mode .vendor-history-layout {
+    background-color: #1b1e1c;
+    color: #e0e0e0;
+}
+
+body.dark-mode .vendor-orders-heading h1,
+body.dark-mode .vendor-history-heading h1 {
+    color: #a8d5b0;
+}
+
+body.dark-mode .vendor-order-card,
+body.dark-mode .vendor-history-table-wrap {
+    background-color: #252a27;
+    border-color: #444444;
+    color: #e0e0e0;
+}
+
+body.dark-mode .vendor-order-card h2,
+body.dark-mode .vendor-card-price,
+body.dark-mode .vendor-order-card p,
+body.dark-mode .vendor-history-heading p,
+body.dark-mode .vendor-history-rating-value,
+body.dark-mode .vendor-orders-empty {
+    color: #e0e0e0;
+}
+
+body.dark-mode .vendor-card-options,
+body.dark-mode .vendor-history-heading p {
+    color: #b0b0b0;
+}
+
+body.dark-mode .vendor-sort-control select,
+body.dark-mode .vendor-history-search input {
+    background-color: #202522;
+    border-color: #444444;
+    color: #e0e0e0;
+}
+
+body.dark-mode .vendor-sort-control select {
+    background-image:
+        linear-gradient(45deg, transparent 50%, #a8d5b0 50%),
+        linear-gradient(135deg, #a8d5b0 50%, transparent 50%);
+}
+
+body.dark-mode .vendor-sort-control select option {
+    background-color: #252a27;
+    color: #e0e0e0;
+}
+
+body.dark-mode .vendor-history-table {
+    color: #e0e0e0;
+}
+
+body.dark-mode .vendor-history-table th,
+body.dark-mode .vendor-history-table td {
+    border-bottom-color: #444444;
+}
+
+body.dark-mode .vendor-history-table th {
+    background-color: #303631;
+    color: #e0e0e0;
+}
+
+body.dark-mode .vendor-history-row:hover,
+body.dark-mode .vendor-history-row:focus-visible {
+    background-color: #303631;
+}
+
+body.dark-mode .vendor-order-detail,
+body.dark-mode .vendor-status-modal .modal-content {
+    background-color: #252a27;
+    color: #e0e0e0;
+}
+
+body.dark-mode .vendor-order-modal-header > h2,
+body.dark-mode .vendor-order-item-copy h3,
+body.dark-mode .vendor-order-summary dl > div,
+body.dark-mode .vendor-status-modal .modal-title,
+body.dark-mode .vendor-status-prompt {
+    color: #e0e0e0;
+}
+
+body.dark-mode .vendor-order-item-copy p,
+body.dark-mode .vendor-cancel-order-label,
+body.dark-mode .vendor-cancel-hint {
+    color: #b0b0b0;
+}
+
+body.dark-mode .vendor-order-item-price,
+body.dark-mode .vendor-order-summary dd,
+body.dark-mode .vendor-history-status.completed,
+body.dark-mode .vendor-card-payment-status.paid,
+body.dark-mode .vendor-order-summary .vendor-payment-status.ready {
+    color: #8fbc99;
+}
+
+body.dark-mode .vendor-history-status.cancelled,
+body.dark-mode .vendor-card-payment-status.not-charged,
+body.dark-mode .vendor-order-summary .vendor-payment-status.cancelled {
+    color: #e58b7d;
+}
+
+body.dark-mode .vendor-order-modal-actions {
+    border-top-color: #444444;
+}
+
+body.dark-mode .vendor-order-modal-actions > p {
+    color: #a8d5b0;
+}
+
+body.dark-mode .vendor-cancel-form label {
+    color: #e0e0e0;
+}
+
+body.dark-mode .vendor-cancel-form textarea {
+    background-color: #202522;
+    border-color: #444444;
+    color: #e0e0e0;
+}
+
+body.dark-mode .vendor-archive-order {
+    background-color: #444a46;
+    color: #e0e0e0;
+}
