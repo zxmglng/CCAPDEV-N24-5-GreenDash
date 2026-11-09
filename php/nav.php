@@ -44,9 +44,9 @@ $currentPage = basename($_SERVER['PHP_SELF']); ?>
             <!-- CHANGE THE NAVIGATION LINKS IF NEEDED ACCDG TO USER ROLE HERE-->
             <nav>
                 <div class="nav-links">
-                    <a href="../../pages/user/profile.html" aria-current="page">Profile</a>
-                    <a href="../../pages/user/stalls-directory.html">Stalls directory</a>
-                    <a href="../../pages/user/orders.html">Orders</a>
+                    <a href="profile.php" aria-current="page">Profile</a>
+                    <a href="stalls-directory.php">Stalls directory</a>
+                    <a href="orders.php">Orders</a>
                 </div>
 
                 <button class="icon-button" id="cart" aria-label="View cart">
