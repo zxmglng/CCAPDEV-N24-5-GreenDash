@@ -44,9 +44,9 @@ $currentPage = basename($_SERVER['PHP_SELF']); ?>
             <!-- CHANGE THE NAVIGATION LINKS IF NEEDED ACCDG TO USER ROLE HERE-->
             <nav>
                 <div class="nav-links">
-                    <a href="profile.php" aria-current="page">Profile</a>
-                    <a href="stalls-directory.php">Stalls directory</a>
-                    <a href="orders.php">Orders</a>
+                    <a href="CCAPDEV-N24-5-GreenDash/php/user/profile.php" aria-current="page">Profile</a>
+                    <a href="CCAPDEV-N24-5-GreenDash/php/user/stalls-directory.php">Stalls directory</a>
+                    <a href="CCAPDEV-N24-5-GreenDash/php/user/orders.php">Orders</a>
                 </div>
 
                 <button class="icon-button" id="cart" aria-label="View cart">
