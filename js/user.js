@@ -715,7 +715,7 @@ function handleGoogleLogin(response) {
         }
         var redirectTarget = document
             .getElementById('googleLoginButton')
-            .dataset.loginRedirect || 'stalls-directory.html';
+            .dataset.loginRedirect || '/CCAPDEV-N24-5-GreenDash/php/user/stalls-directory.php';
         window.location.href = redirectTarget;
     }
 }
@@ -817,7 +817,7 @@ $(document).ready(function () {
         localStorage.removeItem('userContactNumber');
         localStorage.removeItem('isLoggedIn');
 
-        window.location.href = 'login.html';
+        window.location.href = 'index.php';
     });
 });
 

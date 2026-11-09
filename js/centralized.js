@@ -1,7 +1,7 @@
 const lucideScript = document.createElement('script');
 lucideScript.src = 'https://unpkg.com/lucide@latest';
 lucideScript.onload = () => lucide.createIcons();
-document.head.appendChild(lucideScript);
+document.head.appendChild(lucideScript)
 
 // This centralized theme toggle is specifically for the shared dark/light mode across all pages.
 const themeStorageKey = 'greendash-theme';

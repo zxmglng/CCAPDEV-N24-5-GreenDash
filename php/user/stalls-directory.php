@@ -1,6 +1,6 @@
 <!-- Home would immediately be the Stalls Directory section -->
 <?php
-require("db.php");
+require __DIR__ . '/../db.php';
 
 $stalls = $pdo->query("SELECT * FROM stalls ORDER BY name")
               ->fetchAll(PDO::FETCH_ASSOC);
@@ -15,15 +15,13 @@ $hoursByStall = [];
 foreach ($hoursRows as $hours) {
     $hoursByStall[$hours['stall_id']][] = $hours;
 }
-
-include("nav.php");
 ?>
 <head>
     <title>GreenDash - Stalls</title>
-        <link rel="stylesheet" href="../bootstrap/css/bootstrap.min.css">
-        <link rel="stylesheet" href="../bootstrap-icons/bootstrap-icons.css">
-        <link rel="stylesheet" href="../style/centralized.css">
-        <link rel="stylesheet" href="../style/user.css">
+        <link rel="stylesheet" href="../../bootstrap/css/bootstrap.min.css">
+        <link rel="stylesheet" href="../../bootstrap-icons/bootstrap-icons.css">
+        <link rel="stylesheet" href="../../style/centralized.css">
+        <link rel="stylesheet" href="../../style/user.css">
         
         <!-- website icon -->
         <link rel="icon" type="image/png" href="../../assets/main/GreenDash_CIRCLE.png">
@@ -32,6 +30,7 @@ include("nav.php");
 
 </head>
 <body>
+    <?php include(__DIR__ . '/../nav.php'); ?>
         <main class="stalls-directory-page">
             <!-- SEARCH BAR -->
              <div class="search-container">
@@ -85,6 +84,7 @@ include("nav.php");
                 <?php foreach ($stalls as $stall): ?>
                     <div class="stall-card" data-stall-id="<?= (int) $stall['id'] ?>">
                         <img
+
                             src="<?= htmlspecialchars($stall['image_path'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
                             alt="<?= htmlspecialchars($stall['name'], ENT_QUOTES, 'UTF-8') ?> Logo"
                             class="stall-logo">
@@ -101,6 +101,8 @@ include("nav.php");
                             </p>
 
                             <?php
+                            // i lowkey just realized kasi na stalls have different operating hours per day, 
+                            // so i was thinking of refining this 
                             $days = [1 => 'Monday', 'Tuesday', 'Wednesday', 'Thursday',
                                     'Friday', 'Saturday', 'Sunday'];
                             $stallHours = $hoursByStall[$stall['id']] ?? [];
@@ -121,14 +123,18 @@ include("nav.php");
                                     <p>Hours not available</p>
                                 <?php endif; ?>
                             </div>
-                        </div>
+                            <a class="view-stall-button"
+                               href="stall-info.php?stall=<?= (int) $stall['id'] ?>">
+                                View Stall
+                            </a>
+                        </div>            
                     </div>
                 <?php endforeach; ?>
               </div>
             </main>
 
         <!-- SCRIPTS --> 
-        <script src="../../js/jquery-4.0.0.min.js"></script>
+        <script src="../js/jquery-4.0.0.min.js"></script>
         <div class="closed-stall-backdrop" id="closedStallMessage" hidden>
             <section class="closed-stall-modal" role="alertdialog" aria-modal="true"
                 aria-labelledby="closedStallTitle">
