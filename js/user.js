@@ -761,31 +761,7 @@ async function handleGoogleLogin(response) {
 
 // replace login
 $(document).ready(function () {
-    var firstName = localStorage.getItem('userFirstName');
-    var lastName = localStorage.getItem('userLastName');
-    var fullName = localStorage.getItem('userFullName');
-    var email = localStorage.getItem('userEmail');
-    var picture = localStorage.getItem('userPicture');
-
     var newProfilePic = null;
-
-
-    if(fullName) {
-        $('#profileName').text(fullName);
-    }
-    if (email) {
-        $('#profileEmail').text(email);
-        $('#emailAddress').val(email);
-    }
-    if (firstName) {
-        $('#firstName').val(firstName);
-    }
-    if (lastName) {
-        $('#lastName').val(lastName);
-    }
-    if (picture) {
-        $('#profileAvatar').attr('src', picture);
-    }
 
     // EDIT PROFILE BUTTON
     $('#editProfileBtn').click(function () {
@@ -802,25 +778,31 @@ $(document).ready(function () {
             var newLastName = $('#lastName').val().trim();
             var newContactNumber = $('#contactNumber').val().trim();
 
-            localStorage.setItem('userFirstName', newFirstName);
-            localStorage.setItem('userLastName', newLastName);
-            localStorage.setItem('userFullName', newFirstName + ' ' + newLastName);
-            localStorage.setItem('userContactNumber', newContactNumber);
+            $.ajax({
+                url: 'profile.php',
+                type: 'POST',
+                data: {
+                    first_name: newFirstName,
+                    last_name: newLastName,
+                    contact_num: newContactNumber,
+                    profile_image: newProfilePic || ''
+                },
+                success: function (response) {
+                    $('#profileName').text(newFirstName + ' ' + newLastName);
 
-            if (newProfilePic) {
-                 localStorage.setItem('userPicture', newProfilePic);
-                 newProfilePic = null;
-            }
+                    $('#firstName').prop('readonly', true);
+                    $('#lastName').prop('readonly', true);
+                    $('#contactNumber').prop('readonly', true);
+                    $('#profileAvatar').removeClass('editable-avatar');
+                    $('#editProfileBtn').text('Edit Profile');
 
-            $('#profileName').text(newFirstName + ' ' + newLastName);
-            $('#firstName').prop('readonly', true);
-            $('#lastName').prop('readonly', true);
-            $('#contactNumber').prop('readonly', true);
-
-            $('#profileAvatar').removeClass('editable-avatar');
-
-            $(this).text('Edit Profile');
-            alert('Profile updated successfully!');
+                    newProfilePic = null;
+                    alert('Profile updated successfully!');
+                },
+                error: function () {
+                    alert('Error updating profile. Please try again.');
+                }
+            });
         }
     });
 
