@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>GreenDash - Transaction History</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="../../bootstrap/css/bootstrap-5.3.3.min.css">
+        <link rel="stylesheet" href="../../style/centralized.css">
+        <link rel="stylesheet" href="../../style/vendor.css">
+        <link rel="icon" type="image/png" href="../../assets/main/GreenDash_CIRCLE.png">
+    </head>
+    <body class="vendor-page">
+        <header>
+            <div class="main-header">
+                <img id="logo" src="../../assets/main/GreenDash_LOGO.png" alt="GreenDash Logo">
+                <div class="location">
+                    <strong>Starbucks</strong>
+                    <span>Green Court</span>
+                </div>
+                <button class="icon-button" id="eclipse" type="button" aria-label="Toggle dark mode">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M12 2a7 7 0 1 0 10 10"></path>
+                    </svg>
+                </button>
+            </div>
+            <nav aria-label="Vendor navigation">
+                <div class="nav-links">
+                    <a href="profile.php">Profile</a>
+                    <a href="orders.php">Order Requests</a>
+                    <a href="transaction-history.php" aria-current="page">Transaction History</a>
+                </div>
+            </nav>
+        </header>
+
+        <main class="vendor-history-layout" aria-labelledby="vendorHistoryHeading">
+            <div class="vendor-history-heading">
+                <div>
+                    <h1 id="vendorHistoryHeading">Transaction History</h1>
+                    <p>Archived completed and cancelled orders</p>
+                </div>
+                <div class="vendor-history-controls">
+                    <label class="vendor-sort-control">
+                        <span>Filter status</span>
+                        <select id="vendorHistoryFilter" aria-label="Filter transactions by status">
+                            <option value="all">All archived</option>
+                            <option value="completed">Completed</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                    </label>
+                    <label class="vendor-history-search">
+                        <span class="visually-hidden">Search transaction history</span>
+                        <input id="vendorHistorySearch" type="search"
+                            placeholder="Search by order ID, name, or item">
+                    </label>
+                </div>
+            </div>
+            <!-- Archived demo records provide realistic examples when no orders have been archived yet. -->
+            <div class="vendor-history-table-wrap">
+                <table class="vendor-history-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">Order ID</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Time</th>
+                            <th scope="col">Items</th>
+                            <th scope="col">Total</th>
+                            <th scope="col">Rating</th>
+                        </tr>
+                    </thead>
+                    <tbody id="vendorHistoryBody"></tbody>
+                </table>
+            </div>
+            <p class="vendor-orders-empty" id="vendorHistoryEmpty">
+                No archived transactions yet.
+            </p>
+        </main>
+
+        <div class="modal fade vendor-right-modal vendor-history-modal" id="vendorHistoryModal" tabindex="-1"
+            aria-labelledby="vendorHistoryModalHeading" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content vendor-order-detail vendor-right-panel">
+                    <div class="vendor-order-modal-header">
+                        <h2 id="vendorHistoryModalHeading">Customer’s order</h2>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close transaction details"></button>
+                    </div>
+                    <div class="vendor-order-modal-body">
+                        <div class="vendor-modal-items" id="vendorHistoryModalItems"></div>
+                        <div class="vendor-order-summary">
+                            <p class="vendor-order-id" id="vendorHistoryModalOrderId"></p>
+                            <dl>
+                                <div>
+                                    <dt>Status:</dt>
+                                    <dd id="vendorHistoryModalStatus" class="vendor-payment-status"></dd>
+                                </div>
+                                <div>
+                                    <dt>Payment:</dt>
+                                    <dd id="vendorHistoryModalPayment"></dd>
+                                </div>
+                                <div>
+                                    <dt>Payment status:</dt>
+                                    <dd id="vendorHistoryModalPaymentStatus"></dd>
+                                </div>
+                                <div id="vendorHistoryModalReferenceRow" hidden>
+                                    <dt>Reference number:</dt>
+                                    <dd id="vendorHistoryModalReferenceNumber"></dd>
+                                </div>
+                                <div>
+                                    <dt>Total:</dt>
+                                    <dd id="vendorHistoryModalTotal"></dd>
+                                </div>
+                                <div>
+                                    <dt>Date:</dt>
+                                    <dd id="vendorHistoryModalDate"></dd>
+                                </div>
+                                <div>
+                                    <dt>Time:</dt>
+                                    <dd id="vendorHistoryModalTime"></dd>
+                                </div>
+                                <div>
+                                    <dt>Rating:</dt>
+                                    <dd id="vendorHistoryModalRating"></dd>
+                                </div>
+                            </dl>
+                            <p class="vendor-cancellation-reason"
+                                id="vendorHistoryModalCancellationReason" hidden></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="../../bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script src="../../js/vendor.js"></script>
+        <script type="module" src="../../js/centralized.js"></script>
+    </body>
+</html>

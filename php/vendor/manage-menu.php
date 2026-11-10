@@ -1,0 +1,87 @@
+<!-- Vendor Manage Store Menu -->
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>GreenDash - Manage Store</title>
+
+        <link rel="stylesheet" href="../../bootstrap/css/bootstrap-5.3.3.min.css">
+        <link rel="stylesheet" href="../../bootstrap-icons/bootstrap-icons.css">
+        <link rel="stylesheet" href="../../style/centralized.css">
+        <link rel="stylesheet" href="../../style/vendors-common.css">
+        <link rel="stylesheet" href="../../style/vendors-manage-menu.css">
+
+        <!-- website icon -->
+        <link rel="icon" type="image/png" href="../../assets/main/GreenDash_CIRCLE.png">
+    </head>
+    <body class="vendor-page">
+        <!-- INCLUDE EVERYTHING FOR THE MAIN HEADER FOR ALL PAGES FROM HERE-->
+        <header>
+            <div class="main-header">
+                <img id="logo" src="../../assets/main/GreenDash_LOGO.png" alt="GreenDash Logo">
+                <div class="location">
+                    <strong>Starbucks</strong>
+                    <span>Green Court</span>
+                </div>
+                <button class="icon-button" id="eclipse" type="button" aria-label="Toggle dark mode">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M12 2a7 7 0 1 0 10 10"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- VENDOR NAVIGATION LINKS -->
+            <nav>
+                <div class="nav-links">
+                    <a href="../../php/vendor/profile.php" class="active" aria-current="page">Profile</a>
+                    <a href="../../php/vendor/orders.php">Order Requests</a>
+                    <a href="../../php/vendor/transaction-history.php">Transaction History</a>
+                </div>
+            </nav>
+        </header>
+        <!-- TO HERE!-->
+
+        <div class="vendor-layout">
+            <!-- LEFT SIDEBAR (same on all 3 Profile sections) -->
+            <aside class="vendor-sidebar" aria-label="Profile sections">
+                <h2>Profile</h2>
+                <p class="vendor-greeting">Hello, Jonny!</p>
+
+                <ul class="sidebar-links">
+                    <li><a href="../../php/vendor/profile.php">Your account</a></li>
+                    <li><a href="../../php/vendor/manage-menu.php" class="active" aria-current="page">Manage store</a></li>
+                    <li><a href="../../php/vendor/request-store.php">Request to add a new store</a></li>
+                </ul>
+            </aside>
+
+            <main class="vendor-content">
+                <h1 class="page-title">Manage store</h1>
+
+                <div class="store-grid">
+                    <!-- one card per store. status pill classes: open | closed -->
+                    <a class="store-card" href="../../php/vendor/manage-store.php?store=starbucks">
+                        <img class="store-card-logo" src="../../assets/stalls/starbucks.png" alt="">
+                        <span class="store-card-name">Starbucks</span>
+                        <span class="store-card-location">Green Court</span>
+                        <span class="status open">OPEN</span>
+                    </a>
+
+                    <a class="store-card" href="../../php/vendor/manage-store.php?store=potatocorner">
+                        <img class="store-card-logo" src="../../assets/stalls/potcor.png" alt="">
+                        <span class="store-card-name">Potato Corner</span>
+                        <span class="store-card-location">Bloemen</span>
+                        <span class="status closed">CLOSED</span>
+                    </a>
+                </div>
+            </main>
+        </div>
+
+        <!-- shared team script: only needed to draw the dark-mode icon in the header -->
+        <script type="module" src="../../js/centralized.js"></script>
+        <script src="../../js/vendor-auth.js"></script>
+    </body>
+</html>
