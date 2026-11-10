@@ -1,4 +1,3 @@
-<!-- User Profile Page -->
  <?php
  session_start();
  require __DIR__ . '/../db.php';
@@ -8,6 +7,7 @@
     exit;
  }
 
+ // get logged in user's info
  $stmt = $pdo->prepare("SELECT * FROM users WHERE user_id = ?");
  $stmt->execute([$_SESSION['user_id']]);
  $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -17,8 +17,21 @@
     header('Location: login.php');
     exit;
  }
+
+ // update profile information if form is submitted
+ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $firstName = trim($_POST['first_name'] ?? '');
+    $lastName = trim($_POST['last_name'] ?? '');
+    $contactNum = trim($_POST['contact_num'] ?? '');
+    $profileImage = trim($_POST['profile_image'] ?? '');
+
+    $stmt = $pdo->prepare("UPDATE users SET first_name = ?, last_name = ?, contact_num = ?, profile_image = ? WHERE user_id = ?");
+    $stmt->execute([$firstName, $lastName, $contactNum !== '' ? $contactNum : null, $profileImage !== '' ? $profileImage : $user['profile_image'], $_SESSION['user_id']]);
+    exit;
+ }
  ?>
 
+<!-- User Profile Page -->
 <!DOCTYPE html>
 <html lang="en">
     <head>
