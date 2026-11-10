@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>GreenDash - Orders</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="../../bootstrap/css/bootstrap-5.3.3.min.css">
+        <link rel="stylesheet" href="../../style/centralized.css">
+        <link rel="stylesheet" href="../../style/user.css">
+        <link rel="icon" type="image/png" href="../../assets/main/GreenDash_CIRCLE.png">
+    </head>
+    <body class="orders-list-page">
+        <?php include __DIR__ . "/../nav.php"; ?>
+
+        <main class="user-main orders-page">
+            <!-- Orders search and status sections -->
+            <div class="search-container">
+                <i data-lucide="search" aria-hidden="true"></i>
+                <input type="text" id="orderSearchInput" aria-label="Search orders"
+                    placeholder="Search orders by stall, item, or order ID">
+            </div>
+
+            <h1 class="section-headers">Orders</h1>
+
+            <section class="orders-section" aria-labelledby="ongoing-heading">
+                <h2 class="orders-section-heading" id="ongoing-heading">Ongoing orders</h2>
+            </section>
+
+            <section class="orders-section" aria-labelledby="previous-heading">
+                <h2 class="orders-section-heading" id="previous-heading">Previous orders</h2>
+            </section>
+            <p class="orders-empty" id="noOrdersFound" hidden>No orders match your search.</p>
+        </main>
+
+        <!-- Detailed order modal -->
+        <div class="modal fade order-info-modal" id="orderInfoModal" tabindex="-1"
+            aria-labelledby="orderInfoModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div>
+                            <p class="order-modal-eyebrow">ORDER DETAILS</p>
+                            <h2 class="modal-title" id="orderInfoModalLabel">Your order</h2>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close order details"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <div class="order-modal-store">
+                            <img id="orderStoreLogo" src="../../assets/stalls/starbucks.png" alt="">
+                            <div class="order-modal-store-copy">
+                                <h3 id="orderStoreName">Starbucks</h3>
+                                <p id="orderStoreLocation">Green Court</p>
+                                <div class="order-modal-rating">
+                                    <span class="order-modal-rating-label">Rating:</span>
+                                    <div class="order-rating-control" id="orderRatingControl"
+                                        role="group" aria-label="Rate this order">
+                                        <button class="order-rating-star" type="button" data-rating="1"
+                                            aria-label="1 star" aria-pressed="false">&#9734;</button>
+                                        <button class="order-rating-star" type="button" data-rating="2"
+                                            aria-label="2 stars" aria-pressed="false">&#9734;</button>
+                                        <button class="order-rating-star" type="button" data-rating="3"
+                                            aria-label="3 stars" aria-pressed="false">&#9734;</button>
+                                        <button class="order-rating-star" type="button" data-rating="4"
+                                            aria-label="4 stars" aria-pressed="false">&#9734;</button>
+                                        <button class="order-rating-star" type="button" data-rating="5"
+                                            aria-label="5 stars" aria-pressed="false">&#9734;</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="order-modal-meta">
+                            <span class="order-id" id="orderModalId">ORDER ID: 6767HI</span>
+                            <span class="order-status preparing" id="orderModalStatus">Preparing</span>
+                        </div>
+
+                        <p class="order-modal-date" id="orderModalDate">October 12, 2026</p>
+
+                        <section class="order-modal-items" aria-labelledby="orderItemsHeading">
+                            <h3 id="orderItemsHeading">Items</h3>
+                            <div id="orderModalItems"></div>
+                        </section>
+
+                        <section class="order-modal-summary" aria-label="Payment summary">
+                            <div class="order-summary-row">
+                                <span>Subtotal</span>
+                                <strong id="orderSubtotal"></strong>
+                            </div>
+                            <div class="order-summary-row">
+                                <span>Payment method</span>
+                                <strong id="orderPaymentMethod"></strong>
+                            </div>
+                            <div class="order-summary-row">
+                                <span>Payment status</span>
+                                <strong id="orderPaymentStatus"></strong>
+                            </div>
+                            <div class="order-summary-total">
+                                <span>Total</span>
+                                <strong id="orderTotal"></strong>
+                            </div>
+                        </section>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="view-stall-button" data-bs-dismiss="modal">Back to orders</button>
+                        <button class="cancel-user-order-button" id="cancelUserOrderButton" type="button">
+                            Cancel order
+                        </button>
+                        <button class="review-order-button" id="reviewOrderButton" type="button"
+                            hidden>Leave a review</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comment form for reviewing a completed order -->
+        <div class="modal fade order-review-modal" id="orderReviewModal" tabindex="-1"
+            aria-labelledby="orderReviewModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <form id="orderReviewForm">
+                        <div class="modal-header">
+                            <div>
+                                <p class="order-modal-eyebrow">ORDER REVIEW</p>
+                                <h2 class="modal-title" id="orderReviewModalLabel">Review your order</h2>
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Close review form"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p class="order-review-context" id="orderReviewContext"></p>
+                            <label class="order-review-label" for="orderReviewComment">Your comment</label>
+                            <textarea class="order-review-comment" id="orderReviewComment" name="comment"
+                                rows="5" maxlength="500" required aria-describedby="orderReviewCount"></textarea>
+                            <p class="order-review-count" id="orderReviewCount" aria-live="polite">0/500</p>
+                            <p class="order-review-feedback" id="orderReviewFeedback" role="alert" hidden></p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="view-stall-button" data-bs-dismiss="modal">Cancel</button>
+                            <button class="review-order-button" type="submit">Save review</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="cancelUserOrderModal" tabindex="-1"
+            aria-labelledby="cancelUserOrderHeading" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title" id="cancelUserOrderHeading">Cancel this order?</h2>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close cancellation confirmation"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p id="cancelUserOrderMessage">You can cancel while the order is pending.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="view-stall-button" data-bs-dismiss="modal">Keep order</button>
+                        <button type="button" class="cancel-user-order-button" id="confirmCancelUserOrderButton">
+                            Cancel order
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="../../bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script src="../../js/user.js"></script>
+        <script type="module" src="../../js/centralized.js"></script>
+    </body>
+</html>
