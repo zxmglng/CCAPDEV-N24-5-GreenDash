@@ -1,3 +1,24 @@
+<!-- User Profile Page -->
+ <?php
+ session_start();
+ require __DIR__ . '/../db.php';
+
+ if (!isset($_SESSION['user_id'])) {
+    header('Location: login.php');
+    exit;
+ }
+
+ $stmt = $pdo->prepare("SELECT * FROM users WHERE user_id = ?");
+ $stmt->execute([$_SESSION['user_id']]);
+ $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+ if (!$user) {
+    // user not found, redirect to login page
+    header('Location: login.php');
+    exit;
+ }
+ ?>
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -31,12 +52,18 @@
                     <div class="col-lg-5 d-flex">
                         <section class="profile-card">
                             <div class="profile-top">
-                                <img src="../../assets/main/defaultAvatar.png" alt="User Avatar" id="profileAvatar" class="profile-avatar">
+                                <img src="<?= htmlspecialchars($user['profile_image'] ?: '../../assets/main/defaultAvatar.png') ?>" alt="User Avatar" id="profileAvatar" class="profile-avatar">
                                 <input type="file" id="profilePictureInput" accept="image/*" hidden>
-                                <!-- DUMMY DATA PLACEHOLDER HEHE -->
-                                <h2 id="profileName">Juan Dela Cruz</h2>
-                                <p id="profileEmail" class="profile-email">juan_delacruz@dlsu.edu.ph</p>
-                                <span class="profile-role-badge">Student</span>
+                                <!-- REPLACED THE HARDCODED VALUE WITH DB VALS!! -->
+                                <h2 id="profileName">
+                                    <?= htmlspecialchars($user['first_name'] . ' ' . $user['last_name']) ?>
+                                </h2>
+                                <p id="profileEmail" class="profile-email">
+                                    <?= htmlspecialchars($user['email_add']) ?>
+                                </p>
+                                <span class="profile-role-badge">
+                                    <?= htmlspecialchars(ucfirst($user['user_role'])) ?>
+                                </span>
                             </div>
 
                             <hr class="profile-divider">
@@ -46,22 +73,22 @@
                                 <div class="row g-3">
                                     <div class="col-md-6">
                                         <label for="firstName" class="profile-label">First Name</label>
-                                        <input type="text" id="firstName" class="profile-input" value="Juan" readonly>
+                                        <input type="text" id="firstName" class="profile-input" value="<?= htmlspecialchars($user['first_name']) ?>" readonly>
                                     </div>
 
                                     <div class="col-md-6">
                                         <label for="lastName" class="profile-label">Last Name</label>
-                                        <input type="text" id="lastName" class="profile-input" value="Dela Cruz" readonly>
+                                        <input type="text" id="lastName" class="profile-input" value="<?= htmlspecialchars($user['last_name']) ?>" readonly>
                                     </div>
 
                                     <div class="col-md-6">
                                         <label for="emailAddress" class="profile-label">Email Address</label>
-                                        <input type="email" id="emailAddress" class="profile-input" value="juan_delacruz@dlsu.edu.ph" readonly>
+                                        <input type="email" id="emailAddress" class="profile-input" value="<?= htmlspecialchars($user['email_add']) ?>" readonly>
                                     </div>
 
                                     <div class="col-md-6">
                                         <label for="contactNumber" class="profile-label">Contact Number</label>
-                                        <input type="tel" id="contactNumber" class="profile-input" value="" readonly>
+                                        <input type="tel" id="contactNumber" class="profile-input" value="<?= htmlspecialchars($user['contact_num']) ?>" readonly>
                                     </div>
                                 </div>
 
