@@ -1,3 +1,10 @@
+// Preserve the HTML prototype routes while serving the PHP application.
+function pageRoute(path) {
+    return window.location.pathname.endsWith('.html')
+        ? path.replace(/\.php(?=[?#]|$)/, '.html').replace('../index.html', '../../index.html')
+        : path;
+}
+
 // stall-info filter button
 if (window.jQuery) {
     window.jQuery('#filterButton').click(function () {
@@ -715,7 +722,7 @@ function handleGoogleLogin(response) {
         }
         var redirectTarget = document
             .getElementById('googleLoginButton')
-            .dataset.loginRedirect || '/CCAPDEV-N24-5-GreenDash/php/user/stalls-directory.php';
+            .dataset.loginRedirect || pageRoute('stalls-directory.php');
         window.location.href = redirectTarget;
     }
 }
@@ -817,7 +824,7 @@ $(document).ready(function () {
         localStorage.removeItem('userContactNumber');
         localStorage.removeItem('isLoggedIn');
 
-        window.location.href = 'index.php';
+        window.location.href = pageRoute('../index.php');
     });
 });
 
