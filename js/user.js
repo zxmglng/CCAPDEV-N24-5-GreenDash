@@ -702,6 +702,19 @@ window.onload = function () {
     }
 };
 
+// Resolve login redirects relative to the page, including the PHP landing page.
+function getUserLoginRedirect() {
+    const configuredRedirect = document.getElementById('googleLoginButton')?.dataset.loginRedirect;
+    if (configuredRedirect) return configuredRedirect;
+
+    if (/\/user\/[^/]*$/.test(window.location.pathname)) {
+        return pageRoute('stalls-directory.php');
+    }
+    return window.location.pathname.endsWith('.html')
+        ? 'pages/user/stalls-directory.html'
+        : 'user/stalls-directory.php';
+}
+
 // login handler
 function handleGoogleLogin(response) {
     var payload = JSON.parse(
@@ -720,9 +733,7 @@ function handleGoogleLogin(response) {
         else {
             localStorage.removeItem('userPicture');
         }
-        var redirectTarget = document
-            .getElementById('googleLoginButton')
-            .dataset.loginRedirect || pageRoute('stalls-directory.php');
+        var redirectTarget = getUserLoginRedirect();
         window.location.href = redirectTarget;
     }
 }
