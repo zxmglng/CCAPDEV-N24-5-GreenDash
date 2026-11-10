@@ -716,11 +716,28 @@ function getUserLoginRedirect() {
 }
 
 // login handler
-function handleGoogleLogin(response) {
-    var payload = JSON.parse(
-        atob(response.credential.split('.')[1])
-    );
-    if (payload.email.endsWith('@dlsu.edu.ph')) {
+async function handleGoogleLogin(response) {
+    try {
+        const backendResponse = await fetch('google-login.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                credential: response.credential
+            })
+        });
+
+        const result = await backendResponse.json();
+        if (!backendResponse.ok || !result.success) {
+            alert(result.message || 'Login failed. Please try again.');
+            return;
+        }
+
+        // keeping this temporarily (for debugging etc), but the backend should handle validation now :)
+        var payload = JSON.parse(
+            atob(response.credential.split('.')[1])
+        );
         localStorage.setItem('userEmail', payload.email);
         localStorage.setItem('userFirstName', payload.given_name);
         localStorage.setItem('userLastName', payload.family_name);
@@ -735,6 +752,10 @@ function handleGoogleLogin(response) {
         }
         var redirectTarget = getUserLoginRedirect();
         window.location.href = redirectTarget;
+    }
+    catch (error) {
+        console.error(error);
+        alert('An error occurred during login. Please try again.');
     }
 }
 
