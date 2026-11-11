@@ -1,3 +1,10 @@
+<?php
+// Preserve old view URLs while routing browser requests through the controller.
+if (!defined('GREENDASH_ADMIN_VIEW')) {
+    header('Location: ../../../controller-admin/home.php', true, 307);
+    exit;
+}
+?>
 <!-- Admin Dashboard -->
 <!DOCTYPE html>
 <html lang="en">
@@ -6,19 +13,19 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>GreenDash - Admin Dashboard</title>
 
-        <link rel="stylesheet" href="../../../bootstrap/css/bootstrap-5.3.3.min.css">
+        <link rel="stylesheet" href="../bootstrap/css/bootstrap-5.3.3.min.css">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-        <link rel="stylesheet" href="../../../style/centralized.css">
-        <link rel="stylesheet" href="../../../style/admin-common.css">
+        <link rel="stylesheet" href="../style/centralized.css">
+        <link rel="stylesheet" href="../style/admin-common.css">
 
         <!-- website icon -->
-        <link rel="icon" type="image/png" href="../../../assets/main/GreenDash_CIRCLE.png">
+        <link rel="icon" type="image/png" href="../assets/main/GreenDash_CIRCLE.png">
     </head>
-    <body class="admin-page">
+    <body class="admin-page" data-assets-path="../assets/">
         <!-- INCLUDE EVERYTHING FOR THE MAIN HEADER FOR ALL PAGES FROM HERE-->
         <header>
             <div class="main-header">
-                <img id="logo" src="../../../assets/main/GreenDash_LOGO.png" alt="GreenDash Logo">
+                <img id="logo" src="../assets/main/GreenDash_LOGO.png" alt="GreenDash Logo">
                 <button class="icon-button" id="eclipse" type="button" aria-label="Toggle dark mode">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -82,10 +89,13 @@
                     </div>
                 </div>
                 <hr>
-                <button class="sidebar-signout" id="adminLogoutBtn" type="button">
-                    <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
-                    <span>Sign out</span>
-                </button>
+                <form action="logout.php" method="post">
+                    <input type="hidden" name="csrfToken" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
+                    <button class="sidebar-signout" id="adminLogoutBtn" type="submit">
+                        <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+                        <span>Sign out</span>
+                    </button>
+                </form>
             </aside>
 
             <!-- Main page -->
@@ -95,6 +105,6 @@
         </div>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="../../../js/centralized.js"></script>
+        <script src="../js/centralized.js"></script>
     </body>
 </html>

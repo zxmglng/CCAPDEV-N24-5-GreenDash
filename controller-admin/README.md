@@ -12,8 +12,24 @@ Should contain:
 
 ## Files
 * **`login.php`** - Admin login, set `$_SESSION` and redirect to dashboard. Loads `views/admin/login.php`
-* **`logout.php`** - Destroys session and redirects to index.php. Loads `views/admin/logout.php`
-* **`home.php`** - Home page. Includes some statistics (counts). Loads `views/admin/home.php`
-* **`manage-stroes.php`** - CRUD for stalls. Loads `views/admin/manage-stores.php`
-* **`manage-users.php`** - CRUD for users. Loads `views/admin/manage-users.php`
-* **`store-requests.php`** - Handles requests from vendors to add/remove stalls. Loads `views/admin/store-requests.php`
+* **`logout.php`** - Accepts a POST with a valid CSRF token, clears admin authentication, and redirects to login. Other user-session values are preserved.
+* **`home.php`** - Requires an admin session and renders `app/views/admin/home.php`.
+* **`manage-stores.php`** - Requires an admin session and renders `app/views/admin/manage-stores.php`.
+* **`manage-users.php`** - Requires an admin session and renders `app/views/admin/manage-users.php`.
+* **`store-requests.php`** - Requires an admin session and renders `app/views/admin/store-requests.php`.
+
+## Admin authentication
+
+Open `/<project-folder>/controller-admin/login.php`, or use the admin link on the
+root landing page. Old `app/views/admin/*.php` URLs redirect to these controllers.
+Views are included by their controllers; their browser asset URLs are relative
+to `controller-admin/`.
+
+`app/core/admin-auth.php` verifies the key server-side and manages the
+`admin_authenticated` and `admin_csrf_token` session values. The existing shared
+key is preserved. To override it on the VM, configure the PHP process environment
+variable `GREENDASH_ADMIN_KEY`. The key is not sent to JavaScript or browser
+storage. Successful login rotates the session ID, then redirects to `home.php`.
+
+Authentication does not require the database. The management screens still use
+their existing frontend data; database CRUD is a separate task.

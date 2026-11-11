@@ -8,7 +8,9 @@ const VENDOR_KEYS = {
     loggedIn:  'isLoggedIn'
 };
 
-const VENDOR_LOGIN_URL = 'login.html';
+// Match the PHP application or the preserved HTML prototype being viewed.
+const VENDOR_PAGE_EXTENSION = window.location.pathname.endsWith('.html') ? '.html' : '.php';
+const VENDOR_LOGIN_URL = `login${VENDOR_PAGE_EXTENSION}`;
 
 // LOGIN PAGE: GOOGLE BUTTON
 
@@ -70,7 +72,7 @@ function getVendorRedirectTarget() {
     const params = new URLSearchParams(window.location.search);
     const fromQuery = params.get('redirect');
     const fallback = document.getElementById('googleLoginButton')
-        ?.dataset.loginRedirect || 'profile.html';
+        ?.dataset.loginRedirect || `profile${VENDOR_PAGE_EXTENSION}`;
 
     if (!fromQuery) return fallback;
     if (fromQuery.startsWith('//') || fromQuery.includes('://')) return fallback;

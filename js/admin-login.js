@@ -1,26 +1,19 @@
-const ADMIN_KEY = 'greendashN24';
-const ADMIN_HOME_URL = 'home.html';
-const ADMIN_AUTH_KEY = 'adminAuthenticated';
+// The HTML prototype uses the same server-verified admin login.
+if (window.location.pathname.endsWith('.html')) {
+    const loginUrl = new URL('../controller-admin/login.php', document.currentScript.src);
+    window.location.replace(loginUrl.href);
+} else {
+    const adminLoginForm = document.getElementById('adminLoginForm');
 
-document.getElementById('adminLoginForm').addEventListener('submit', (event) => {
-    event.preventDefault();
+    adminLoginForm?.addEventListener('submit', (event) => {
+        const key = document.getElementById('adminKey');
+        const error = document.getElementById('adminLoginError');
 
-    const key = document.getElementById('adminKey').value.trim();
-    const error = document.getElementById('adminLoginError');
-
-    if (!key) {
-        error.textContent = 'Please enter the admin key.';
-        return;
-    }
-
-    if (key !== ADMIN_KEY) {
-        error.textContent = 'Incorrect admin key. Please try again.';
-        document.getElementById('adminKey').value = '';
-        document.getElementById('adminKey').focus();
-        return;
-    }
-
-    // Mark this session as authenticated, then redirect.
-    sessionStorage.setItem(ADMIN_AUTH_KEY, 'true');
-    window.location.href = ADMIN_HOME_URL;
-});
+        if (!key.value.trim()) {
+            event.preventDefault();
+            error.textContent = 'Please enter the admin key.';
+            key.focus();
+        }
+        // Nonempty submissions continue to the PHP controller for verification.
+    });
+}

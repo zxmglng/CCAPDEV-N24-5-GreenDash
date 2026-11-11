@@ -8,8 +8,9 @@ const themeStorageKey = 'greendash-theme';
 const themeButton = document.querySelector('#eclipse');
 const logo = document.querySelector('#logo');
 // Replace this placeholder with the actual light-colored logo file for dark mode.
-const darkModeLogoPath = '../../assets/main/GreenDash_LOGO_DARK.png';
-const lightModeLogoPath = '../../assets/main/GreenDash_LOGO.png';
+const themeAssetPath = document.body.dataset.assetsPath || '../../assets/';
+const darkModeLogoPath = `${themeAssetPath}main/GreenDash_LOGO_DARK.png`;
+const lightModeLogoPath = `${themeAssetPath}main/GreenDash_LOGO.png`;
 
 function applyTheme(theme) {
     document.body.classList.toggle('dark-mode', theme === 'dark');
@@ -62,17 +63,14 @@ if (cartButton) {
 const adminLogoutButton = document.querySelector('#adminLogoutBtn');
 
 if (adminLogoutButton) {
-    // Lock down admin pages: if not signed in, send to the landing page.
-    if (sessionStorage.getItem('adminAuthenticated') !== 'true') {
-        window.location.href = '../../index.html';
-    }
-
     adminLogoutButton.addEventListener('click', (event) => {
         if (!confirm('Sign out of the admin panel?')) {
             event.preventDefault();
             return;
         }
-        sessionStorage.removeItem('adminAuthenticated');
-        window.location.href = '../../index.html';
+        // PHP pages submit their logout form; authentication lives in the session.
+        if (!adminLogoutButton.form) {
+            window.location.href = '../../controller-admin/login.php';
+        }
     });
 }

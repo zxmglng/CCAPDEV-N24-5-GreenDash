@@ -25,7 +25,7 @@
             <a href="app/views/vendor/login.php" class="vendor-login-btn">
                 Sign in as a food vendor
             </a>
-            <a href="app/views/admin/login.php" class="vendor-login-btn">
+            <a href="controller-admin/login.php" class="vendor-login-btn">
                 Sign in as an admin
             </a>
         </main>
