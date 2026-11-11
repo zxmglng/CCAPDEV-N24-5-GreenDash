@@ -718,7 +718,7 @@ function getUserLoginRedirect() {
 // login handler
 async function handleGoogleLogin(response) {
     try {
-        const backendResponse = await fetch('google-login.php', {
+        const backendResponse = await fetch('user/google-login.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

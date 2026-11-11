@@ -3,7 +3,7 @@
  require __DIR__ . '/../db.php';
 
  if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
+    header('Location: ../index.php');
     exit;
  }
 
@@ -14,7 +14,7 @@
 
  if (!$user) {
     // user not found, redirect to login page
-    header('Location: login.php');
+    header('Location: ../index.php');
     exit;
  }
 
