@@ -1,27 +1,39 @@
-<?php require(__DIR__ . "/../../core/db.php"); 
+<?php
+require __DIR__ . '/../../core/db.php';
+require_once __DIR__ . '/../../core/checkout.php';
 
-// get selected stall id from URL
-$stallId = $_GET['stall'] ?? null;
-
-if (!$stallId) {
-    header('Location: stalls-directory.php');
-    exit;
-}
-
-// get selected stall information
-$stmt = $pdo->prepare("SELECT * FROM stalls WHERE id = ?");
-$stmt->execute([$stallId]);
-$stall = $stmt->fetch(PDO::FETCH_ASSOC);
-
+$stallId = filter_var($_GET['stall'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+$stall = $stallId ? getCheckoutStall($pdo, $stallId) : null;
 if (!$stall) {
     header('Location: stalls-directory.php');
     exit;
 }
-
-// get stall operating hours
-$stmt = $pdo->prepare("SELECT day_of_week, opens_at, closes_at FROM stall_operating_hours WHERE stall_id = ? ORDER BY day_of_week");
-$stmt->execute([$stallId]);
-$hours = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$hours = getStallOperatingHours($pdo, $stallId);
+$products = array_values(array_filter(getStallProducts($pdo, $stallId),
+    static fn(array $product): bool => (bool) $product['is_available']));
+// Category labels can be added when the categories schema is integrated.
+$categories = [];
+$now = new DateTimeImmutable('now', new DateTimeZone('Asia/Manila'));
+$pickupTimes = [];
+$hoursLabel = 'Closed';
+foreach (checkoutOpeningIntervals($hours, $now) as [$opens, $closes]) {
+    if ($opens->format('Y-m-d') === $now->format('Y-m-d') || ($now >= $opens && $now < $closes)) {
+        $hoursLabel = $opens->format('g:i A') . ' - ' . $closes->format('g:i A');
+    }
+    for ($start = $opens; $start->modify('+15 minutes') <= $closes; $start = $start->modify('+15 minutes')) {
+        if ($start >= $now && $start->format('Y-m-d') === $now->format('Y-m-d')) {
+            $pickupTimes[] = $start->format('g:i A') . ' - ' . $start->modify('+15 minutes')->format('g:i A');
+        }
+    }
+}
+$stallData = [
+    'stall' => [
+        'id' => (int) $stall['id'], 'name' => $stall['name'], 'location' => $stall['location'],
+        'hours' => $hoursLabel, 'pickupTimes' => $pickupTimes,
+        'logo' => $stall['image_path'] ?? '', 'banner' => $stall['banner_path'] ?? '',
+    ],
+    'products' => $products,
+];
 ?>
 
 <!DOCTYPE html>
@@ -36,24 +48,18 @@ $hours = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <link rel="icon" type="image/png" href="../../../assets/main/GreenDash_CIRCLE.png">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
-    <body>
+    <body data-assets-path="../../../assets/">
         <?php include(__DIR__ . "/../nav.php"); ?>
         <main class="stall-info-page">
             <div class="stall-content">
                 <div class="stall-main-content">
                     <section class="stall-header">
-                        <img class="stall-banner" id="stallBanner" src="<?= htmlspecialchars($stall['banner_path']) ?>" alt="<?= htmlspecialchars($stall['name']) ?> banner">
-                        <img class="stall-info-logo" id="stallLogo" src="<?= htmlspecialchars($stall['image_path']) ?>" alt="<?= htmlspecialchars($stall['name']) ?>">
+                        <img class="stall-banner" id="stallBanner" src="<?= htmlspecialchars($stall['banner_path'] ?? '', ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($stall['name']) ?> banner">
+                        <img class="stall-info-logo" id="stallLogo" src="<?= htmlspecialchars($stall['image_path'] ?? '', ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($stall['name']) ?>">
                         <div class="stall-header-info">
                             <h1 id="stallName"><?= htmlspecialchars($stall['name']) ?></h1>
                             <p id="stallLocation"><?= htmlspecialchars($stall['location']) ?></p>
-                            <p id="stallHours">
-                                <?php if ($hours): ?>
-                                    <?= htmlspecialchars($hours[0]['opens_at']) ?> - <?= htmlspecialchars($hours[0]['closes_at']) ?>
-                                <?php else: ?>
-                                    Closed
-                                <?php endif; ?>
-                            </p>
+                            <p id="stallHours"><?= htmlspecialchars($hoursLabel, ENT_QUOTES, 'UTF-8') ?></p>
                             <button type="button" class="stall-review-button" id="openReviewsButton">
                                 <span class="review-stars" aria-hidden="true">★★★★★</span>
                                 Reviews
@@ -154,18 +160,19 @@ $hours = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <strong>From &#8369; <span id="modalBasePrice"></span></strong>
                     </div>
                 </div>
+                <?php foreach (checkoutOptionGroups() as $field => $group): ?>
                 <fieldset class="customization-group">
-                    <legend>Choice of milk</legend>
-                    <label><input type="radio" name="milk" value="Whole" data-price="0"> Whole <span>Free</span></label>
-                    <label><input type="radio" name="milk" value="Non-fat" data-price="0" checked> Non-fat <span>Free</span></label>
-                    <label><input type="radio" name="milk" value="Oatmilk" data-price="50"> Oatmilk <span>+&#8369; 50</span></label>
+                    <legend><?= htmlspecialchars($group['name'], ENT_QUOTES, 'UTF-8') ?></legend>
+                    <?php foreach ($group['choices'] as $choice => $extraPrice): ?>
+                    <label><input type="radio" name="<?= htmlspecialchars($field, ENT_QUOTES, 'UTF-8') ?>"
+                        value="<?= htmlspecialchars($choice, ENT_QUOTES, 'UTF-8') ?>"
+                        data-price="<?= checkoutMoney($extraPrice) ?>"<?= $choice === $group['default'] ? ' checked' : '' ?>>
+                        <?= htmlspecialchars($choice, ENT_QUOTES, 'UTF-8') ?>
+                        <span><?= $extraPrice ? '+&#8369; ' . checkoutMoney($extraPrice) : 'Free' ?></span>
+                    </label>
+                    <?php endforeach; ?>
                 </fieldset>
-                <fieldset class="customization-group">
-                    <legend>Choice of size</legend>
-                    <label><input type="radio" name="size" value="Tall" data-price="10"> Tall <span>+&#8369; 10</span></label>
-                    <label><input type="radio" name="size" value="Grande" data-price="20" checked> Grande <span>+&#8369; 20</span></label>
-                    <label><input type="radio" name="size" value="Venti" data-price="45"> Venti <span>+&#8369; 45</span></label>
-                </fieldset>
+                <?php endforeach; ?>
                 <div class="modal-actions">
                     <div class="quantity-control">
                         <button type="button" id="decreaseQuantity" aria-label="Decrease quantity">−</button>
@@ -234,6 +241,8 @@ $hours = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <button type="button" class="submit-review-button" id="closeEmptyCartMessage">Okay</button>
             </section>
         </div>
+        <script type="application/json" id="stallData"><?= json_encode($stallData,
+            JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR) ?></script>
         <script src="../../../js/user-stalls.js"></script>
         <script type="module" src="../../../js/centralized.js"></script>
     </body>

@@ -19,8 +19,25 @@ const stalls = {
 };
 
 const params = new URLSearchParams(window.location.search);
-const stall = stalls[params.get('stall')] || stalls.starbucks;
-const stallId = params.get('stall') || 'starbucks';
+const stallDataElement = document.querySelector('#stallData');
+const serverStallData = stallDataElement ? JSON.parse(stallDataElement.textContent) : null;
+const stall = serverStallData?.stall || stalls[params.get('stall')] || stalls.starbucks;
+const stallId = String(stall.id || params.get('stall') || 'starbucks');
+const stallApplicationUrl = new URL('../', document.currentScript.src);
+
+function stallImageUrl(path) {
+    if (!path) return '';
+    const marker = path.indexOf('assets/');
+    if (marker !== -1) return new URL(path.slice(marker), stallApplicationUrl).href;
+    if (/^(https?:|data:|\/)/i.test(path)) return new URL(path, stallApplicationUrl).href;
+    return new URL(`assets/starbucksMenu/${path}`, stallApplicationUrl).href;
+}
+
+function escapeStallHtml(value) {
+    return String(value).replace(/[&<>"']/g, character => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+    })[character]);
+}
 
 const completedOrderStalls = new Set(['starbucks', 'dairy-queen', 'potato-corner']);
 const reviewStorageKey = `greendash-reviews-${stallId}`;
@@ -87,6 +104,17 @@ function formatMinutesAsTime(minutes) {
 }
 
 function populatePickupTimes() {
+    if (Array.isArray(stall.pickupTimes)) {
+        [document.querySelector('#pickupTimeMobile'), document.querySelector('#pickupTime')].forEach(select => {
+            for (const value of ['now', ...stall.pickupTimes]) {
+                const option = document.createElement('option');
+                option.value = value;
+                option.textContent = value === 'now' ? 'Pick up now' : value;
+                select.appendChild(option);
+            }
+        });
+        return;
+    }
     const hours = stall.hours.match(/(\d+):(\d+)\s*(AM|PM)/gi);
 
     if (!hours || hours.length !== 2) {
@@ -353,11 +381,13 @@ document.querySelector('#cancelReviewEdit').addEventListener('click', () => {
 });
 
 const banner = document.querySelector('#stallBanner');
-banner.src = stall.banner;
+banner.src = stallImageUrl(stall.banner);
+banner.hidden = !stall.banner;
 banner.alt = `Banner for ${stall.name}`;
 
 const logo = document.querySelector('#stallLogo');
-logo.src = stall.logo;
+logo.src = stallImageUrl(stall.logo);
+logo.hidden = !stall.logo;
 logo.alt = `Logo of ${stall.name}`;
 
 const menuItems = document.querySelector('#menuItems');
@@ -366,27 +396,34 @@ let selectedItem = null;
 let selectedQuantity = 1;
 let activeCategory = 'all';
 let menuAnimationDirection = 'next';
-const menuCategories = ['all', 'drinks', 'food', 'refreshers', 'coffee'];
+const menuCategories = serverStallData ? ['all'] : ['all', 'drinks', 'food', 'refreshers', 'coffee'];
 
 const modal = document.querySelector('#itemModal');
 const modalPrice = document.querySelector('#modalBasePrice');
 const addToCartButton = document.querySelector('#addToCartButton');
 
-stall.menu.forEach(([name, price, image], index) => {
+const menuProducts = serverStallData ? serverStallData.products.map(product => ({
+    productId: Number(product.id), name: product.name, price: Number(product.price),
+    image: product.image_path || '',
+})) : stall.menu.map(([name, price, image]) => ({name, price, image}));
+
+menuProducts.forEach(({productId, name, price, image}, index) => {
     const item = document.createElement('div');
     item.className = 'col-12 col-sm-6 col-md-4 col-lg-3 menu-column';
-    item.dataset.category = index === 0 ? 'all coffee' : menuCategories[index];
+    item.dataset.category = serverStallData ? 'all' : index === 0 ? 'all coffee' : menuCategories[index];
     item.dataset.name = name.toLowerCase();
     item.dataset.price = String(price);
     item.innerHTML = `
         <div class="menu-item">
             <div class="menu-image-container">
-                <img src="${stallAssetPath}starbucksMenu/${image}" alt="${name}">
-                <button type="button" class="add-item-button" aria-label="Add ${name}" data-menu-name="${name}" data-menu-price="${price}" data-menu-image="${image}">
+                <img src="${escapeStallHtml(stallImageUrl(image))}" alt="${escapeStallHtml(name)}" ${image ? '' : 'hidden'}>
+                <button type="button" class="add-item-button" aria-label="Add ${escapeStallHtml(name)}"
+                    data-product-id="${productId || ''}" data-menu-name="${escapeStallHtml(name)}"
+                    data-menu-price="${price}" data-menu-image="${escapeStallHtml(image)}">
                     <span aria-hidden="true">+</span>
                 </button>
             </div>
-            <h3>${name}</h3>
+            <h3>${escapeStallHtml(name)}</h3>
             <p>from &#8369; ${price}</p>
         </div>`;
     menuItems.appendChild(item);
@@ -445,13 +482,15 @@ showMenuCategory(activeCategory);
 function getCustomizationPrice() {
     const milk = document.querySelector('input[name="milk"]:checked');
     const size = document.querySelector('input[name="size"]:checked');
-    return Number(selectedItem.price) + Number(milk?.dataset.price || 0) + Number(size?.dataset.price || 0);
+    const cents = [selectedItem.price, milk?.dataset.price || 0, size?.dataset.price || 0]
+        .reduce((sum, price) => sum + Math.round(Number(price) * 100), 0);
+    return cents / 100;
 }
 
 function updateModalPrice() {
-    const total = getCustomizationPrice() * selectedQuantity;
+    const total = Math.round(getCustomizationPrice() * 100) * selectedQuantity / 100;
     modalPrice.textContent = selectedItem.price;
-    addToCartButton.innerHTML = `Add to cart - &#8369; ${total}`;
+    addToCartButton.innerHTML = `Add to cart - &#8369; ${total.toFixed(2)}`;
     document.querySelector('#itemQuantity').textContent = selectedQuantity;
 }
 
@@ -461,7 +500,8 @@ function openItemModal(item) {
     document.querySelector('#modalItemName').textContent = item.name;
     document.querySelector('#modalItemDescription').textContent = `${item.name} prepared fresh and customized to your preference.`;
     const image = document.querySelector('#modalItemImage');
-    image.src = `${stallAssetPath}starbucksMenu/${item.image}`;
+    image.src = stallImageUrl(item.image);
+    image.hidden = !item.image;
     image.alt = item.name;
     modal.hidden = false;
     updateModalPrice();
@@ -474,32 +514,34 @@ function renderOrder() {
     } else {
         orderItems.innerHTML = cart.map((item) => `
             <div class="order-item">
-                <img src="${stallAssetPath}starbucksMenu/${item.image}" alt="${item.name}">
-                <div><h3>${item.name}</h3><p>${item.size} · ${item.milk || 'No milk customization'} · ${item.quantity}</p></div>
-                <strong>&#8369; ${item.total}</strong>
+                <img src="${escapeStallHtml(stallImageUrl(item.image))}" alt="${escapeStallHtml(item.name)}" ${item.image ? '' : 'hidden'}>
+                <div><h3>${escapeStallHtml(item.name)}</h3><p>${escapeStallHtml(item.size)} · ${escapeStallHtml(item.milk || 'No milk customization')} · ${item.quantity}</p></div>
+                <strong>&#8369; ${item.total.toFixed(2)}</strong>
             </div>`).join('');
     }
-    const total = cart.reduce((sum, item) => sum + item.total, 0);
-    document.querySelector('#checkoutButton').innerHTML = `Checkout - &#8369; ${total}`;
+    const total = cart.reduce((sum, item) => sum + Math.round(item.total * 100), 0) / 100;
+    document.querySelector('#checkoutButton').innerHTML = `Checkout - &#8369; ${total.toFixed(2)}`;
 }
 
 function openCheckout() {
     const desktopPickupTime = document.querySelector('#pickupTime').value;
     const mobilePickupTime = document.querySelector('#pickupTimeMobile').value;
     const pickupTime = desktopPickupTime || mobilePickupTime;
-    const total = cart.reduce((sum, item) => sum + item.total, 0);
+    const total = cart.reduce((sum, item) => sum + Math.round(item.total * 100), 0) / 100;
 
-    if (total === 0) {
+    if (!cart.length) {
         document.querySelector('#emptyCartMessage').hidden = false;
         return;
     }
 
     const checkoutData = {
         stall: {
+            id: stall.id || null,
             name: stall.name,
             location: stall.location,
             hours: stall.hours,
-            logo: stall.logo
+            logo: stallImageUrl(stall.logo),
+            pickupTimes: stall.pickupTimes,
         },
         items: cart,
         pickupTime,
@@ -508,11 +550,14 @@ function openCheckout() {
 
     sessionStorage.setItem('greendash-checkout', JSON.stringify(checkoutData));
     const extension = window.location.pathname.endsWith('.html') ? '.html' : '.php';
-    window.location.href = `checkout${extension}`;
+    window.location.href = serverStallData
+        ? new URL('controller-user/checkout.php', stallApplicationUrl).href
+        : `checkout${extension}`;
 }
 
 document.querySelectorAll('.add-item-button').forEach((button) => {
     button.addEventListener('click', () => openItemModal({
+        productId: Number(button.dataset.productId) || null,
         name: button.dataset.menuName,
         price: Number(button.dataset.menuPrice),
         image: button.dataset.menuImage
@@ -541,7 +586,7 @@ addToCartButton.addEventListener('click', () => {
         size,
         milk,
         quantity: selectedQuantity,
-        total: getCustomizationPrice() * selectedQuantity
+        total: Math.round(getCustomizationPrice() * 100) * selectedQuantity / 100
     });
     modal.hidden = true;
     renderOrder();

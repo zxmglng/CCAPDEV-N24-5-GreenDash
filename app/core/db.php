@@ -8,6 +8,7 @@ try {
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e)
 {
-    die("Connection failed: " . $e->getMessage());
+    // Controllers can return an appropriate response instead of emitting database errors.
+    throw new RuntimeException('Database connection failed.', 0, $e);
 }
 ?>
