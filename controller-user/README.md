@@ -14,6 +14,9 @@ Should contain:
 
 - `checkout.php` requires a signed-in user, creates the checkout CSRF token, and renders `app/views/user/checkout.php`.
 - `submit-order.php` accepts checkout POST requests and returns JSON. It uses the user session for `user_id`, validates the cart, and saves through the models in one transaction.
+- `orders.php` requires a signed-in active user and renders only that user's saved orders, items, options, and reviews.
+- `reviews.php` provides public stall review lists on GET and owner-authorized review saves/deletes on POST.
+- `cancel-order.php` handles the existing Orders page cancellation action for the owner's pending orders.
 
 ## Checkout request and persistence
 
@@ -42,9 +45,36 @@ are displayed only after the transaction commits. The cart is kept on errors.
 Repeating a request ID with the same payload returns the saved receipt within
 that session (the latest 20 receipts are retained); changed payloads are rejected.
 
-The PHP stall menu now loads product IDs/prices from the database. The existing
-order-history UI and vendor order-management simulations are separate work and
-have not been converted to database-backed lists in this checkout change.
+The PHP stall menu loads product IDs/prices from the database. The PHP order-history
+page now loads saved orders and reviews through `controller-user/orders.php`.
+Vendor order-management simulations remain separate work.
+
+## Reviews
+
+Create the previously provided `reviews` table before deploying these endpoints:
+`review_id`, unique `order_id`, `rating` (1–5), nullable `comment` (500 characters),
+`created_at`, and `updated_at`, with the foreign key to `orders.order_id`.
+
+`app/models/review-model.php` contains the SQL; `app/core/reviews.php` handles
+validation, eligibility, and presentation. Saves and deletes require an active
+user, a valid review CSRF token, and an order owned by that user with status
+`completed`. The parent order is locked during the transaction. Saving again
+updates that order's existing review rather than creating another row.
+Comments are optional; rating-only reviews are supported. Order and stall review
+forms share the same rows and API, so editing or deleting on either page is
+reflected on the other after refresh.
+
+`GET reviews.php?stallId=<id>` returns public reviews and, for the current user,
+their eligible completed orders and a CSRF token. Other reviewers' order IDs are
+not returned. `POST reviews.php` accepts `action=save` or `action=delete`, `orderId`,
+and `csrfToken`; saves additionally accept `rating` and optional `comment`.
+User identity and stall association always come from the server-side order.
+
+The Orders view loads `js/user-orders.js` and `js/reviews.js`; it no longer uses
+the sample orders/ratings/comments in the HTML prototype's `js/user.js`.
+Direct requests to `app/views/user/orders.php` redirect to its controller.
+Cancellation uses the same user/CSRF checks and an atomic update restricted to
+pending orders. A paid payment stays paid; cancelling does not claim a refund.
 
 ## Local verification
 

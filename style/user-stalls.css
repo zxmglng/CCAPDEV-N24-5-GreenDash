@@ -178,6 +178,15 @@ body.cart-open .stall-main-content {
 }
 
 .review-form h3 { margin: 0; font-size: 16px; }
+.review-form[hidden] { display: none; }
+.review-form select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #cccccc;
+    border-radius: 8px;
+    font: inherit;
+}
+#stallReviewFeedback { margin: 0; color: #a32929; }
 .review-rating-input { display: flex; gap: 2px; }
 .review-rating-input button {
     padding: 0;

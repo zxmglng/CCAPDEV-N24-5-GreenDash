@@ -39,14 +39,6 @@ function escapeStallHtml(value) {
     })[character]);
 }
 
-const completedOrderStalls = new Set(['starbucks', 'dairy-queen', 'potato-corner']);
-const reviewStorageKey = `greendash-reviews-${stallId}`;
-const sampleReviews = [
-    { rating: 5, text: 'The drinks were delicious and my order was ready on time.', date: '2026-10-07', author: 'GreenDash user' },
-    { rating: 4, text: 'Good food and friendly service.', date: '2026-09-29', author: 'GreenDash user' },
-    { rating: 5, text: '', date: '2026-09-18', author: 'GreenDash user' }
-];
-
 window.scrollTo(0, 0);
 
 function updateOrderPanel() {
@@ -156,229 +148,197 @@ document.querySelector('#pickupTime').addEventListener('change', (event) => {
 const reviewModal = document.querySelector('#reviewModal');
 const reviewMessage = document.querySelector('#reviewMessage');
 const reviewList = document.querySelector('#reviewList');
+const stallReviewForm = document.querySelector('#stallReviewForm');
+const stallReviewOrder = document.querySelector('#stallReviewOrder');
+const stallReviewFeedback = document.querySelector('#stallReviewFeedback');
 let selectedReviewRating = 0;
-let editingReviewId = null;
+let stallReviews = [];
+let eligibleReviewOrders = [];
+let reviewCsrfToken = null;
+let stallReviewBusy = false;
+let stallReviewsLoading = false;
+stallReviewForm.hidden = true;
 
-function getReviewId(review, index) {
-    if (review.id) {
-        return review.id;
-    }
-
-    return `${review.author}-${review.date}-${review.rating}-${review.text || ''}`;
+function stallReviewElement(tag, className, text) {
+    const element = document.createElement(tag);
+    if (className) element.className = className;
+    if (text !== undefined) element.textContent = text;
+    return element;
 }
 
-function getReviews() {
-    const savedReviews = localStorage.getItem(reviewStorageKey);
-
-    if (!savedReviews) {
-        return sampleReviews;
-    }
-
-    try {
-        const reviews = JSON.parse(savedReviews);
-
-        if (Array.isArray(reviews)) {
-            return reviews;
-        }
-
-        return sampleReviews;
-    } catch (error) {
-        console.error('Unable to load stall reviews.', error);
-        return sampleReviews;
-    }
+function showStallReviewError(error) {
+    if (!stallReviewFeedback) return;
+    stallReviewFeedback.textContent = error.message || 'Your review could not be saved. Please try again.';
+    stallReviewFeedback.hidden = false;
 }
 
-function updateReviewFormVisibility() {
-    const canReview = completedOrderStalls.has(stallId);
-    const hasPostedReview = getReviews().some((review) => review.author === 'You');
-    document.querySelector('#stallReviewForm').hidden = !canReview || hasPostedReview;
+function updateStallReviewStars() {
+    document.querySelectorAll('.review-rating-input button').forEach(star => {
+        const rating = Number(star.dataset.rating);
+        star.textContent = rating <= selectedReviewRating ? '★' : '☆';
+        star.setAttribute('aria-pressed', String(rating === selectedReviewRating));
+    });
+}
+
+function fillStallReviewForm(orderId) {
+    const review = stallReviews.find(item => item.isOwner && item.orderId === Number(orderId));
+    selectedReviewRating = review?.rating || 0;
+    document.querySelector('#stallReviewText').value = review?.text || '';
+    document.querySelector('#cancelReviewEdit').hidden = !review;
+    stallReviewForm.querySelector('.submit-review-button').textContent = review ? 'Save changes' : 'Post review';
+    if (stallReviewFeedback) stallReviewFeedback.hidden = true;
+    updateStallReviewStars();
+}
+
+function updateReviewFormVisibility(preferredOrderId) {
+    const canReview = eligibleReviewOrders.length > 0 && Boolean(reviewCsrfToken) && Boolean(stallReviewOrder);
+    stallReviewForm.hidden = !canReview;
     document.querySelector('#reviewEligibilityMessage').hidden = canReview;
+    if (!canReview) return;
+    stallReviewOrder.replaceChildren();
+    eligibleReviewOrders.forEach(order => {
+        const option = document.createElement('option');
+        option.value = order.orderId;
+        option.textContent = `Order ${order.orderNumber}${order.reviewId ? ' (reviewed)' : ''}`;
+        stallReviewOrder.appendChild(option);
+    });
+    const selected = eligibleReviewOrders.find(order => order.orderId === Number(preferredOrderId))
+        || eligibleReviewOrders.find(order => !order.reviewId) || eligibleReviewOrders[0];
+    stallReviewOrder.value = selected.orderId;
+    fillStallReviewForm(selected.orderId);
 }
 
 function renderReviews() {
     const filter = document.querySelector('#reviewStarFilter').value;
     const sort = document.querySelector('#reviewSort').value;
-    const reviews = getReviews()
-        .filter((review) => filter === 'all' || review.rating === Number(filter))
-        .sort((a, b) => {
-            const difference = new Date(a.date) - new Date(b.date);
-
-            if (sort === 'oldest') {
-                return difference;
-            }
-
-            return -difference;
+    const reviews = stallReviews.filter(review => filter === 'all' || review.rating === Number(filter))
+        .sort((first, second) => {
+            const difference = new Date(first.createdAt.replace(' ', 'T')) - new Date(second.createdAt.replace(' ', 'T'))
+                || first.id - second.id;
+            return sort === 'oldest' ? difference : -difference;
         });
-
-    if (reviews.length === 0) {
-        reviewList.innerHTML = '<p class="review-empty">No reviews match this filter.</p>';
+    reviewList.replaceChildren();
+    if (!reviews.length) {
+        reviewList.appendChild(stallReviewElement('p', 'review-empty', stallReviews.length ? 'No reviews match this filter.' : 'No reviews yet.'));
         return;
     }
-
-    reviewList.innerHTML = reviews.map((review, index) => {
-        let reviewText = '<p class="review-no-text">No written review.</p>';
-        let reviewActions = '';
-
-        if (review.text) {
-            reviewText = `<p>${review.text}</p>`;
+    reviews.forEach(review => {
+        const card = stallReviewElement('article', 'review-card');
+        const heading = stallReviewElement('div', 'review-card-heading');
+        const date = stallReviewElement('time', '', new Date(`${review.date}T00:00:00`).toLocaleDateString('en-PH', {
+            year: 'numeric', month: 'short', day: 'numeric',
+        }));
+        date.dateTime = review.date;
+        heading.append(stallReviewElement('strong', '', review.author), date);
+        const stars = stallReviewElement('div', 'review-card-stars', '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating));
+        stars.setAttribute('aria-label', `${review.rating} out of 5 stars`);
+        card.append(heading, stars, stallReviewElement('p', review.text ? '' : 'review-no-text', review.text || 'No written review.'));
+        if (review.isOwner) {
+            const actions = stallReviewElement('div', 'review-actions');
+            for (const [action, text] of [['edit', 'Edit'], ['delete', 'Delete']]) {
+                const button = stallReviewElement('button', `${action}-review-button`, text);
+                button.type = 'button';
+                button.dataset.reviewId = review.id;
+                button.dataset.action = action;
+                button.disabled = stallReviewBusy;
+                actions.append(button);
+            }
+            card.append(actions);
         }
-
-        if (review.author === 'You') {
-            reviewActions = `
-                <div class="review-actions">
-                    <button type="button" class="edit-review-button" data-review-id="${getReviewId(review, index)}">Edit</button>
-                    <button type="button" class="delete-review-button" data-review-id="${getReviewId(review, index)}">Delete</button>
-                </div>`;
-        }
-
-        return `
-            <article class="review-card" data-review-id="${getReviewId(review, index)}">
-                <div class="review-card-heading">
-                    <strong>${review.author}</strong>
-                    <time datetime="${review.date}">${new Date(`${review.date}T00:00:00`).toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' })}</time>
-                </div>
-                <div class="review-card-stars" aria-label="${review.rating} out of 5 stars">${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</div>
-                ${reviewText}
-                ${reviewActions}
-            </article>`;
-    }).join('');
+        reviewList.appendChild(card);
+    });
 }
 
-function openReviews() {
-    document.querySelector('#reviewModalTitle').textContent = `${stall.name} reviews`;
+async function refreshStallReviews(preferredOrderId) {
+    if (!window.GreenDashReviews || !serverStallData) throw new Error('Reviews are currently unavailable. Please try again later.');
+    const result = await window.GreenDashReviews.load(stallId);
+    stallReviews = result.reviews;
+    eligibleReviewOrders = result.eligibleOrders;
+    reviewCsrfToken = result.csrfToken;
+    document.querySelector('#reviewModalTitle').textContent = result.count
+        ? `${stall.name} reviews — ${result.averageRating}/5 (${result.count})` : `${stall.name} reviews`;
+    const summary = document.querySelector('.review-stars');
+    if (summary) {
+        const rating = Math.round(result.averageRating || 0);
+        summary.textContent = '★'.repeat(rating) + '☆'.repeat(5 - rating);
+    }
     renderReviews();
-    updateReviewFormVisibility();
+    updateReviewFormVisibility(preferredOrderId);
+}
+
+async function openReviews() {
     reviewModal.hidden = false;
+    if (stallReviewsLoading) return;
+    stallReviewsLoading = true;
+    stallReviewForm.hidden = true;
+    document.querySelector('#reviewModalTitle').textContent = `${stall.name} reviews`;
+    reviewList.textContent = 'Loading reviews…';
+    try {
+        await refreshStallReviews();
+    } catch (error) {
+        reviewList.textContent = error.message;
+        document.querySelector('#reviewEligibilityMessage').hidden = true;
+    } finally { stallReviewsLoading = false; }
+}
+
+function setStallReviewBusy(busy) {
+    stallReviewBusy = busy;
+    stallReviewForm.querySelectorAll('button, select, textarea').forEach(control => {control.disabled = busy;});
+    reviewList.querySelectorAll('button').forEach(button => {button.disabled = busy;});
 }
 
 document.querySelector('#openReviewsButton').addEventListener('click', openReviews);
-document.querySelector('#closeReviewsButton').addEventListener('click', () => {
-    reviewModal.hidden = true;
-});
-document.querySelector('#closeReviewMessage').addEventListener('click', () => {
-    reviewMessage.hidden = true;
-});
-reviewModal.addEventListener('click', (event) => {
-    if (event.target === reviewModal) reviewModal.hidden = true;
-});
-reviewMessage.addEventListener('click', (event) => {
-    if (event.target === reviewMessage) reviewMessage.hidden = true;
-});
-reviewList.addEventListener('click', (event) => {
-    const reviewId = event.target.dataset.reviewId;
-
-    if (!reviewId) {
-        return;
-    }
-
-    const reviews = getReviews();
-    const reviewIndex = reviews.findIndex((review, index) => getReviewId(review, index) === reviewId);
-
-    if (reviewIndex === -1 || reviews[reviewIndex].author !== 'You') {
-        return;
-    }
-
-    if (event.target.classList.contains('edit-review-button')) {
-        const review = reviews[reviewIndex];
-        editingReviewId = reviewId;
-        selectedReviewRating = review.rating;
-        document.querySelector('#stallReviewForm').hidden = false;
-        document.querySelector('#stallReviewText').value = review.text;
-        document.querySelector('#cancelReviewEdit').hidden = false;
-        document.querySelector('#stallReviewForm .submit-review-button').textContent = 'Save changes';
-        document.querySelectorAll('.review-rating-input button').forEach((star) => {
-            star.textContent = '☆';
-
-            if (Number(star.dataset.rating) <= selectedReviewRating) {
-                star.textContent = '★';
-            }
-        });
-        return;
-    }
-
-    if (event.target.classList.contains('delete-review-button')) {
-        const shouldDelete = window.confirm('Delete your review?');
-
-        if (!shouldDelete) {
-            return;
-        }
-
-        reviews.splice(reviewIndex, 1);
-        try {
-            localStorage.setItem(reviewStorageKey, JSON.stringify(reviews));
-        } catch (error) {
-            console.error('Unable to delete the stall review.', error);
-            return;
-        }
-        editingReviewId = null;
-        renderReviews();
-        updateReviewFormVisibility();
-    }
-});
+document.querySelector('#closeReviewsButton').addEventListener('click', () => {reviewModal.hidden = true;});
+document.querySelector('#closeReviewMessage').addEventListener('click', () => {reviewMessage.hidden = true;});
+reviewModal.addEventListener('click', event => {if (event.target === reviewModal) reviewModal.hidden = true;});
+reviewMessage.addEventListener('click', event => {if (event.target === reviewMessage) reviewMessage.hidden = true;});
 document.querySelector('#reviewStarFilter').addEventListener('change', renderReviews);
 document.querySelector('#reviewSort').addEventListener('change', renderReviews);
+stallReviewOrder?.addEventListener('change', () => fillStallReviewForm(stallReviewOrder.value));
 
-document.querySelectorAll('.review-rating-input button').forEach((button) => {
+document.querySelectorAll('.review-rating-input button').forEach(button => {
     button.addEventListener('click', () => {
         selectedReviewRating = Number(button.dataset.rating);
-        document.querySelectorAll('.review-rating-input button').forEach((star) => {
-            star.textContent = '☆';
-
-            if (Number(star.dataset.rating) <= selectedReviewRating) {
-                star.textContent = '★';
-            }
-        });
+        updateStallReviewStars();
     });
 });
 
-document.querySelector('#stallReviewForm').addEventListener('submit', (event) => {
+reviewList.addEventListener('click', async event => {
+    const button = event.target.closest('button[data-review-id]');
+    if (!button || stallReviewBusy) return;
+    const review = stallReviews.find(item => item.id === Number(button.dataset.reviewId) && item.isOwner);
+    if (!review) return;
+    if (button.dataset.action === 'edit') {
+        if (!stallReviewOrder) return;
+        stallReviewOrder.value = review.orderId;
+        fillStallReviewForm(review.orderId);
+        document.querySelector('#stallReviewText').focus();
+    } else if (button.dataset.action === 'delete' && window.confirm('Delete your review for this order?')) {
+        setStallReviewBusy(true);
+        try {
+            await window.GreenDashReviews.remove(review.orderId, reviewCsrfToken);
+            await refreshStallReviews();
+        } catch (error) { showStallReviewError(error); }
+        finally { setStallReviewBusy(false); }
+    }
+});
+
+stallReviewForm.addEventListener('submit', async event => {
     event.preventDefault();
-    if (!selectedReviewRating) return;
-    const review = {
-        id: `review-${Date.now()}`,
-        rating: selectedReviewRating,
-        text: document.querySelector('#stallReviewText').value.trim(),
-        date: new Date().toISOString().slice(0, 10),
-        author: 'You'
-    };
-    const reviews = getReviews();
-
-    if (editingReviewId) {
-        const reviewIndex = reviews.findIndex((savedReview, index) => getReviewId(savedReview, index) === editingReviewId);
-
-        if (reviewIndex !== -1) {
-            review.id = editingReviewId;
-            review.date = reviews[reviewIndex].date;
-            reviews[reviewIndex] = review;
-        }
-    } else {
-        reviews.push(review);
-    }
-
+    if (stallReviewBusy || !stallReviewOrder || !stallReviewForm.reportValidity()) return;
+    if (!selectedReviewRating) {showStallReviewError(new Error('Choose a rating from 1 to 5.')); return;}
+    const orderId = Number(stallReviewOrder.value);
+    const comment = document.querySelector('#stallReviewText').value.trim();
+    setStallReviewBusy(true);
     try {
-        localStorage.setItem(reviewStorageKey, JSON.stringify(reviews));
-    } catch (error) {
-        console.error('Unable to save stall review.', error);
-        return;
-    }
-    document.querySelector('#stallReviewText').value = '';
-    selectedReviewRating = 0;
-    editingReviewId = null;
-    document.querySelector('#cancelReviewEdit').hidden = true;
-    document.querySelector('#stallReviewForm .submit-review-button').textContent = 'Post review';
-    document.querySelectorAll('.review-rating-input button').forEach((star) => { star.textContent = '☆'; });
-    renderReviews();
-    updateReviewFormVisibility();
+        await window.GreenDashReviews.save(orderId, selectedReviewRating, comment, reviewCsrfToken);
+        await refreshStallReviews();
+    } catch (error) { showStallReviewError(error); }
+    finally { setStallReviewBusy(false); }
 });
 
-document.querySelector('#cancelReviewEdit').addEventListener('click', () => {
-    editingReviewId = null;
-    selectedReviewRating = 0;
-    document.querySelector('#stallReviewText').value = '';
-    document.querySelector('#cancelReviewEdit').hidden = true;
-    document.querySelector('#stallReviewForm .submit-review-button').textContent = 'Post review';
-    document.querySelectorAll('.review-rating-input button').forEach((star) => { star.textContent = '☆'; });
-});
+document.querySelector('#cancelReviewEdit').addEventListener('click', () => updateReviewFormVisibility());
+
 
 const banner = document.querySelector('#stallBanner');
 banner.src = stallImageUrl(stall.banner);

@@ -212,8 +212,11 @@ $stallData = [
                 <p class="review-eligibility-message" id="reviewEligibilityMessage" hidden>
                     You can read reviews, but you need a completed order from this stall to leave one.
                 </p>
-                <form class="review-form" id="stallReviewForm">
+                <form class="review-form" id="stallReviewForm" method="post" action="../../../controller-user/reviews.php">
                     <h3>Write a review</h3>
+                    <label for="stallReviewOrder">Completed order</label>
+                    <select id="stallReviewOrder" name="orderId" required></select>
+                    <p id="stallReviewFeedback" role="alert" hidden></p>
                     <div class="review-rating-input" role="radiogroup" aria-label="Your rating">
                         <button type="button" data-rating="1" aria-label="1 star">☆</button>
                         <button type="button" data-rating="2" aria-label="2 stars">☆</button>
@@ -221,7 +224,7 @@ $stallData = [
                         <button type="button" data-rating="4" aria-label="4 stars">☆</button>
                         <button type="button" data-rating="5" aria-label="5 stars">☆</button>
                     </div>
-                    <textarea id="stallReviewText" maxlength="500" placeholder="Share your experience (optional)"></textarea>
+                    <textarea id="stallReviewText" name="comment" maxlength="500" placeholder="Share your experience (optional)"></textarea>
                     <button type="button" class="cancel-review-button" id="cancelReviewEdit" hidden>Cancel edit</button>
                     <button type="submit" class="submit-review-button">Post review</button>
                 </form>
@@ -229,7 +232,7 @@ $stallData = [
         </div>
         <div class="review-message-backdrop" id="reviewMessage" hidden>
             <section class="review-message" role="alertdialog" aria-labelledby="reviewMessageTitle">
-                <h2 id="reviewMessageTitle">you havent ordered from this stall yet!</h2>
+                <h2 id="reviewMessageTitle">A completed order is required</h2>
                 <p>You can leave a review after completing an order from this stall.</p>
                 <button type="button" class="submit-review-button" id="closeReviewMessage">Okay</button>
             </section>
@@ -243,6 +246,7 @@ $stallData = [
         </div>
         <script type="application/json" id="stallData"><?= json_encode($stallData,
             JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR) ?></script>
+        <script src="../../../js/reviews.js"></script>
         <script src="../../../js/user-stalls.js"></script>
         <script type="module" src="../../../js/centralized.js"></script>
     </body>

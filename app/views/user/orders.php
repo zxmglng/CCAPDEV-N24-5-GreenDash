@@ -1,15 +1,21 @@
+<?php
+if (!defined('GREENDASH_ORDERS_VIEW')) {
+    header('Location: ../../../controller-user/orders.php', true, 307);
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8">
         <title>GreenDash - Orders</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="../../../bootstrap/css/bootstrap-5.3.3.min.css">
-        <link rel="stylesheet" href="../../../style/centralized.css">
-        <link rel="stylesheet" href="../../../style/user.css">
-        <link rel="icon" type="image/png" href="../../../assets/main/GreenDash_CIRCLE.png">
+        <link rel="stylesheet" href="../bootstrap/css/bootstrap-5.3.3.min.css">
+        <link rel="stylesheet" href="../style/centralized.css">
+        <link rel="stylesheet" href="../style/user.css">
+        <link rel="icon" type="image/png" href="../assets/main/GreenDash_CIRCLE.png">
     </head>
-    <body class="orders-list-page">
+    <body class="orders-list-page" data-assets-path="../assets/">
         <?php include __DIR__ . "/../nav.php"; ?>
 
         <main class="user-main orders-page">
@@ -48,10 +54,10 @@
 
                     <div class="modal-body">
                         <div class="order-modal-store">
-                            <img id="orderStoreLogo" src="../../../assets/stalls/starbucks.png" alt="">
+                            <img id="orderStoreLogo" src="../assets/main/defaultAvatar.png" alt="">
                             <div class="order-modal-store-copy">
-                                <h3 id="orderStoreName">Starbucks</h3>
-                                <p id="orderStoreLocation">Green Court</p>
+                                <h3 id="orderStoreName"></h3>
+                                <p id="orderStoreLocation"></p>
                                 <div class="order-modal-rating">
                                     <span class="order-modal-rating-label">Rating:</span>
                                     <div class="order-rating-control" id="orderRatingControl"
@@ -72,11 +78,13 @@
                         </div>
 
                         <div class="order-modal-meta">
-                            <span class="order-id" id="orderModalId">ORDER ID: 6767HI</span>
+                            <span class="order-id" id="orderModalId"></span>
                             <span class="order-status preparing" id="orderModalStatus">Preparing</span>
                         </div>
 
-                        <p class="order-modal-date" id="orderModalDate">October 12, 2026</p>
+                        <p class="order-modal-date" id="orderModalDate"></p>
+
+                        <p id="orderActionFeedback" role="alert" hidden></p>
 
                         <section class="order-modal-items" aria-labelledby="orderItemsHeading">
                             <h3 id="orderItemsHeading">Items</h3>
@@ -110,6 +118,7 @@
                         </button>
                         <button class="review-order-button" id="reviewOrderButton" type="button"
                             hidden>Leave a review</button>
+                        <button class="cancel-user-order-button" id="deleteOrderReviewButton" type="button" hidden>Delete review</button>
                     </div>
                 </div>
             </div>
@@ -120,7 +129,7 @@
             aria-labelledby="orderReviewModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
-                    <form id="orderReviewForm">
+                    <form id="orderReviewForm" method="post" action="reviews.php">
                         <div class="modal-header">
                             <div>
                                 <p class="order-modal-eyebrow">ORDER REVIEW</p>
@@ -131,9 +140,18 @@
                         </div>
                         <div class="modal-body">
                             <p class="order-review-context" id="orderReviewContext"></p>
-                            <label class="order-review-label" for="orderReviewComment">Your comment</label>
+                            <label class="order-review-label" for="orderReviewRating">Rating</label>
+                            <select class="form-select" id="orderReviewRating" name="rating" required>
+                                <option value="">Choose a rating</option>
+                                <option value="1">1 star</option>
+                                <option value="2">2 stars</option>
+                                <option value="3">3 stars</option>
+                                <option value="4">4 stars</option>
+                                <option value="5">5 stars</option>
+                            </select>
+                            <label class="order-review-label" for="orderReviewComment">Your comment (optional)</label>
                             <textarea class="order-review-comment" id="orderReviewComment" name="comment"
-                                rows="5" maxlength="500" required aria-describedby="orderReviewCount"></textarea>
+                                rows="5" maxlength="500" aria-describedby="orderReviewCount"></textarea>
                             <p class="order-review-count" id="orderReviewCount" aria-live="polite">0/500</p>
                             <p class="order-review-feedback" id="orderReviewFeedback" role="alert" hidden></p>
                         </div>
@@ -168,8 +186,11 @@
             </div>
         </div>
 
-        <script src="../../../bootstrap/js/bootstrap.bundle.min.js"></script>
-        <script src="../../../js/user.js"></script>
-        <script type="module" src="../../../js/centralized.js"></script>
+        <script src="../bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script type="application/json" id="ordersData"><?= json_encode($ordersData,
+            JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR) ?></script>
+        <script src="../js/reviews.js"></script>
+        <script src="../js/user-orders.js"></script>
+        <script type="module" src="../js/centralized.js"></script>
     </body>
 </html>

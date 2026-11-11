@@ -33,7 +33,7 @@ if (!defined('GREENDASH_CHECKOUT_VIEW')) {
                     </div>
                 </div>
                 <form id="checkoutForm" class="payment-form" method="post" action="submit-order.php"
-                    data-orders-url="../app/views/user/orders.php"
+                    data-orders-url="orders.php"
                     data-directory-url="../app/views/user/stalls-directory.php" novalidate>
                     <input type="hidden" name="csrfToken" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
                     <input type="hidden" name="stallId" id="checkoutStallId">
