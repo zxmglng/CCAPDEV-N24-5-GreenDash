@@ -830,18 +830,10 @@ $(document).ready(function () {
 
     // LOGOUT BUTTON
     $('#logoutBtn').click(function () {
-        localStorage.removeItem('userFirstName');
-        localStorage.removeItem('userLastName');
-        localStorage.removeItem('userFullName');
-        localStorage.removeItem('userEmail');
-        localStorage.removeItem('userPicture');
-        localStorage.removeItem('userContactNumber');
-        localStorage.removeItem('isLoggedIn');
-
-        window.location.href = pageRoute('../index.php');
+        localStorage.clear();
+        window.location.href = 'profile.php?logout=1';
     });
-});
-
+    
 // Profile page - order frequency chart
 $(document).ready(function () {
     var chartCanvas = $('#orderFrequencyChart');
