@@ -5,21 +5,21 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>GreenDash - Store Requests</title>
 
-        <link rel="stylesheet" href="../../bootstrap/css/bootstrap-5.3.3.min.css">
+        <link rel="stylesheet" href="../../../bootstrap/css/bootstrap-5.3.3.min.css">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-        <link rel="stylesheet" href="../../style/centralized.css">
-        <link rel="stylesheet" href="../../style/admin-common.css">
-        <link rel="stylesheet" href="../../style/admin-tables.css">
-        <link rel="stylesheet" href="../../style/admin-modals.css">
-        <link rel="stylesheet" href="../../style/admin-requests.css">
+        <link rel="stylesheet" href="../../../style/centralized.css">
+        <link rel="stylesheet" href="../../../style/admin-common.css">
+        <link rel="stylesheet" href="../../../style/admin-tables.css">
+        <link rel="stylesheet" href="../../../style/admin-modals.css">
+        <link rel="stylesheet" href="../../../style/admin-requests.css">
 
-        <link rel="icon" type="image/png" href="../../assets/main/GreenDash_CIRCLE.png">
+        <link rel="icon" type="image/png" href="../../../assets/main/GreenDash_CIRCLE.png">
     </head>
     <body class="admin-page" data-page="store-requests">
         <!-- HEADER -->
         <header>
             <div class="main-header">
-                <img id="logo" src="../../assets/main/GreenDash_LOGO.png" alt="GreenDash Logo">
+                <img id="logo" src="../../../assets/main/GreenDash_LOGO.png" alt="GreenDash Logo">
                 <button class="icon-button" id="eclipse" type="button" aria-label="Toggle dark mode">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -148,7 +148,7 @@
         </div>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="../../js/centralized.js"></script>
-        <script src="../../js/admin-requests.js"></script>
+        <script src="../../../js/centralized.js"></script>
+        <script src="../../../js/admin-requests.js"></script>
     </body>
 </html>
