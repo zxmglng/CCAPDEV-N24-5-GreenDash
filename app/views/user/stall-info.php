@@ -1,4 +1,28 @@
-<?php require(__DIR__ . "/../../core/db.php"); ?>
+<?php require(__DIR__ . "/../../core/db.php"); 
+
+// get selected stall id from URL
+$stallId = $_GET['stall'] ?? null;
+
+if (!$stallId) {
+    header('Location: stalls-directory.php');
+    exit;
+}
+
+// get selected stall information
+$stmt = $pdo->prepare("SELECT * FROM stalls WHERE id = ?");
+$stmt->execute([$stallId]);
+$stall = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if (!$stall) {
+    header('Location: stalls-directory.php');
+    exit;
+}
+
+// get stall operating hours
+$stmt = $pdo->prepare("SELECT day_of_week, opens_at, closes_at FROM stall_operating_hours WHERE stall_id = ? ORDER BY day_of_week");
+$stmt->execute([$stallId]);
+$hours = $stmt->fetchAll(PDO::FETCH_ASSOC);
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -18,12 +42,18 @@
             <div class="stall-content">
                 <div class="stall-main-content">
                     <section class="stall-header">
-                        <img class="stall-banner" id="stallBanner" alt="">
-                        <img class="stall-info-logo" id="stallLogo" alt="">
+                        <img class="stall-banner" id="stallBanner" src="<?= htmlspecialchars($stall['banner_path']) ?>" alt="<?= htmlspecialchars($stall['name']) ?> banner">
+                        <img class="stall-info-logo" id="stallLogo" src="<?= htmlspecialchars($stall['image_path']) ?>" alt="<?= htmlspecialchars($stall['name']) ?>">
                         <div class="stall-header-info">
-                            <h1 id="stallName"></h1>
-                            <p id="stallLocation"></p>
-                            <p id="stallHours"></p>
+                            <h1 id="stallName"><?= htmlspecialchars($stall['name']) ?></h1>
+                            <p id="stallLocation"><?= htmlspecialchars($stall['location']) ?></p>
+                            <p id="stallHours">
+                                <?php if ($hours): ?>
+                                    <?= htmlspecialchars($hours[0]['opens_at']) ?> - <?= htmlspecialchars($hours[0]['closes_at']) ?>
+                                <?php else: ?>
+                                    Closed
+                                <?php endif; ?>
+                            </p>
                             <button type="button" class="stall-review-button" id="openReviewsButton">
                                 <span class="review-stars" aria-hidden="true">★★★★★</span>
                                 Reviews
