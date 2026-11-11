@@ -302,6 +302,12 @@
     background: var(--a-red-btn);
 }
 
+/* Pending status = red */
+.status.pending {
+    background: #f59e0b; /* Amber */
+    color: #ffffff;
+}
+
 /* Empty state inside the table */
 .admin-table .empty-row td {
     text-align: center;

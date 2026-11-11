@@ -1,209 +1,189 @@
-<?php
-// Preserve old view URLs while routing browser requests through the controller.
-if (!defined('GREENDASH_ADMIN_VIEW')) {
-    header('Location: ../../../controller-admin/manage-users.php', true, 307);
-    exit;
-}
-?>
 <!DOCTYPE html>
 <html lang="en">
     <head>
+        <base href="/GreenDash/">
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>GreenDash - Manage Users</title>
-
-        <link rel="stylesheet" href="../bootstrap/css/bootstrap-5.3.3.min.css">
+        <link rel="stylesheet" href="bootstrap/css/bootstrap-5.3.3.min.css">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-        <link rel="stylesheet" href="../style/centralized.css">
-        <link rel="stylesheet" href="../style/admin-common.css">
-        <link rel="stylesheet" href="../style/admin-tables.css">
-        <link rel="stylesheet" href="../style/admin-modals.css">
-        <link rel="stylesheet" href="../style/admin-users.css">
-
-        <link rel="icon" type="image/png" href="../assets/main/GreenDash_CIRCLE.png">
+        <link rel="stylesheet" href="style/centralized.css">
+        <link rel="stylesheet" href="style/admin-common.css">
+        <link rel="stylesheet" href="style/admin-tables.css">
+        <link rel="stylesheet" href="style/admin-modals.css">
+        <link rel="stylesheet" href="style/admin-users.css">
+        <link rel="icon" type="image/png" href="assets/main/GreenDash_CIRCLE.png">
     </head>
-    <body class="admin-page" data-assets-path="../assets/" data-page="manage-users">
-        <!-- HEADER -->
-        <header>
-            <div class="main-header">
-                <img id="logo" src="../assets/main/GreenDash_LOGO.png" alt="GreenDash Logo">
-                <button class="icon-button" id="eclipse" type="button" aria-label="Toggle dark mode">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" aria-hidden="true">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <path d="M12 2a7 7 0 1 0 10 10"></path>
-                    </svg>
+    <body class="admin-page"
+          data-page="<?= htmlspecialchars($page) ?>"
+          data-flash="<?= htmlspecialchars($flashAction) ?>">
+        <?php require __DIR__ . '/nav.php'; ?>
+            <h1 class="page-title">Users Directory</h1>
+
+            <div class="admin-toolbar">
+                <div class="admin-search">
+                    <i class="bi bi-search"></i>
+                    <input id="searchInput" type="search" placeholder="Search by Name or Email...">
+                </div>
+                <select class="admin-select" id="filterRole" aria-label="Filter by role">
+                    <option value="">All roles</option>
+                    <option value="admin">Admin</option>
+                    <option value="vendor">Vendor</option>
+                    <option value="user">User</option>
+                </select>
+                <select class="admin-select" id="sortField" aria-label="Sort by">
+                    <option value="name">Name</option>
+                    <option value="email">Email</option>
+                    <option value="role">Role</option>
+                </select>
+                <button class="admin-icon-btn" id="sortBtn" type="button" aria-label="Toggle sort direction">
+                    <i class="bi bi-sort-down-alt"></i>
                 </button>
+                <button class="admin-btn primary" id="addUserBtn" type="button">Add User</button>
+                <button class="admin-btn danger" id="removeModeBtn" type="button">Remove User</button>
             </div>
-        </header>
 
-        <div class="admin-layout">
-            <!-- SIDEBAR -->
-            <aside class="admin-sidebar" aria-label="Admin dashboard">
-                <span>Dashboard</span>
+            <div class="admin-table-wrap">
+                <table class="admin-table users-table">
+                    <thead>
+                        <tr><th>Name</th><th>Email</th><th>Role</th></tr>
+                    </thead>
+                    <tbody id="usersBody">
+                        <?php if (empty($users)): ?>
+                            <tr><td colspan="3" style="text-align:center;">No users found.</td></tr>
+                        <?php else: ?>
+                            <?php foreach ($users as $u):
+                                $displayRole = 'User';
+                                if ($u['user_role'] === 'admin')  $displayRole = 'Admin';
+                                if ($u['user_role'] === 'vendor') $displayRole = 'Vendor';
+                            ?>
+                                <tr class="user-row"
+                                    data-id="<?= (int)$u['user_id'] ?>"
+                                    data-name="<?= htmlspecialchars($u['first_name'] . ' ' . $u['last_name']) ?>"
+                                    data-email="<?= htmlspecialchars($u['email_add']) ?>"
+                                    data-role="<?= strtolower($displayRole) ?>">
+                                    <td><?= htmlspecialchars($u['first_name'] . ' ' . $u['last_name']) ?></td>
+                                    <td><?= htmlspecialchars($u['email_add']) ?></td>
+                                    <td><?= $displayRole ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
 
-                <button class="sidebar-link" type="button"
-                        data-bs-toggle="collapse" data-bs-target="#stallsMenu"
-                        aria-expanded="false" aria-controls="stallsMenu">
-                    <span>Stalls</span>
-                    <span class="caret"><i class="bi bi-arrow-down"></i></span>
-                </button>
+    <!-- Details modal -->
+    <div class="admin-modal" id="userModal" role="dialog" aria-modal="true" aria-labelledby="userModalTitle">
+        <div class="admin-modal-card">
+            <button class="close-x" type="button" data-close aria-label="Close"><i class="bi bi-x-lg"></i></button>
+            <h2 id="userModalTitle">User</h2>
+            <div class="modal-row"><span class="modal-label">Email:</span><span class="modal-value" id="mEmail"></span></div>
+            <div class="modal-row"><span class="modal-label">Role:</span><span class="modal-value" id="mRole"></span></div>
+            <div class="modal-row"><span class="modal-label">Status:</span><span class="modal-value" id="mStatus"></span></div>
+            <div class="modal-actions">
+                <button class="admin-btn primary" id="editUserBtn" type="button">Edit User</button>
+            </div>
+        </div>
+    </div>
 
-                <div class="collapse" id="stallsMenu">
-                    <div class="submenu">
-                        <a href="manage-stores.php" class="submenu-link">Manage</a>
-                        <a href="store-requests.php" class="submenu-link">Requests</a>
-                    </div>
+    <!-- Add modal -->
+    <div class="admin-modal" id="addUserModal" role="dialog" aria-modal="true" aria-labelledby="addUserTitle">
+        <div class="admin-modal-card">
+            <button class="close-x" type="button" data-close aria-label="Close"><i class="bi bi-x-lg"></i></button>
+            <h2 id="addUserTitle">Add a user</h2>
+            <form id="addUserForm" method="POST">
+                <input type="hidden" name="action" value="add">
+                <div class="modal-row">
+                    <label class="modal-label" for="newName">First Name</label>
+                    <input class="form-control" id="newName" name="first_name" type="text" required>
                 </div>
-
-                <button class="sidebar-link" type="button"
-                        data-bs-toggle="collapse" data-bs-target="#usersMenu"
-                        aria-expanded="true" aria-controls="usersMenu">
-                    <span>Users</span>
-                    <span class="caret"><i class="bi bi-arrow-down"></i></span>
-                </button>
-
-                <div class="collapse show" id="usersMenu">
-                    <div class="submenu">
-                        <a href="manage-users.php" class="submenu-link active" aria-current="page">Manage</a>
-                    </div>
+                <div class="modal-row">
+                    <label class="modal-label" for="newLastName">Last Name</label>
+                    <input class="form-control" id="newLastName" name="last_name" type="text" required>
                 </div>
-                <hr>
-                <form action="logout.php" method="post">
-                    <input type="hidden" name="csrfToken" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
-                    <button class="sidebar-signout" id="adminLogoutBtn" type="submit">
-                        <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
-                        <span>Sign out</span>
-                    </button>
-                </form>
-            </aside>
-
-            <!-- MAIN -->
-            <main class="admin-content">
-                <h1 class="page-title">Users Directory</h1>
-
-                <div class="admin-toolbar">
-                    <div class="admin-search">
-                        <i class="bi bi-search"></i>
-                        <input id="searchInput" type="search" placeholder="Search by Name or Email...">
-                    </div>
-
-                    <select class="admin-select" id="filterRole" aria-label="Filter by role">
-                        <option value="">All roles</option>
-                        <option value="Admin">Admin</option>
-                        <option value="Vendor">Vendor</option>
-                        <option value="User">User</option>
+                <div class="modal-row">
+                    <label class="modal-label" for="newEmail">Email</label>
+                    <input class="form-control" id="newEmail" name="email" type="email" required>
+                </div>
+                <div class="modal-row">
+                    <label class="modal-label" for="newRole">Role</label>
+                    <select class="form-select" id="newRole" name="role">
+                        <option value="admin">Admin</option>
+                        <option value="vendor">Vendor</option>
+                        <option value="student">User</option>
                     </select>
-
-                    <select class="admin-select" id="sortField" aria-label="Sort by">
-                        <option value="name">Name</option>
-                        <option value="email">Email</option>
-                        <option value="role">Role</option>
-                    </select>
-
-                    <button class="admin-icon-btn" id="sortBtn" type="button" aria-label="Toggle sort direction">
-                        <i class="bi bi-sort-down-alt"></i>
-                    </button>
-
-                    <button class="admin-btn primary" id="addUserBtn" type="button">Add User</button>
-                    <button class="admin-btn danger" id="removeModeBtn" type="button">Remove User</button>
                 </div>
-
-                <div class="admin-table-wrap">
-                    <table class="admin-table users-table">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Role</th>
-                            </tr>
-                        </thead>
-                        <tbody id="usersBody"></tbody>
-                    </table>
-                </div>
-            </main>
-        </div>
-
-        <!-- MODAL: user details -->
-        <div class="admin-modal" id="userModal" role="dialog" aria-modal="true" aria-labelledby="userModalTitle">
-            <div class="admin-modal-card">
-                <button class="close-x" type="button" data-close aria-label="Close">
-                    <i class="bi bi-x-lg"></i>
-                </button>
-                <h2 id="userModalTitle">User</h2>
-
-                <div class="modal-row">
-                    <span class="modal-label">Email:</span>
-                    <span class="modal-value" id="mEmail"></span>
-                </div>
-                <div class="modal-row">
-                    <span class="modal-label">Role:</span>
-                    <span class="modal-value" id="mRole"></span>
-                </div>
-                <div class="modal-row">
-                    <span class="modal-label">Status:</span>
-                    <span class="modal-value" id="mStatus"></span>
-                </div>
-
-                <div class="modal-actions">
-                    <button class="admin-btn primary" id="saveUserBtn" type="button">Save</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- MODAL: Add User -->
-        <div class="admin-modal" id="addUserModal" role="dialog" aria-modal="true" aria-labelledby="addUserTitle">
-            <div class="admin-modal-card">
-                <button class="close-x" type="button" data-close aria-label="Close"><i class="bi bi-x-lg"></i></button>
-                <h2 id="addUserTitle">Add a user</h2>
-
-                <form id="addUserForm" novalidate>
-                    <div class="modal-row">
-                        <label class="modal-label" for="newName">Full name</label>
-                        <input class="form-control" id="newName" type="text" maxlength="60" autocomplete="off">
-                    </div>
-                    <div class="modal-row">
-                        <label class="modal-label" for="newEmail">Email</label>
-                        <input class="form-control" id="newEmail" type="email" maxlength="80" autocomplete="off">
-                    </div>
-                    <div class="modal-row">
-                        <label class="modal-label" for="newRole">Role</label>
-                        <select class="form-select" id="newRole">
-                            <option value="Vendor">Vendor</option>
-                            <option value="Admin">Admin</option>
-                            <option value="User">User</option>
-                        </select>
-                    </div>
-
-                    <p class="field-error" id="addUserError" role="alert"></p>
-
-                    <div class="modal-actions">
-                        <button type="button" class="admin-btn ghost" data-close>Cancel</button>
-                        <button type="submit" class="admin-btn primary">Add user</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- MODAL: Remove User (picker) -->
-        <div class="admin-modal" id="removeUserModal" role="dialog" aria-modal="true" aria-labelledby="removeUserTitle">
-            <div class="admin-modal-card">
-                <button class="close-x" type="button" data-close aria-label="Close"><i class="bi bi-x-lg"></i></button>
-                <h2 id="removeUserTitle">Remove a user</h2>
-                <p class="modal-hint">Pick the account you want to remove.</p>
-
-                <div class="picker-list" id="removeUserList" role="radiogroup" aria-label="Users"></div>
-
+                <p class="field-error" id="addUserError" role="alert"><?= $flashAction === 'add' ? htmlspecialchars($error) : '' ?></p>
                 <div class="modal-actions">
                     <button type="button" class="admin-btn ghost" data-close>Cancel</button>
-                    <button type="button" class="admin-btn danger" id="confirmRemoveUserBtn" disabled>Remove user</button>
+                    <button type="submit" class="admin-btn primary">Add user</button>
                 </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit modal -->
+    <div class="admin-modal" id="editUserModal" role="dialog" aria-modal="true" aria-labelledby="editUserTitle">
+        <div class="admin-modal-card">
+            <button class="close-x" type="button" data-close aria-label="Close"><i class="bi bi-x-lg"></i></button>
+            <h2 id="editUserTitle">Edit user</h2>
+            <form id="editUserForm" method="POST">
+                <input type="hidden" name="action" value="edit">
+                <input type="hidden" name="id" id="editId">
+                <div class="modal-row"><label class="modal-label" for="editFirstName">First Name</label>
+                    <input class="form-control" id="editFirstName" name="first_name" type="text" required></div>
+                <div class="modal-row"><label class="modal-label" for="editLastName">Last Name</label>
+                    <input class="form-control" id="editLastName" name="last_name" type="text" required></div>
+                <div class="modal-row"><label class="modal-label" for="editEmail">Email</label>
+                    <input class="form-control" id="editEmail" name="email" type="email" required></div>
+                <div class="modal-row"><label class="modal-label" for="editRole">Role</label>
+                    <select class="form-select" id="editRole" name="role">
+                        <option value="student">User</option>
+                        <option value="vendor">Vendor</option>
+                        <option value="admin">Admin</option>
+                    </select></div>
+                <div class="modal-actions">
+                    <button type="button" class="admin-btn ghost" data-close>Cancel</button>
+                    <button type="submit" class="admin-btn primary">Save changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Remove modal -->
+    <div class="admin-modal" id="removeUserModal" role="dialog" aria-modal="true" aria-labelledby="removeUserTitle">
+        <div class="admin-modal-card">
+            <button class="close-x" type="button" data-close aria-label="Close"><i class="bi bi-x-lg"></i></button>
+            <h2 id="removeUserTitle">Remove a user</h2>
+            <p class="modal-hint">Pick the account you want to remove.</p>
+            <div class="picker-list" id="removeUserList" role="radiogroup" aria-label="Users">
+                <?php if (empty($users)): ?>
+                    <p class="picker-empty">No users to remove.</p>
+                <?php else: ?>
+                    <?php foreach ($users as $u): ?>
+                        <label class="picker-item">
+                            <input type="radio" name="removeUserPick" value="<?= (int)$u['user_id'] ?>">
+                            <span><?= htmlspecialchars($u['first_name'] . ' ' . $u['last_name']) ?> — <?= htmlspecialchars($u['email_add']) ?></span>
+                        </label>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="admin-btn ghost" data-close>Cancel</button>
+                <button type="button" class="admin-btn danger" id="confirmRemoveUserBtn" disabled>Remove user</button>
             </div>
         </div>
+    </div>
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="../js/centralized.js"></script>
-        <script src="../js/admin-users.js"></script>
-    </body>
+    <form method="POST" id="deleteForm" style="display:none;">
+        <input type="hidden" name="action" value="delete">
+        <input type="hidden" name="id" id="deleteId">
+    </form>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/centralized.js"></script>
+    <script src="js/admin-users.js"></script>
+</body>
 </html>

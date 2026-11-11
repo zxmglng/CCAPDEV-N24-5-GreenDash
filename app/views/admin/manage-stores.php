@@ -1,221 +1,230 @@
-<?php
-// Preserve old view URLs while routing browser requests through the controller.
-if (!defined('GREENDASH_ADMIN_VIEW')) {
-    header('Location: ../../../controller-admin/manage-stores.php', true, 307);
-    exit;
-}
-?>
 <!DOCTYPE html>
 <html lang="en">
     <head>
+        <base href="/GreenDash/">
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>GreenDash - Manage Stores</title>
-
-        <link rel="stylesheet" href="../bootstrap/css/bootstrap-5.3.3.min.css">
+        <link rel="stylesheet" href="bootstrap/css/bootstrap-5.3.3.min.css">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-        <link rel="stylesheet" href="../style/centralized.css">
-        <link rel="stylesheet" href="../style/admin-common.css">
-        <link rel="stylesheet" href="../style/admin-tables.css">
-        <link rel="stylesheet" href="../style/admin-modals.css">
-        <link rel="stylesheet" href="../style/admin-stores.css">
-
-        <link rel="icon" type="image/png" href="../assets/main/GreenDash_CIRCLE.png">
+        <link rel="stylesheet" href="style/centralized.css">
+        <link rel="stylesheet" href="style/admin-common.css">
+        <link rel="stylesheet" href="style/admin-tables.css">
+        <link rel="stylesheet" href="style/admin-modals.css">
+        <link rel="stylesheet" href="style/admin-stores.css">
+        <link rel="icon" type="image/png" href="assets/main/GreenDash_CIRCLE.png">
     </head>
-    <body class="admin-page" data-assets-path="../assets/" data-page="manage-stores">
-        <!-- HEADER -->
-        <header>
-            <div class="main-header">
-                <img id="logo" src="../assets/main/GreenDash_LOGO.png" alt="GreenDash Logo">
-                <button class="icon-button" id="eclipse" type="button" aria-label="Toggle dark mode">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" aria-hidden="true">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <path d="M12 2a7 7 0 1 0 10 10"></path>
-                    </svg>
+    <body class="admin-page"
+          data-page="<?= htmlspecialchars($page) ?>"
+          data-flash="<?= htmlspecialchars($flashAction) ?>">
+        <?php require __DIR__ . '/nav.php'; ?>
+            <h1 class="page-title">Stalls Directory</h1>
+
+            <div class="admin-toolbar">
+                <div class="admin-search">
+                    <i class="bi bi-search"></i>
+                    <input id="searchInput" type="search" placeholder="Search by Stall or Vendor...">
+                </div>
+                <select class="admin-select" id="filterLocation" aria-label="Filter by location">
+                    <option value="">All locations</option>
+                </select>
+                <select class="admin-select" id="filterStatus" aria-label="Filter by status">
+                    <option value="">All statuses</option>
+                    <option value="open">Open</option>
+                    <option value="closed">Closed</option>
+                </select>
+                <select class="admin-select" id="sortField" aria-label="Sort by">
+                    <option value="stall">Stall name</option>
+                    <option value="vendor">Vendor</option>
+                    <option value="location">Location</option>
+                </select>
+                <button class="admin-icon-btn" id="sortBtn" type="button" aria-label="Toggle sort direction">
+                    <i class="bi bi-sort-down-alt"></i>
                 </button>
+                <button class="admin-btn primary" id="addStoreBtn" type="button">Add Stall</button>
+                <button class="admin-btn danger" id="removeModeBtn" type="button">Remove Stall</button>
             </div>
-        </header>
 
-        <div class="admin-layout">
-            <!-- SIDEBAR -->
-            <aside class="admin-sidebar" aria-label="Admin dashboard">
-                <span>Dashboard</span>
+            <div class="admin-table-wrap">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Stall</th>
+                            <th>Vendor</th>
+                            <th>Location</th>
+                            <th>Operating Hours</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="storesBody">
+                        <?php if (empty($stalls)): ?>
+                            <tr><td colspan="5" style="text-align:center;">No stalls found.</td></tr>
+                        <?php else: ?>
+                            <?php foreach ($stalls as $s): ?>
+                                <tr class="stall-row"
+                                    data-id="<?= (int)$s['id'] ?>"
+                                    data-name="<?= htmlspecialchars($s['name']) ?>"
+                                    data-vendor-id="<?= (int)($s['vendor_id'] ?? 0) ?>"
+                                    data-vendor-name="<?= htmlspecialchars($s['vendor_name'] ?? '') ?>"
+                                    data-hours="<?= htmlspecialchars($s['hours_text'] ?? 'Hours not set') ?>">
+                                    <td><?= htmlspecialchars($s['name']) ?></td>
+                                    <td><?= htmlspecialchars($s['vendor_name'] ?: '—') ?></td>
+                                    <td><?= htmlspecialchars($s['location']) ?></td>
+                                    <td class="hours-cell"><?= htmlspecialchars($s['hours_text']) ?></td>
+                                    <td>
+                                        <span class="status <?= $s['is_open'] ? 'open' : 'closed' ?>">
+                                            <?= $s['is_open'] ? 'OPEN' : 'CLOSED' ?>
+                                        </span>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
 
-                <button class="sidebar-link" type="button"
-                        data-bs-toggle="collapse" data-bs-target="#stallsMenu"
-                        aria-expanded="true" aria-controls="stallsMenu">
-                    <span>Stalls</span>
-                    <span class="caret"><i class="bi bi-arrow-down"></i></span>
-                </button>
-
-                <div class="collapse show" id="stallsMenu">
-                    <div class="submenu">
-                        <a href="manage-stores.php" class="submenu-link active" aria-current="page">Manage</a>
-                        <a href="store-requests.php" class="submenu-link">Requests</a>
-                    </div>
-                </div>
-
-                <button class="sidebar-link" type="button"
-                        data-bs-toggle="collapse" data-bs-target="#usersMenu"
-                        aria-expanded="false" aria-controls="usersMenu">
-                    <span>Users</span>
-                    <span class="caret"><i class="bi bi-arrow-down"></i></span>
-                </button>
-
-                <div class="collapse" id="usersMenu">
-                    <div class="submenu">
-                        <a href="manage-users.php" class="submenu-link">Manage</a>
-                    </div>
-                </div>
-                <hr>
-                <form action="logout.php" method="post">
-                    <input type="hidden" name="csrfToken" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
-                    <button class="sidebar-signout" id="adminLogoutBtn" type="submit">
-                        <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
-                        <span>Sign out</span>
-                    </button>
-                </form>
-            </aside>
-
-            <!-- MAIN -->
-            <main class="admin-content">
-                <h1 class="page-title">Stalls Directory</h1>
-
-                <div class="admin-toolbar">
-                    <div class="admin-search">
-                        <i class="bi bi-search"></i>
-                        <input id="searchInput" type="search" placeholder="Search by Stall or Vendor...">
-                    </div>
-
-                    <select class="admin-select" id="filterLocation" aria-label="Filter by location">
-                        <option value="">All locations</option>
-                    </select>
-
-                    <select class="admin-select" id="filterStatus" aria-label="Filter by status">
-                        <option value="">All statuses</option>
-                        <option value="open">Open</option>
-                        <option value="closed">Closed</option>
-                    </select>
-
-                    <select class="admin-select" id="sortField" aria-label="Sort by">
-                        <option value="stall">Stall name</option>
-                        <option value="vendor">Vendor</option>
-                        <option value="location">Location</option>
-                    </select>
-
-                    <button class="admin-icon-btn" id="sortBtn" type="button" aria-label="Toggle sort direction">
-                        <i class="bi bi-sort-down-alt"></i>
-                    </button>
-
-                    <button class="admin-btn primary" id="addStoreBtn" type="button">Add Stall</button>
-                    <button class="admin-btn danger" id="removeModeBtn" type="button">Remove Stall</button>
-                </div>
-
-                <div class="admin-table-wrap">
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Stall</th>
-                                <th>Vendor</th>
-                                <th>Location</th>
-                                <th>Operating Hours</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="storesBody"></tbody>
-                    </table>
-                </div>
-            </main>
-        </div>
-
-        <!-- MODAL: Stall details -->
-        <div class="admin-modal" id="storeModal" role="dialog" aria-modal="true" aria-labelledby="storeModalTitle">
-            <div class="admin-modal-card">
-                <button class="close-x" type="button" data-close aria-label="Close">
-                    <i class="bi bi-x-lg"></i>
-                </button>
-                <h2 id="storeModalTitle">Stall</h2>
-
-                <div class="modal-row">
-                    <span class="modal-label">Vendor Owner:</span>
-                    <span class="modal-value" id="mOwner">—</span>
-                </div>
-                <div class="modal-row">
-                    <span class="modal-label">Location:</span>
-                    <span class="modal-value" id="mLocation">—</span>
-                </div>
-                <div class="modal-row">
-                    <span class="modal-label">Operating Hours:</span>
-                    <span class="modal-value" id="mHours">—</span>
-                </div>
-
-                <div class="modal-actions">
-                    <button class="admin-btn primary" id="editStoreBtn" type="button">Edit Stall Details</button>
-                </div>
+    <!-- Details modal -->
+    <div class="admin-modal" id="storeModal" role="dialog" aria-modal="true" aria-labelledby="storeModalTitle">
+        <div class="admin-modal-card">
+            <button class="close-x" type="button" data-close aria-label="Close"><i class="bi bi-x-lg"></i></button>
+            <h2 id="storeModalTitle">Stall</h2>
+            <div class="modal-row"><span class="modal-label">Vendor Owner:</span><span class="modal-value" id="mOwner">—</span></div>
+            <div class="modal-row"><span class="modal-label">Location:</span><span class="modal-value" id="mLocation">—</span></div>
+            <div class="modal-row"><span class="modal-label">Operating Hours:</span><span class="modal-value" id="mHours">—</span></div>
+            <div class="modal-actions">
+                <button class="admin-btn primary" id="editStoreBtn" type="button">Edit Stall Details</button>
             </div>
         </div>
+    </div>
 
-        <!-- MODAL: Add Stall -->
-        <div class="admin-modal" id="addStoreModal" role="dialog" aria-modal="true" aria-labelledby="addStoreTitle">
-            <div class="admin-modal-card">
-                <button class="close-x" type="button" data-close aria-label="Close"><i class="bi bi-x-lg"></i></button>
-                <h2 id="addStoreTitle">Add a stall</h2>
-
-                <form id="addStoreForm" novalidate>
-                    <div class="modal-row">
-                        <label class="modal-label" for="newStall">Stall name</label>
-                        <input class="form-control" id="newStall" type="text" maxlength="60" autocomplete="off">
-                    </div>
-                    <div class="modal-row">
-                        <label class="modal-label" for="newVendor">Vendor</label>
-                        <input class="form-control" id="newVendor" type="text" maxlength="60" autocomplete="off">
-                    </div>
-                    <div class="modal-row">
-                        <label class="modal-label" for="newLocation">Location</label>
-                        <input class="form-control" id="newLocation" type="text" maxlength="60" autocomplete="off">
-                    </div>
-                    <div class="modal-row">
-                        <label class="modal-label" for="newHours">Operating hours</label>
-                        <input class="form-control" id="newHours" type="text" maxlength="60" autocomplete="off">
-                    </div>
-                    <div class="modal-row">
-                        <label class="modal-label" for="newStatus">Status</label>
-                        <select class="form-select" id="newStatus">
-                            <option value="open">Open</option>
-                            <option value="closed">Closed</option>
-                        </select>
-                    </div>
-
-                    <p class="field-error" id="addStoreError" role="alert"></p>
-
-                    <div class="modal-actions">
-                        <button type="button" class="admin-btn ghost" data-close>Cancel</button>
-                        <button type="submit" class="admin-btn primary">Add stall</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- MODAL: Remove Stall (picker) -->
-        <div class="admin-modal" id="removeStoreModal" role="dialog" aria-modal="true" aria-labelledby="removeStoreTitle">
-            <div class="admin-modal-card">
-                <button class="close-x" type="button" data-close aria-label="Close"><i class="bi bi-x-lg"></i></button>
-                <h2 id="removeStoreTitle">Remove a stall</h2>
-                <p class="modal-hint">Pick the stall you want to remove.</p>
-
-                <div class="picker-list" id="removeStoreList" role="radiogroup" aria-label="Stalls"></div>
-
+    <!-- Add modal -->
+    <div class="admin-modal" id="addStoreModal" role="dialog" aria-modal="true" aria-labelledby="addStoreTitle">
+        <div class="admin-modal-card">
+            <button class="close-x" type="button" data-close aria-label="Close"><i class="bi bi-x-lg"></i></button>
+            <h2 id="addStoreTitle">Add a stall</h2>
+            <form id="addStoreForm" method="POST">
+                <input type="hidden" name="action" value="add">
+                <div class="modal-row">
+                    <label class="modal-label" for="newStall">Stall name</label>
+                    <input class="form-control" id="newStall" name="name" type="text" required>
+                </div>
+                <div class="modal-row">
+                    <label class="modal-label" for="newVendor">Vendor</label>
+                    <select class="form-control" id="newVendor" name="vendor_id">
+                        <option value=""> None </option>
+                        <?php foreach ($vendors as $v): ?>
+                            <option value="<?= (int)$v['user_id'] ?>">
+                                <?= htmlspecialchars($v['first_name'] . ' ' . $v['last_name']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="modal-row">
+                    <label class="modal-label" for="newLocation">Location</label>
+                    <input class="form-control" id="newLocation" name="location" type="text" required>
+                </div>
+                <div class="modal-row">
+                    <label class="modal-label" for="newHours">Operating hours</label>
+                    <input class="form-control" id="newHours" name="operating_hours" type="text"
+                           placeholder="e.g. 09:00-17:00" required>
+                </div>
+                <div class="modal-row">
+                    <label class="modal-label" for="newStatus">Status</label>
+                    <select class="form-select" id="newStatus" name="is_open">
+                        <option value="1">Open</option>
+                        <option value="0">Closed</option>
+                    </select>
+                </div>
+                <p class="field-error" id="addStoreError" role="alert"><?= htmlspecialchars($error) ?></p>
                 <div class="modal-actions">
                     <button type="button" class="admin-btn ghost" data-close>Cancel</button>
-                    <button type="button" class="admin-btn danger" id="confirmRemoveStoreBtn" disabled>Remove stall</button>
+                    <button type="submit" class="admin-btn primary">Add stall</button>
                 </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: Edit Stall -->
+    <div class="admin-modal" id="editStoreModal" role="dialog" aria-modal="true" aria-labelledby="editStoreTitle">
+        <div class="admin-modal-card">
+            <button class="close-x" type="button" data-close aria-label="Close"><i class="bi bi-x-lg"></i></button>
+            <h2 id="editStoreTitle">Edit stall</h2>
+            <form id="editStoreForm" method="POST">
+                <input type="hidden" name="action" value="edit">
+                <input type="hidden" name="id" id="editStoreId">
+                
+                <div class="modal-row">
+                    <label class="modal-label" for="editStall">Stall name</label>
+                    <input class="form-control" id="editStall" name="name" type="text" required>
+                </div>
+                <div class="modal-row">
+                    <label class="modal-label" for="editVendor">Vendor</label>
+                    <select class="form-control" id="editVendor" name="vendor_id">
+                        <option value=""> None </option>
+                        <?php foreach ($vendors as $v): ?>
+                            <option value="<?= (int)$v['user_id'] ?>">
+                                <?= htmlspecialchars($v['first_name'] . ' ' . $v['last_name']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="modal-row">
+                    <label class="modal-label" for="editLocation">Location</label>
+                    <input class="form-control" id="editLocation" name="location" type="text" required>
+                </div>
+                <div class="modal-row">
+                    <label class="modal-label" for="editHours">Operating hours</label>
+                    <input class="form-control" id="editHours" name="operating_hours" type="text" placeholder="e.g. 09:00-17:00">
+                </div>
+                <div class="modal-row">
+                    <label class="modal-label" for="editStatus">Status</label>
+                    <select class="form-select" id="editStatus" name="is_open">
+                        <option value="1">Open</option>
+                        <option value="0">Closed</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="admin-btn ghost" data-close>Cancel</button>
+                    <button type="submit" class="admin-btn primary">Save changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Remove modal -->
+    <div class="admin-modal" id="removeStoreModal" role="dialog" aria-modal="true" aria-labelledby="removeStoreTitle">
+        <div class="admin-modal-card">
+            <button class="close-x" type="button" data-close aria-label="Close"><i class="bi bi-x-lg"></i></button>
+            <h2 id="removeStoreTitle">Remove a stall</h2>
+            <p class="modal-hint">Pick the stall you want to remove.</p>
+            <div class="picker-list" id="removeStoreList" role="radiogroup" aria-label="Stalls">
+                <?php if (empty($stalls)): ?>
+                    <p class="picker-empty">No stalls to remove.</p>
+                <?php else: ?>
+                    <?php foreach ($stalls as $s): ?>
+                        <label class="picker-item">
+                            <input type="radio" name="removeStorePick" value="<?= (int)$s['id'] ?>">
+                            <span><?= htmlspecialchars($s['name']) ?> — <?= htmlspecialchars($s['location']) ?></span>
+                        </label>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="admin-btn ghost" data-close>Cancel</button>
+                <button type="button" class="admin-btn danger" id="confirmRemoveStoreBtn" disabled>Remove stall</button>
             </div>
         </div>
+    </div>
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="../js/centralized.js"></script>
-        <script src="../js/admin-stores.js"></script>
-    </body>
+    <form method="POST" id="deleteStoreForm" style="display:none;">
+        <input type="hidden" name="action" value="delete">
+        <input type="hidden" name="id" id="deleteStoreId">
+    </form>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/centralized.js"></script>
+    <script src="js/admin-stores.js"></script>
+</body>
 </html>

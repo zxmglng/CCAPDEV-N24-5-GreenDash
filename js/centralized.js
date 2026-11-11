@@ -1,14 +1,15 @@
 const lucideScript = document.createElement('script');
 lucideScript.src = 'https://unpkg.com/lucide@latest';
-lucideScript.onload = () => lucide.createIcons();
-document.head.appendChild(lucideScript)
+lucideScript.onload = () => window.lucide && lucide.createIcons();
+document.head.appendChild(lucideScript);
 
 // This centralized theme toggle is specifically for the shared dark/light mode across all pages.
 const themeStorageKey = 'greendash-theme';
 const themeButton = document.querySelector('#eclipse');
 const logo = document.querySelector('#logo');
-// Replace this placeholder with the actual light-colored logo file for dark mode.
-const themeAssetPath = document.body.dataset.assetsPath || '../../assets/';
+
+// Support pages with <base href> (defaults to 'assets/') AND pages without it (via data-assets-path)
+const themeAssetPath = document.body.dataset.assetsPath || 'assets/';
 const darkModeLogoPath = `${themeAssetPath}main/GreenDash_LOGO_DARK.png`;
 const lightModeLogoPath = `${themeAssetPath}main/GreenDash_LOGO.png`;
 
@@ -56,21 +57,5 @@ const cartButton = document.querySelector('.icon-button');
 if (cartButton) {
     cartButton.addEventListener('click', () => {
         // Handle cart button click
-    });
-}
-
-// Admin logout
-const adminLogoutButton = document.querySelector('#adminLogoutBtn');
-
-if (adminLogoutButton) {
-    adminLogoutButton.addEventListener('click', (event) => {
-        if (!confirm('Sign out of the admin panel?')) {
-            event.preventDefault();
-            return;
-        }
-        // PHP pages submit their logout form; authentication lives in the session.
-        if (!adminLogoutButton.form) {
-            window.location.href = '../../controller-admin/login.php';
-        }
     });
 }

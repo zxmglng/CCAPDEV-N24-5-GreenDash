@@ -5,7 +5,8 @@
 <html lang="en">
     <head>
         <title>GreenDash - Login</title>
-                <!-- website icon -->
+
+        <!-- website icon -->
         <link rel="icon" type="image/png" href="assets/main/GreenDash_CIRCLE.png">
 
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -33,6 +34,5 @@
         <script src="https://accounts.google.com/gsi/client" async defer></script>
         <script src="js/jquery-4.0.0.min.js"></script>
         <script src="js/user.js"></script>
-
     </body>
-</html>
+</html>a

@@ -1,0 +1,1 @@
+<?php echo("Successfully signed out!"); ?>

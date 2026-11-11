@@ -1,16 +1,14 @@
-// HELPERS
+// js/admin-users.js — behaviour for app/view/admin/manage-users.php
+
 const byId = id => document.getElementById(id);
 
 function elem(tag, className, text) {
-    const node = document.createElement(tag);
-    if (className) node.className = className;
-    if (text !== undefined) node.textContent = text;
-    return node;
+    const n = document.createElement(tag);
+    if (className) n.className = className;
+    if (text !== undefined) n.textContent = text;
+    return n;
 }
 
-const byText = (a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' });
-
-// MODAL
 const Modal = {
     _returnFocus: null,
     open(id) {
@@ -19,166 +17,115 @@ const Modal = {
     },
     close(id) {
         byId(id).classList.remove('open');
-        if (this._returnFocus && document.contains(this._returnFocus)) this._returnFocus.focus();
+        if (this._returnFocus && document.contains(this._returnFocus)) {
+            this._returnFocus.focus();
+        }
     },
     closeAll() {
-        document.querySelectorAll('.admin-modal.open').forEach(m => this.close(m.id));
+        document.querySelectorAll('.admin-modal.open')
+            .forEach(m => this.close(m.id));
     }
 };
 
-// DATA
-const users = [
-    { id: 1, name: 'Jonny Craig', email: 'jonny.business@gmail.com', role: 'Vendor' },
-    { id: 2, name: 'Maria Clara', email: 'maria@gmail.com', role: 'Vendor' },
-    { id: 3, name: 'Lucio Tan', email: 'alex@gmail.com', role: 'Vendor' },
-    { id: 4, name: 'Admin User', email: 'admin@greendash.com', role: 'Admin' },
-    { id: 4, name: 'James Gomez', email: 'james@usermail.com', role: 'User' },
-    { id: 4, name: 'Antoine Lao', email: 'lao@usermail.com', role: 'User' }
-];
-
-// MANAGE USERS PAGE
 function initManageUsersPage() {
-    // STATE
-    let query = '';
-    let filterRole = '';
-    let sortField = 'name';
-    let sortAsc = true;
-
-    // ELEMENTS
-    const listBody = byId('usersBody');
-    const searchEl = byId('searchInput');
+    const listBody    = byId('usersBody');
+    const searchEl    = byId('searchInput');
     const filterRolEl = byId('filterRole');
     const sortFieldEl = byId('sortField');
-    const sortBtn = byId('sortBtn');
+    const sortBtn     = byId('sortBtn');
 
-    // HELPERS
-    function nextId() {
-        let max = 0;
-        for (const user of users) {
-            if (user.id > max) max = user.id;
-        }
-        return max + 1;
+    let sortAsc    = true;
+    let activeUser = null;   // { id, name, email, role }
+
+    // --- Row accessors --------------------------------------------------
+    function rowData(tr) {
+        const tds = tr.querySelectorAll('td');
+        return {
+            name:  tds[0] ? tds[0].textContent.trim() : '',
+            email: tds[1] ? tds[1].textContent.trim() : '',
+            role:  tds[2] ? tds[2].textContent.trim() : ''
+        };
     }
 
-    // RENDER
-    function render() {
-        const q = query.trim().toLowerCase();
+    // --- Filter + sort --------------------------------------------------
+    function applyFilters() {
+        const q     = searchEl.value.trim().toLowerCase();
+        const role  = filterRolEl.value;    // "" | "admin" | "vendor" | "user"
+        const field = sortFieldEl.value;    // "name" | "email" | "role"
 
-        let list = users.filter(u => {
-            if (filterRole && u.role !== filterRole) return false;
-            if (q && !u.name.toLowerCase().includes(q) && !u.email.toLowerCase().includes(q)) return false;
-            return true;
+        const rows = [...listBody.querySelectorAll('tr.user-row')];
+
+        rows.forEach(tr => {
+            const d = rowData(tr);
+            let show = true;
+            if (q && !d.name.toLowerCase().includes(q) && !d.email.toLowerCase().includes(q)) show = false;
+            if (role && d.role.toLowerCase() !== role) show = false;
+            tr.style.display = show ? '' : 'none';
         });
 
-        list = [...list].sort((a, b) => {
-            const cmp = byText(String(a[sortField]), String(b[sortField]));
-            return sortAsc ? cmp : -cmp;
+        rows.sort((a, b) => {
+            const ca = rowData(a)[field] || '';
+            const cb = rowData(b)[field] || '';
+            return sortAsc
+                ? ca.localeCompare(cb, undefined, { sensitivity: 'base' })
+                : cb.localeCompare(ca, undefined, { sensitivity: 'base' });
         });
-
-        listBody.replaceChildren();
-
-        if (list.length === 0) {
-            listBody.appendChild(buildEmptyRow('No users found.', 3));
-            return;
-        }
-
-        list.forEach(user => listBody.appendChild(buildRow(user)));
+        rows.forEach(tr => listBody.appendChild(tr));
     }
 
-    function buildRow(user) {
-        const tr = document.createElement('tr');
-        tr.append(
-            elem('td', null, user.name),
-            elem('td', null, user.email),
-            elem('td', null, user.role)
-        );
-        tr.addEventListener('click', () => openUserModal(user));
-        return tr;
-    }
+    // --- Row click → details modal --------------------------------------
+    listBody.addEventListener('click', e => {
+        const tr = e.target.closest('tr.user-row');
+        if (!tr) return;
 
-    function buildEmptyRow(text, colSpan) {
-        const tr = elem('tr', 'empty-row');
-        const td = elem('td', null, text);
-        td.colSpan = colSpan;
-        tr.appendChild(td);
-        return tr;
-    }
+        activeUser = {
+            id:    tr.dataset.id,
+            name:  tr.dataset.name,
+            email: tr.dataset.email,
+            role:  tr.dataset.role     // lowercase: "admin" | "vendor" | "user"
+        };
 
-    // INFO MODAL
-    function openUserModal(user) {
-        byId('userModalTitle').textContent = user.name;
-        byId('mEmail').textContent = user.email;
-        byId('mRole').textContent = user.role;
-        byId('mStatus').textContent = user.role;
+        byId('userModalTitle').textContent = activeUser.name;
+        byId('mEmail').textContent         = activeUser.email;
+        byId('mRole').textContent          = activeUser.role.charAt(0).toUpperCase() + activeUser.role.slice(1);
+        byId('mStatus').textContent        = 'Active';
+
         Modal.open('userModal');
-    }
+    });
 
-    // ADD MODAL
-    function openAddModal() {
+    // --- Edit from details modal ----------------------------------------
+    byId('editUserBtn').addEventListener('click', () => {
+        if (!activeUser) return;
+
+        const parts = activeUser.name.split(' ');
+        const first = parts.shift() || '';
+        const last  = parts.join(' ');
+
+        byId('editId').value        = activeUser.id;
+        byId('editFirstName').value = first;
+        byId('editLastName').value  = last;
+        byId('editEmail').value     = activeUser.email;
+        // "user" in data-role maps back to the "student" enum value
+        byId('editRole').value      = activeUser.role === 'user' ? 'student' : activeUser.role;
+
+        Modal.close('userModal');
+        Modal.open('editUserModal');
+    });
+
+    // --- Add modal ------------------------------------------------------
+    byId('addUserBtn').addEventListener('click', () => {
         byId('addUserForm').reset();
         byId('addUserError').textContent = '';
         Modal.open('addUserModal');
-    }
-
-    byId('addUserForm').addEventListener('submit', e => {
-        e.preventDefault();
-
-        const name = byId('newName').value.trim();
-        const email = byId('newEmail').value.trim();
-        const role = byId('newRole').value;
-
-        if (!name || !email) {
-            byId('addUserError').textContent = 'Please fill in all fields.';
-            return;
-        }
-        if (!/^\S+@\S+\.\S+$/.test(email)) {
-            byId('addUserError').textContent = 'Please enter a valid email address.';
-            return;
-        }
-        if (users.some(u => u.email.toLowerCase() === email.toLowerCase())) {
-            byId('addUserError').textContent = 'A user with that email already exists.';
-            return;
-        }
-
-        users.push({ id: nextId(), name, email, role });
-        Modal.close('addUserModal');
-        render();
     });
 
-    // REMOVE MODAL
-    function openRemoveModal() {
-        renderRemovePicker();
-        Modal.open('removeUserModal');
-    }
-
-    function renderRemovePicker() {
-        const listEl = byId('removeUserList');
-        listEl.replaceChildren();
-
-        if (users.length === 0) {
-            listEl.appendChild(elem('p', 'picker-empty', 'No users to remove.'));
-            byId('confirmRemoveUserBtn').disabled = true;
-            return;
-        }
-
-        users.forEach(user => {
-            const label = elem('label', 'picker-item');
-            const input = elem('input');
-            input.type = 'radio';
-            input.name = 'removeUserPick';
-            input.value = String(user.id);
-
-            label.append(input, elem('span', null, user.name + ' - ' + user.email));
-            listEl.appendChild(label);
-        });
-
-        byId('confirmRemoveUserBtn').disabled = true;
-    }
+    // --- Remove modal (picker is server-rendered) -----------------------
+    byId('removeModeBtn').addEventListener('click', () => Modal.open('removeUserModal'));
 
     byId('removeUserList').addEventListener('change', e => {
         if (!e.target.matches('input[type="radio"]')) return;
-        byId('removeUserList').querySelectorAll('.picker-item').forEach(el => el.classList.remove('selected'));
-        
+        byId('removeUserList').querySelectorAll('.picker-item')
+            .forEach(el => el.classList.remove('selected'));
         e.target.closest('.picker-item').classList.add('selected');
         byId('confirmRemoveUserBtn').disabled = false;
     });
@@ -186,50 +133,26 @@ function initManageUsersPage() {
     byId('confirmRemoveUserBtn').addEventListener('click', () => {
         const checked = byId('removeUserList').querySelector('input:checked');
         if (!checked) return;
+        if (!confirm('Remove this user?')) return;
 
-        const id = Number(checked.value);
-        const i = users.findIndex(u => u.id === id);
-        if (i === -1) return;
-
-        if (!confirm('Remove "' + users[i].name + '"?')) return;
-
-        users.splice(i, 1);
-        Modal.close('removeUserModal');
-        render();
+        byId('deleteId').value = checked.value;
+        byId('deleteForm').submit();
     });
 
-    // TOOLBAR
-    searchEl.addEventListener('input', () => {
-        query = searchEl.value;
-        render();
-    });
-
-    filterRolEl.addEventListener('change', () => {
-        filterRole = filterRolEl.value;
-        render();
-    });
-
-    sortFieldEl.addEventListener('change', () => {
-        sortField = sortFieldEl.value;
-        render();
-    });
+    // --- Toolbar --------------------------------------------------------
+    searchEl.addEventListener('input', applyFilters);
+    filterRolEl.addEventListener('change', applyFilters);
+    sortFieldEl.addEventListener('change', applyFilters);
 
     sortBtn.addEventListener('click', () => {
         sortAsc = !sortAsc;
         sortBtn.replaceChildren(
             elem('i', 'bi ' + (sortAsc ? 'bi-sort-down-alt' : 'bi-sort-up-alt'))
         );
-        render();
+        applyFilters();
     });
 
-    byId('addUserBtn').addEventListener('click', openAddModal);
-    byId('removeModeBtn').addEventListener('click', openRemoveModal);
-
-    byId('saveUserBtn').addEventListener('click', () => {
-        alert('TODO: save user');
-    });
-
-    // MODAL CLOSE WIRING
+    // --- Modal close wiring ---------------------------------------------
     document.querySelectorAll('[data-close]').forEach(btn =>
         btn.addEventListener('click', () => Modal.closeAll())
     );
@@ -242,7 +165,9 @@ function initManageUsersPage() {
         if (e.key === 'Escape') Modal.closeAll();
     });
 
-    render();
+    // --- Boot -----------------------------------------------------------
+    applyFilters();
+    if (document.body.dataset.flash === 'add') Modal.open('addUserModal');
 }
 
 if (document.body.dataset.page === 'manage-users') initManageUsersPage();
