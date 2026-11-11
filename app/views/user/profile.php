@@ -1,15 +1,15 @@
  <?php
  session_start();
- require __DIR__ . '/../db.php';
+ require __DIR__ . '/../../core/db.php';
 
  if (isset($_GET['logout'])) {
     session_destroy();
-    header('Location: ../index.php');
+    header('Location: login.php');
     exit;
 }
 
  if (!isset($_SESSION['user_id'])) {
-    header('Location: ../index.php');
+    header('Location: login.php');
     exit;
  }
 
@@ -20,7 +20,7 @@
 
  if (!$user) {
     // user not found, redirect to login page
-    header('Location: ../index.php');
+    header('Location: login.php');
     exit;
  }
 
@@ -42,16 +42,16 @@
 <html lang="en">
     <head>
         <title>GreenDash - Profile</title>
-        <link rel="stylesheet" href="../../bootstrap/css/bootstrap.min.css">
-        <link rel="stylesheet" href="../../bootstrap-icons/bootstrap-icons.css">
-        <link rel="stylesheet" href="../../style/centralized.css">
-        <link rel="stylesheet" href="../../style/user.css">
+        <link rel="stylesheet" href="../../../bootstrap/css/bootstrap.min.css">
+        <link rel="stylesheet" href="../../../bootstrap-icons/bootstrap-icons.css">
+        <link rel="stylesheet" href="../../../style/centralized.css">
+        <link rel="stylesheet" href="../../../style/user.css">
         
         <!-- bootstrap icons -->
-         <link rel="stylesheet" href="../../bootstrap-icons/bootstrap-icons.css">
+         <link rel="stylesheet" href="../../../bootstrap-icons/bootstrap-icons.css">
 
         <!-- website icon -->
-        <link rel="icon" type="image/png" href="../../assets/main/GreenDash_CIRCLE.png">
+        <link rel="icon" type="image/png" href="../../../assets/main/GreenDash_CIRCLE.png">
 
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -71,7 +71,7 @@
                     <div class="col-lg-5 d-flex">
                         <section class="profile-card">
                             <div class="profile-top">
-                                <img src="<?= htmlspecialchars($user['profile_image'] ?: '../../assets/main/defaultAvatar.png') ?>" alt="User Avatar" id="profileAvatar" class="profile-avatar">
+                                <img src="<?= htmlspecialchars($user['profile_image'] ?: '../../../assets/main/defaultAvatar.png') ?>" alt="User Avatar" id="profileAvatar" class="profile-avatar">
                                 <input type="file" id="profilePictureInput" accept="image/*" hidden>
                                 <!-- REPLACED THE HARDCODED VALUE WITH DB VALS!! -->
                                 <h2 id="profileName">
@@ -174,9 +174,9 @@
         <!-- CHART JS -->
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-        <script src="../../js/jquery-4.0.0.min.js"></script>
-        <script src="../../js/user.js"></script>
-        <script type="module" src="../../js/centralized.js"></script>
+        <script src="../../../js/jquery-4.0.0.min.js"></script>
+        <script src="../../../js/user.js"></script>
+        <script type="module" src="../../../js/centralized.js"></script>
 
     </body>     
 </html>

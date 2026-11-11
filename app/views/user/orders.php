@@ -4,10 +4,10 @@
         <meta charset="UTF-8">
         <title>GreenDash - Orders</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="../../bootstrap/css/bootstrap-5.3.3.min.css">
-        <link rel="stylesheet" href="../../style/centralized.css">
-        <link rel="stylesheet" href="../../style/user.css">
-        <link rel="icon" type="image/png" href="../../assets/main/GreenDash_CIRCLE.png">
+        <link rel="stylesheet" href="../../../bootstrap/css/bootstrap-5.3.3.min.css">
+        <link rel="stylesheet" href="../../../style/centralized.css">
+        <link rel="stylesheet" href="../../../style/user.css">
+        <link rel="icon" type="image/png" href="../../../assets/main/GreenDash_CIRCLE.png">
     </head>
     <body class="orders-list-page">
         <?php include __DIR__ . "/../nav.php"; ?>
@@ -48,7 +48,7 @@
 
                     <div class="modal-body">
                         <div class="order-modal-store">
-                            <img id="orderStoreLogo" src="../../assets/stalls/starbucks.png" alt="">
+                            <img id="orderStoreLogo" src="../../../assets/stalls/starbucks.png" alt="">
                             <div class="order-modal-store-copy">
                                 <h3 id="orderStoreName">Starbucks</h3>
                                 <p id="orderStoreLocation">Green Court</p>
@@ -168,8 +168,8 @@
             </div>
         </div>
 
-        <script src="../../bootstrap/js/bootstrap.bundle.min.js"></script>
-        <script src="../../js/user.js"></script>
-        <script type="module" src="../../js/centralized.js"></script>
+        <script src="../../../bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script src="../../../js/user.js"></script>
+        <script type="module" src="../../../js/centralized.js"></script>
     </body>
 </html>

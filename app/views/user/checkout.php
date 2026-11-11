@@ -1,11 +1,13 @@
+<?php require __DIR__ . "/../../../controller-user/submit-order.php"; ?>
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <title>GreenDash - Checkout</title>
-        <link rel="stylesheet" href="../../style/centralized.css">
-        <link rel="stylesheet" href="../../style/user.css">
-        <link rel="stylesheet" href="../../style/checkout.css">
-        <link rel="icon" type="image/png" href="../../assets/main/GreenDash_CIRCLE.png">
+        <link rel="stylesheet" href="../../../style/centralized.css">
+        <link rel="stylesheet" href="../../../style/user.css">
+        <link rel="stylesheet" href="../../../style/checkout.css">
+        <link rel="icon" type="image/png" href="../../../assets/main/GreenDash_CIRCLE.png">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>
@@ -41,7 +43,7 @@
                                 placeholder="Enter reference number">
                         </div>
                     </div>
-                    <button type="submit" class="submit-order-button">Submit order</button>
+                    <button type="submit" class="submit-order-button" action="POST">Submit order</button>
                 </form>
             </section>
             <aside class="checkout-order">
@@ -64,7 +66,7 @@
                 <button type="button" class="submit-order-button" id="closeCheckoutMessage">Okay</button>
             </section>
         </div>
-        <script src="../../js/checkout.js"></script>
-        <script type="module" src="../../js/centralized.js"></script>
+        <script src="../../../js/checkout.js"></script>
+        <script type="module" src="../../../js/centralized.js"></script>
     </body>
 </html>

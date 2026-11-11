@@ -1,10 +1,5 @@
 <!-- 
-    This is the LANDING PAGE 
-    We'll only use this page to redirect the user to the appropriate page based on their 
-    role (admin/vendor/customer)
-    For all the other pages for other roles, please add them under the pages directory.
-    You can add a subfolder in the pages directory if you think it will help organize 
-    the pages better. =)
+    Landing page for the PHP MVC application.
 --> 
 <!DOCTYPE html>
 <html lang="en">
@@ -24,11 +19,13 @@
     <body class="login-page">
         <main class="login-container">
             <img src="assets/main/GreenDash_LOGO.png" alt="Greendash Logo" class="login-logo">
-            <div id="googleLoginButton" data-login-redirect="pages/user/stalls-directory.html"></div>
-            <a href="pages/vendor/login.html" class="vendor-login-btn">
+            <div id="googleLoginButton"
+                data-login-redirect="app/views/user/stalls-directory.php"
+                data-login-endpoint="app/views/user/google-login.php"></div>
+            <a href="app/views/vendor/login.php" class="vendor-login-btn">
                 Sign in as a food vendor
             </a>
-            <a href="pages/admin/login.html" class="vendor-login-btn">
+            <a href="app/views/admin/login.php" class="vendor-login-btn">
                 Sign in as an admin
             </a>
         </main>

@@ -1,15 +1,15 @@
-<?php require(__DIR__ . "/../db.php"); ?>
+<?php require(__DIR__ . "/../../core/db.php"); ?>
 
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <title>GreenDash - Stall</title>
-        <link rel="stylesheet" href="../../bootstrap/css/bootstrap.min.css">
-        <link rel="stylesheet" href="../../style/centralized.css">
-        <link rel="stylesheet" href="../../style/user.css">
-        <link rel="stylesheet" href="../../style/user-stalls.css">
+        <link rel="stylesheet" href="../../../bootstrap/css/bootstrap.min.css">
+        <link rel="stylesheet" href="../../../style/centralized.css">
+        <link rel="stylesheet" href="../../../style/user.css">
+        <link rel="stylesheet" href="../../../style/user-stalls.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-        <link rel="icon" type="image/png" href="../assets/main/GreenDash_CIRCLE.png">
+        <link rel="icon" type="image/png" href="../../../assets/main/GreenDash_CIRCLE.png">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>
@@ -204,7 +204,7 @@
                 <button type="button" class="submit-review-button" id="closeEmptyCartMessage">Okay</button>
             </section>
         </div>
-        <script src="../../js/user-stalls.js"></script>
-        <script type="module" src="../../js/centralized.js"></script>
+        <script src="../../../js/user-stalls.js"></script>
+        <script type="module" src="../../../js/centralized.js"></script>
     </body>
 </html>

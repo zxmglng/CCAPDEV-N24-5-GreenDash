@@ -1,6 +1,6 @@
 <!-- Home would immediately be the Stalls Directory section -->
 <?php
-require __DIR__ . '/../db.php';
+require __DIR__ . '/../../core/db.php';
 
 $stalls = $pdo->query("SELECT * FROM stalls ORDER BY name")
               ->fetchAll(PDO::FETCH_ASSOC);
@@ -18,13 +18,13 @@ foreach ($hoursRows as $hours) {
 ?>
 <head>
     <title>GreenDash - Stalls</title>
-        <link rel="stylesheet" href="../../bootstrap/css/bootstrap.min.css">
-        <link rel="stylesheet" href="../../bootstrap-icons/bootstrap-icons.css">
-        <link rel="stylesheet" href="../../style/centralized.css">
-        <link rel="stylesheet" href="../../style/user.css">
+        <link rel="stylesheet" href="../../../bootstrap/css/bootstrap.min.css">
+        <link rel="stylesheet" href="../../../bootstrap-icons/bootstrap-icons.css">
+        <link rel="stylesheet" href="../../../style/centralized.css">
+        <link rel="stylesheet" href="../../../style/user.css">
         
         <!-- website icon -->
-        <link rel="icon" type="image/png" href="../../assets/main/GreenDash_CIRCLE.png">
+        <link rel="icon" type="image/png" href="../../../assets/main/GreenDash_CIRCLE.png">
 
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -134,7 +134,7 @@ foreach ($hoursRows as $hours) {
             </main>
 
         <!-- SCRIPTS --> 
-        <script src="../js/jquery-4.0.0.min.js"></script>
+        <script src="../../../js/jquery-4.0.0.min.js"></script>
         <div class="closed-stall-backdrop" id="closedStallMessage" hidden>
             <section class="closed-stall-modal" role="alertdialog" aria-modal="true"
                 aria-labelledby="closedStallTitle">
@@ -143,8 +143,8 @@ foreach ($hoursRows as $hours) {
                 <button type="button" class="view-stall-button" id="closeClosedStallMessage">Okay</button>
             </section>
         </div>
-        <script src="../../js/user.js"></script>
-        <script src="../../js/user-stalls-directory.js"></script>
-        <script type="module" src="../../js/centralized.js"></script>
+        <script src="../../../js/user.js"></script>
+        <script src="../../../js/user-stalls-directory.js"></script>
+        <script type="module" src="../../../js/centralized.js"></script>
     </body>
 </html>
