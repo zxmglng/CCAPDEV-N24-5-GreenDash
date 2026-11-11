@@ -55,10 +55,13 @@ $usersOpen  = $page === 'manage-users';
         </div>
 
         <hr>
-        <a href="logout.php" class="sidebar-signout">
-            <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
-            <span>Sign out</span>
-        </a>
+        <form action="logout.php" method="POST" style="margin: 0;">
+            <input type="hidden" name="csrfToken" value="<?= htmlspecialchars(adminCsrfToken(), ENT_QUOTES, 'UTF-8') ?>">
+            <button class="sidebar-signout" type="submit" style="width: 100%; border: none; background: transparent; cursor: pointer; text-align: left;">
+                <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+                <span>Sign out</span>
+            </button>
+        </form>
     </aside>
 
     <main class="admin-content">
