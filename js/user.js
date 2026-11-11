@@ -5,6 +5,10 @@ function pageRoute(path) {
         : path;
 }
 
+const userAssetPath = window.location.pathname.includes('/app/views/')
+    ? '../../../assets/'
+    : '../../assets/';
+
 // stall-info filter button
 if (window.jQuery) {
     window.jQuery('#filterButton').click(function () {
@@ -17,22 +21,22 @@ const storeDetails = {
     starbucks: {
         name: 'Starbucks',
         location: 'Green Court',
-        logo: '../../assets/stalls/starbucks.png'
+        logo: `${userAssetPath}stalls/starbucks.png`
     },
     potatoCorner: {
         name: 'Potato Corner',
         location: 'Bloemen',
-        logo: '../../assets/stalls/potcor.png'
+        logo: `${userAssetPath}stalls/potcor.png`
     },
     dairyQueen: {
         name: 'Dairy Queen',
         location: 'Agno',
-        logo: '../../assets/stalls/dq.png'
+        logo: `${userAssetPath}stalls/dq.png`
     },
     belgianWaffle: {
         name: 'Belgian Waffle',
         location: 'Gokongwei Hall',
-        logo: '../../assets/stalls/belgian.png'
+        logo: `${userAssetPath}stalls/belgian.png`
     }
 };
 
@@ -680,27 +684,32 @@ Sources:
 https://support.google.com/cloud/answer/15549257?hl=en
 https://www.youtube.com/watch?v=tgO_ADSvY1I
 */
-window.onload = function () {
-    var googleLoginButton = document.getElementById('googleLoginButton');
-
-    if (googleLoginButton && window.google) {
-        google.accounts.id.initialize({
-            client_id: "480778889925-f2akgk8hkv2b6rtoqhc9laag22l21irc.apps.googleusercontent.com",
-            callback: handleGoogleLogin,
-            hd: 'dlsu.edu.ph'
-        });
-
-        google.accounts.id.renderButton(
-            googleLoginButton,
-            {
-                theme: "outline",
-                size: "large",
-                text: "continue_with",
-                width: 300
-            }
-        );
+function renderGoogleLoginButton() {
+    const googleLoginButton = document.getElementById('googleLoginButton');
+    if (!googleLoginButton || !window.google?.accounts?.id) {
+        return;
     }
-};
+
+    google.accounts.id.initialize({
+        client_id: "480778889925-f2akgk8hkv2b6rtoqhc9laag22l21irc.apps.googleusercontent.com",
+        callback: handleGoogleLogin,
+        hd: 'dlsu.edu.ph'
+    });
+
+    google.accounts.id.renderButton(googleLoginButton, {
+        theme: "outline",
+        size: "large",
+        text: "continue_with",
+        width: 300
+    });
+}
+
+const googleIdentityScript = document.querySelector('script[src="https://accounts.google.com/gsi/client"]');
+if (window.google?.accounts?.id) {
+    renderGoogleLoginButton();
+} else {
+    googleIdentityScript?.addEventListener('load', renderGoogleLoginButton, { once: true });
+}
 
 // Resolve login redirects relative to the page, including the PHP landing page.
 function getUserLoginRedirect() {
@@ -718,7 +727,14 @@ function getUserLoginRedirect() {
 // login handler
 async function handleGoogleLogin(response) {
     try {
-        const backendResponse = await fetch('user/google-login.php', {
+        const loginButton = document.getElementById('googleLoginButton');
+        const loginEndpoint = loginButton?.dataset.loginEndpoint
+            || (window.location.pathname.includes('/app/views/user/')
+                ? 'google-login.php'
+                : window.location.pathname.includes('/pages/user/')
+                    ? '../../app/views/user/google-login.php'
+                    : 'app/views/user/google-login.php');
+        const backendResponse = await fetch(loginEndpoint, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -833,6 +849,8 @@ $(document).ready(function () {
         localStorage.clear();
         window.location.href = 'profile.php?logout=1';
     });
+
+});
     
 // Profile page - order frequency chart
 $(document).ready(function () {
@@ -957,8 +975,6 @@ $(document).ready(function () {
 
     $('.closed-store-link').click(function (event) {
         event.preventDefault();
-        alert('Sorry, this store is currently closed and cannot be viewed at the moment.')
-
+        alert('Sorry, this store is currently closed and cannot be viewed at the moment.');
     });
-
 });

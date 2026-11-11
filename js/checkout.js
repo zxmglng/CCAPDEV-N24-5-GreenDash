@@ -1,5 +1,9 @@
 const checkoutStorageKey = 'greendash-checkout';
 const checkoutData = JSON.parse(sessionStorage.getItem(checkoutStorageKey) || 'null');
+const checkoutAssetPath = window.location.pathname.includes('/app/views/')
+    ? '../../../assets/'
+    : '../../assets/';
+const pageExtension = window.location.pathname.endsWith('.html') ? '.html' : '.php';
 
 function formatStoredPickupTime(pickupTime) {
     if (!/^\d+-\d+$/.test(pickupTime)) {
@@ -73,7 +77,7 @@ function formatMilk(milk) {
 }
 
 if (!checkoutData || !checkoutData.items || checkoutData.items.length === 0) {
-    window.location.href = 'stalls-directory.html';
+    window.location.href = `stalls-directory${pageExtension}`;
 } else {
     document.querySelector('#checkoutStallLogo').src = checkoutData.stall.logo;
     document.querySelector('#checkoutStallLogo').alt = `Logo of ${checkoutData.stall.name}`;
@@ -107,7 +111,7 @@ if (!checkoutData || !checkoutData.items || checkoutData.items.length === 0) {
 
     document.querySelector('#checkoutItems').innerHTML = checkoutData.items.map((item) => `
         <div class="checkout-order-item">
-            <img src="../../assets/starbucksMenu/${item.image}" alt="${item.name}">
+            <img src="${checkoutAssetPath}starbucksMenu/${item.image}" alt="${item.name}">
             <div>
                 <h3>${item.name}</h3>
                 <p>${item.size || 'Regular'}</p>
@@ -148,7 +152,7 @@ if (!checkoutData || !checkoutData.items || checkoutData.items.length === 0) {
         delete message.dataset.orderSubmitted;
 
         if (isOrderSubmitted) {
-            window.location.href = 'orders.html';
+            window.location.href = `orders${pageExtension}`;
         }
     });
 

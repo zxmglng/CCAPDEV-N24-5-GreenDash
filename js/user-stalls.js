@@ -1,10 +1,14 @@
+const stallAssetPath = window.location.pathname.includes('/app/views/')
+    ? '../../../assets/'
+    : '../../assets/';
+
 const stalls = {
     starbucks: {
         name: 'Starbucks',
         location: 'Green Court (Fidel A. Reyes Street)',
         hours: '9:00 AM - 11:00 PM',
-        logo: '../../assets/stalls/starbucks.png',
-        banner: '../../assets/stalls/starbucks-banner.png',
+        logo: `${stallAssetPath}stalls/starbucks.png`,
+        banner: `${stallAssetPath}stalls/starbucks-banner.png`,
         menu: [
             ['Java Chip Frappuccino', 210, 'javachip.png'],
             ['Caramel Macchiato', 210, 'caramel.png'],
@@ -377,7 +381,7 @@ stall.menu.forEach(([name, price, image], index) => {
     item.innerHTML = `
         <div class="menu-item">
             <div class="menu-image-container">
-                <img src="../../assets/starbucksMenu/${image}" alt="${name}">
+                <img src="${stallAssetPath}starbucksMenu/${image}" alt="${name}">
                 <button type="button" class="add-item-button" aria-label="Add ${name}" data-menu-name="${name}" data-menu-price="${price}" data-menu-image="${image}">
                     <span aria-hidden="true">+</span>
                 </button>
@@ -457,7 +461,7 @@ function openItemModal(item) {
     document.querySelector('#modalItemName').textContent = item.name;
     document.querySelector('#modalItemDescription').textContent = `${item.name} prepared fresh and customized to your preference.`;
     const image = document.querySelector('#modalItemImage');
-    image.src = `../../assets/starbucksMenu/${item.image}`;
+    image.src = `${stallAssetPath}starbucksMenu/${item.image}`;
     image.alt = item.name;
     modal.hidden = false;
     updateModalPrice();
@@ -470,7 +474,7 @@ function renderOrder() {
     } else {
         orderItems.innerHTML = cart.map((item) => `
             <div class="order-item">
-                <img src="../../assets/starbucksMenu/${item.image}" alt="${item.name}">
+                <img src="${stallAssetPath}starbucksMenu/${item.image}" alt="${item.name}">
                 <div><h3>${item.name}</h3><p>${item.size} · ${item.milk || 'No milk customization'} · ${item.quantity}</p></div>
                 <strong>&#8369; ${item.total}</strong>
             </div>`).join('');
@@ -503,7 +507,8 @@ function openCheckout() {
     };
 
     sessionStorage.setItem('greendash-checkout', JSON.stringify(checkoutData));
-    window.location.href = 'checkout.html';
+    const extension = window.location.pathname.endsWith('.html') ? '.html' : '.php';
+    window.location.href = `checkout${extension}`;
 }
 
 document.querySelectorAll('.add-item-button').forEach((button) => {
