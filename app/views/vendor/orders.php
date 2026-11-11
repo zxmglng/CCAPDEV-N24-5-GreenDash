@@ -4,15 +4,15 @@
         <meta charset="UTF-8">
         <title>GreenDash - Order Requests</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="../../bootstrap/css/bootstrap-5.3.3.min.css">
-        <link rel="stylesheet" href="../../style/centralized.css">
-        <link rel="stylesheet" href="../../style/vendor.css">
-        <link rel="icon" type="image/png" href="../../assets/main/GreenDash_CIRCLE.png">
+        <link rel="stylesheet" href="../../../bootstrap/css/bootstrap-5.3.3.min.css">
+        <link rel="stylesheet" href="../../../style/centralized.css">
+        <link rel="stylesheet" href="../../../style/vendor.css">
+        <link rel="icon" type="image/png" href="../../../assets/main/GreenDash_CIRCLE.png">
     </head>
     <body class="vendor-page vendor-orders-page">
         <header>
             <div class="main-header">
-                <img id="logo" src="../../assets/main/GreenDash_LOGO.png" alt="GreenDash Logo">
+                <img id="logo" src="../../../assets/main/GreenDash_LOGO.png" alt="GreenDash Logo">
                 <div class="location">
                     <strong>Starbucks</strong>
                     <span>Green Court</span>
@@ -371,8 +371,8 @@
             </div>
         </div>
 
-        <script src="../../bootstrap/js/bootstrap.bundle.min.js"></script>
-        <script src="../../js/vendor.js"></script>
-        <script type="module" src="../../js/centralized.js"></script>
+        <script src="../../../bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script src="../../../js/vendor.js"></script>
+        <script type="module" src="../../../js/centralized.js"></script>
     </body>
 </html>

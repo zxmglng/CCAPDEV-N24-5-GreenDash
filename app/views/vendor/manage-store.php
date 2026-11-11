@@ -6,22 +6,22 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>GreenDash - Manage Store</title>
 
-        <link rel="stylesheet" href="../../bootstrap/css/bootstrap-5.3.3.min.css">
-        <link rel="stylesheet" href="../../bootstrap-icons/bootstrap-icons.css">
-        <link rel="stylesheet" href="../../style/centralized.css">
-        <link rel="stylesheet" href="../../style/vendors-common.css">
-        <link rel="stylesheet" href="../../style/vendors-manage-store.css">
-        <link rel="stylesheet" href="../../style/vendors-modal.css">
+        <link rel="stylesheet" href="../../../bootstrap/css/bootstrap-5.3.3.min.css">
+        <link rel="stylesheet" href="../../../bootstrap-icons/bootstrap-icons.css">
+        <link rel="stylesheet" href="../../../style/centralized.css">
+        <link rel="stylesheet" href="../../../style/vendors-common.css">
+        <link rel="stylesheet" href="../../../style/vendors-manage-store.css">
+        <link rel="stylesheet" href="../../../style/vendors-modal.css">
 
         <!-- website icon -->
-        <link rel="icon" type="image/png" href="../../assets/main/GreenDash_CIRCLE.png">
+        <link rel="icon" type="image/png" href="../../../assets/main/GreenDash_CIRCLE.png">
     </head>
     
     <body class="vendor-page" data-page="manage-store">
         <!-- INCLUDE EVERYTHING FOR THE MAIN HEADER FOR ALL PAGES FROM HERE-->
         <header>
             <div class="main-header">
-                <img id="logo" src="../../assets/main/GreenDash_LOGO.png" alt="GreenDash Logo">
+                <img id="logo" src="../../../assets/main/GreenDash_LOGO.png" alt="GreenDash Logo">
                 <div class="location">
                     <strong>Starbucks</strong>
                     <span>Green Court</span>
@@ -39,9 +39,9 @@
             <!-- VENDOR NAVIGATION LINKS -->
             <nav>
                 <div class="nav-links">
-                    <a href="../../php/vendor/profile.php" class="active" aria-current="page">Profile</a>
-                    <a href="../../php/vendor/orders.php">Order Requests</a>
-                    <a href="../../php/vendor/transaction-history.php">Transaction History</a>
+                    <a href="profile.php" class="active" aria-current="page">Profile</a>
+                    <a href="orders.php">Order Requests</a>
+                    <a href="transaction-history.php">Transaction History</a>
                 </div>
             </nav>
         </header>
@@ -54,16 +54,16 @@
                 <p class="vendor-greeting">Hello, Jonny!</p>
 
                 <ul class="sidebar-links">
-                    <li><a href="../../php/vendor/profile.php">Your account</a></li>
-                    <li><a href="../../php/vendor/manage-menu.php" class="active" aria-current="page">Manage store</a></li>
-                    <li><a href="../../php/vendor/request-store.php">Request to add a new store</a></li>
+                    <li><a href="profile.php">Your account</a></li>
+                    <li><a href="manage-menu.php" class="active" aria-current="page">Manage store</a></li>
+                    <li><a href="request-store.php">Request to add a new store</a></li>
                 </ul>
             </aside>
 
             <main class="vendor-content">
                 <h1 class="page-title">Manage store</h1>
 
-                <a class="back-link" href="../../php/vendor/manage-menu.php">
+                <a class="back-link" href="manage-menu.php">
                     <i class="bi bi-chevron-left" aria-hidden="true"></i> All stores
                 </a>
 
@@ -197,8 +197,8 @@
         </div>
 
         <!-- shared team script: draws the dark-mode icon in the header -->
-        <script type="module" src="../../js/centralized.js"></script>
-        <script src="../../js/vendor-auth.js"></script>
-        <script src="../../js/vendor-storemgmt.js"></script>
+        <script type="module" src="../../../js/centralized.js"></script>
+        <script src="../../../js/vendor-auth.js"></script>
+        <script src="../../../js/vendor-storemgmt.js"></script>
     </body>
 </html>

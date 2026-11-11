@@ -6,20 +6,20 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>GreenDash - Manage Store</title>
 
-        <link rel="stylesheet" href="../../bootstrap/css/bootstrap-5.3.3.min.css">
-        <link rel="stylesheet" href="../../bootstrap-icons/bootstrap-icons.css">
-        <link rel="stylesheet" href="../../style/centralized.css">
-        <link rel="stylesheet" href="../../style/vendors-common.css">
-        <link rel="stylesheet" href="../../style/vendors-manage-menu.css">
+        <link rel="stylesheet" href="../../../bootstrap/css/bootstrap-5.3.3.min.css">
+        <link rel="stylesheet" href="../../../bootstrap-icons/bootstrap-icons.css">
+        <link rel="stylesheet" href="../../../style/centralized.css">
+        <link rel="stylesheet" href="../../../style/vendors-common.css">
+        <link rel="stylesheet" href="../../../style/vendors-manage-menu.css">
 
         <!-- website icon -->
-        <link rel="icon" type="image/png" href="../../assets/main/GreenDash_CIRCLE.png">
+        <link rel="icon" type="image/png" href="../../../assets/main/GreenDash_CIRCLE.png">
     </head>
     <body class="vendor-page">
         <!-- INCLUDE EVERYTHING FOR THE MAIN HEADER FOR ALL PAGES FROM HERE-->
         <header>
             <div class="main-header">
-                <img id="logo" src="../../assets/main/GreenDash_LOGO.png" alt="GreenDash Logo">
+                <img id="logo" src="../../../assets/main/GreenDash_LOGO.png" alt="GreenDash Logo">
                 <div class="location">
                     <strong>Starbucks</strong>
                     <span>Green Court</span>
@@ -37,9 +37,9 @@
             <!-- VENDOR NAVIGATION LINKS -->
             <nav>
                 <div class="nav-links">
-                    <a href="../../php/vendor/profile.php" class="active" aria-current="page">Profile</a>
-                    <a href="../../php/vendor/orders.php">Order Requests</a>
-                    <a href="../../php/vendor/transaction-history.php">Transaction History</a>
+                    <a href="profile.php" class="active" aria-current="page">Profile</a>
+                    <a href="orders.php">Order Requests</a>
+                    <a href="transaction-history.php">Transaction History</a>
                 </div>
             </nav>
         </header>
@@ -52,9 +52,9 @@
                 <p class="vendor-greeting">Hello, Jonny!</p>
 
                 <ul class="sidebar-links">
-                    <li><a href="../../php/vendor/profile.php">Your account</a></li>
-                    <li><a href="../../php/vendor/manage-menu.php" class="active" aria-current="page">Manage store</a></li>
-                    <li><a href="../../php/vendor/request-store.php">Request to add a new store</a></li>
+                    <li><a href="profile.php">Your account</a></li>
+                    <li><a href="manage-menu.php" class="active" aria-current="page">Manage store</a></li>
+                    <li><a href="request-store.php">Request to add a new store</a></li>
                 </ul>
             </aside>
 
@@ -63,15 +63,15 @@
 
                 <div class="store-grid">
                     <!-- one card per store. status pill classes: open | closed -->
-                    <a class="store-card" href="../../php/vendor/manage-store.php?store=starbucks">
-                        <img class="store-card-logo" src="../../assets/stalls/starbucks.png" alt="">
+                    <a class="store-card" href="manage-store.php?store=starbucks">
+                        <img class="store-card-logo" src="../../../assets/stalls/starbucks.png" alt="">
                         <span class="store-card-name">Starbucks</span>
                         <span class="store-card-location">Green Court</span>
                         <span class="status open">OPEN</span>
                     </a>
 
-                    <a class="store-card" href="../../php/vendor/manage-store.php?store=potatocorner">
-                        <img class="store-card-logo" src="../../assets/stalls/potcor.png" alt="">
+                    <a class="store-card" href="manage-store.php?store=potatocorner">
+                        <img class="store-card-logo" src="../../../assets/stalls/potcor.png" alt="">
                         <span class="store-card-name">Potato Corner</span>
                         <span class="store-card-location">Bloemen</span>
                         <span class="status closed">CLOSED</span>
@@ -81,7 +81,7 @@
         </div>
 
         <!-- shared team script: only needed to draw the dark-mode icon in the header -->
-        <script type="module" src="../../js/centralized.js"></script>
-        <script src="../../js/vendor-auth.js"></script>
+        <script type="module" src="../../../js/centralized.js"></script>
+        <script src="../../../js/vendor-auth.js"></script>
     </body>
 </html>
