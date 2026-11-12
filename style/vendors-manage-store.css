@@ -142,18 +142,23 @@
 }
 
 .option-group-editor-head {
-	grid-template-columns: minmax(0, 1fr) auto auto;
+	grid-template-columns: auto minmax(0, 1fr) auto;
 	align-items: center;
 	margin-bottom: 14px;
 }
 
 .option-group-editor-head .form-control {
-	grid-column: 1 / -1;
+	grid-column: 2;
 }
 
-.option-group-editor-head .option-required-toggle,
-.option-group-editor-head .vendor-btn {
+.option-group-editor-head .option-required-toggle {
 	justify-self: end;
+	grid-column: 3;
+}
+
+.option-group-editor-head .vendor-btn {
+	justify-self: start;
+	grid-column: 1;
 }
 
 .option-required-toggle,
@@ -178,11 +183,19 @@
 }
 
 .option-choice-editor {
-	grid-template-columns: minmax(0, 1fr) minmax(90px, 130px) auto auto;
+	grid-template-columns: auto minmax(0, 1fr) minmax(90px, 130px) auto;
 }
 
 .option-choice-editor .option-choice-name {
 	min-width: 0;
+}
+
+.option-choice-editor > .vendor-btn {
+	justify-self: start;
+}
+
+.option-choice-editor .option-available-toggle {
+	justify-self: end;
 }
 
 #item-modal .vmodal-box {
@@ -190,17 +203,36 @@
 }
 
 @media (max-width: 700px) {
-	.option-choice-editor {
-		grid-template-columns: minmax(0, 1fr) minmax(90px, 120px);
+	.option-group-editor-head {
+		grid-template-columns: auto minmax(0, 1fr);
 	}
 
-	.option-choice-editor .option-available-toggle {
+	.option-group-editor-head .form-control {
+		grid-column: 2;
+	}
+
+	.option-group-editor-head .option-required-toggle {
+		grid-column: 2;
+		justify-self: end;
+	}
+
+	.option-group-editor-head .vendor-btn {
 		grid-column: 1;
 	}
 
+	.option-choice-editor {
+		grid-template-columns: auto minmax(0, 1fr);
+	}
+
 	.option-choice-editor > .vendor-btn {
+		grid-column: 1;
+		justify-self: start;
+	}
+
+	.option-choice-editor .option-choice-name,
+	.option-choice-editor .option-choice-price,
+	.option-choice-editor .option-available-toggle {
 		grid-column: 2;
-		justify-self: end;
 	}
 }
 

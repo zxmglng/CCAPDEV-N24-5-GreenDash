@@ -189,8 +189,8 @@
                     <section class="product-customizations" aria-labelledby="productCustomizationsTitle">
                         <div class="customization-editor-heading">
                             <hr>
-                            <h2 id="productCustomizationsTitle">Item customizations</h3>
-                            <button type="button" class="vendor-btn secondary small" id="addOptionGroupBtn">
+                            <h4 id="productCustomizationsTitle">Item customizations</h3>
+                            <button type="button" class="vendor-btn primary small" id="addOptionGroupBtn">
                                 Add customization section
                             </button>
                         </div>

@@ -460,6 +460,13 @@ async function initManageStorePage() {
             nameInput.setAttribute('aria-label', 'Customization section name');
             nameInput.addEventListener('input', () => { group.name = nameInput.value; });
 
+            const deleteGroupButton = elem('button', 'vendor-btn danger small', 'Remove section');
+            deleteGroupButton.type = 'button';
+            deleteGroupButton.addEventListener('click', () => {
+                editingOptionGroups.splice(groupIndex, 1);
+                renderOptionGroups();
+            });
+
             const requiredLabel = elem('label', 'option-required-toggle');
             const requiredInput = elem('input');
             requiredInput.type = 'checkbox';
@@ -467,18 +474,19 @@ async function initManageStorePage() {
             requiredInput.addEventListener('change', () => { group.required = requiredInput.checked; });
             requiredLabel.append(requiredInput, document.createTextNode(' Required'));
 
-            const deleteGroupButton = elem('button', 'vendor-btn danger small', 'Remove section');
-            deleteGroupButton.type = 'button';
-            deleteGroupButton.addEventListener('click', () => {
-                editingOptionGroups.splice(groupIndex, 1);
-                renderOptionGroups();
-            });
-            groupHead.append(nameInput, requiredLabel, deleteGroupButton);
+            groupHead.append(deleteGroupButton, nameInput, requiredLabel);
             groupCard.appendChild(groupHead);
 
             const choices = elem('div', 'option-choice-list');
             group.choices.forEach((choice, choiceIndex) => {
                 const row = elem('div', 'option-choice-editor');
+                const deleteChoiceButton = elem('button', 'vendor-btn danger small', 'Remove');
+                deleteChoiceButton.type = 'button';
+                deleteChoiceButton.addEventListener('click', () => {
+                    group.choices.splice(choiceIndex, 1);
+                    renderOptionGroups();
+                });
+
                 const choiceName = elem('input', 'form-control option-choice-name');
                 choiceName.type = 'text';
                 choiceName.maxLength = 100;
@@ -505,13 +513,7 @@ async function initManageStorePage() {
                 availableInput.addEventListener('change', () => { choice.available = availableInput.checked; });
                 availableLabel.append(availableInput, document.createTextNode(' Available'));
 
-                const deleteChoiceButton = elem('button', 'vendor-btn danger small', 'Remove');
-                deleteChoiceButton.type = 'button';
-                deleteChoiceButton.addEventListener('click', () => {
-                    group.choices.splice(choiceIndex, 1);
-                    renderOptionGroups();
-                });
-                row.append(choiceName, priceInput, availableLabel, deleteChoiceButton);
+                row.append(deleteChoiceButton, choiceName, priceInput, availableLabel);
                 choices.appendChild(row);
             });
             groupCard.appendChild(choices);
