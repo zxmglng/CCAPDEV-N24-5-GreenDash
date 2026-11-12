@@ -24,7 +24,7 @@
             <!-- data-login-redirect is where the user lands after signing in -->
             <div id="googleLoginButton" data-login-redirect="profile.php" class="google-btn"></div>
 
-            <a class="back-link" href="../user/login.php">
+            <a class="back-link" href="../../../index.php">
                 <i class="bi bi-chevron-left" aria-hidden="true"></i>
                 Back to user login
             </a>
