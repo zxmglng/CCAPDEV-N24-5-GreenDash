@@ -1,4 +1,4 @@
-// The PHP Orders page uses database records; the HTML prototype keeps its separate demo script.
+// The controller embeds only this signed-in user's database orders and review CSRF token.
 const ordersData = JSON.parse(document.querySelector('#ordersData').textContent);
 const orders = ordersData.orders;
 const orderById = new Map(orders.map(order => [order.id, order]));
@@ -78,6 +78,7 @@ function createOrderCard(order) {
 }
 
 function renderOrderList() {
+    // Rebuild the two sections so the current search applies consistently to both.
     document.querySelectorAll('.order-card').forEach(card => card.remove());
     const search = orderSearchInput.value.trim().toLowerCase();
     let ongoingCount = 0;
@@ -109,6 +110,7 @@ function renderRating(rating, preview = rating) {
 }
 
 function renderOrderDetails() {
+    // Populate the modal from the selected record and enable actions allowed by its status.
     const order = orderById.get(selectedOrderId);
     if (!order) return;
     const logo = document.querySelector('#orderStoreLogo');
@@ -155,11 +157,13 @@ function switchOrderModal(from, to) {
 }
 
 async function saveOrderReview(order, rating, comment) {
+    // Disable repeat actions while the server saves the review.
     reviewBusy = true;
     actionFeedback.hidden = reviewFeedback.hidden = true;
     renderOrderDetails();
     reviewForm.querySelector('button[type="submit"]').disabled = true;
     try {
+        // Use the server's saved review as the new source of truth for the current page.
         const result = await window.GreenDashReviews.save(order.orderId, rating, comment, ordersData.csrfToken);
         order.review = result.review;
         renderOrderList();
@@ -172,6 +176,7 @@ async function saveOrderReview(order, rating, comment) {
 
 orderSearchInput.addEventListener('input', renderOrderList);
 orderInfoModal.addEventListener('show.bs.modal', event => {
+    // Resolve the clicked card to its matching order record before filling the details modal.
     const orderId = event.relatedTarget?.dataset.orderId || selectedOrderId;
     if (!orderById.has(orderId)) {event.preventDefault(); return;}
     selectedOrderId = orderId;
@@ -252,6 +257,7 @@ document.querySelector('#confirmCancelUserOrderButton').addEventListener('click'
     const button = event.currentTarget;
     button.disabled = true;
     try {
+        // Submit the order ID with the page's CSRF token, then reload its server-updated status.
         const response = await fetch(new URL('controller-user/cancel-order.php', orderApplicationUrl), {
             method: 'POST', body: new URLSearchParams({orderId: order.orderId, csrfToken: ordersData.csrfToken}),
         });

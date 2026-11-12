@@ -11,6 +11,7 @@ const nearestLocations = {
     yuchengco: ['bloemen', 'agno', 'green court']
 };
 
+// Keep nearby stalls ahead of other results without changing the existing filter state.
 function sortStallsByLocation(selectedLocation) {
     if (!stallList) {
         return;
@@ -19,6 +20,7 @@ function sortStallsByLocation(selectedLocation) {
     const preferredLocations = nearestLocations[selectedLocation.toLowerCase()] || [];
     const stallCards = [...stallList.querySelectorAll('.stall-card')];
 
+    // Put nearby locations first; retain the prior order for ties and locations not in the map.
     stallCards
         .map((card, originalIndex) => ({
             card,
@@ -34,8 +36,10 @@ function sortStallsByLocation(selectedLocation) {
 }
 
 if (locationSelect) {
+    // Restore the user's header selection before applying the initial sort.
     const savedLocation = localStorage.getItem('greendash-location');
     sortStallsByLocation(savedLocation || locationSelect.value);
+    // Reorder the same cards when location changes, leaving other filters intact.
     locationSelect.addEventListener('change', () => {
         sortStallsByLocation(locationSelect.value);
     });
@@ -47,6 +51,7 @@ document.querySelectorAll('.view-stall-button').forEach((viewStallButton) => {
         const closedStatus = stallCard.querySelector('.status.closed');
 
         if (closedStatus) {
+            // Prevent browsing a closed stall even if its card link is clicked directly.
             event.preventDefault();
             closedStallMessage.hidden = false;
         }

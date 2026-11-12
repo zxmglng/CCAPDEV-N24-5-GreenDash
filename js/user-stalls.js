@@ -1,28 +1,15 @@
-const stallAssetPath = window.location.pathname.includes('/app/views/')
-    ? '../../../assets/'
-    : '../../assets/';
-
-const stalls = {
-    starbucks: {
-        name: 'Starbucks',
-        location: 'Green Court (Fidel A. Reyes Street)',
-        hours: '9:00 AM - 11:00 PM',
-        logo: `${stallAssetPath}stalls/starbucks.png`,
-        banner: `${stallAssetPath}stalls/starbucks-banner.png`,
-        menu: [
-            ['Java Chip Frappuccino', 210, 'javachip.png'],
-            ['Caramel Macchiato', 210, 'caramel.png'],
-            ['Pure Matcha Latte', 190, 'matchalatte.png'],
-            ['Caffe Americano', 180, 'americano.png']
-        ]
-    }
-};
-
-const params = new URLSearchParams(window.location.search);
 const stallDataElement = document.querySelector('#stallData');
 const serverStallData = stallDataElement ? JSON.parse(stallDataElement.textContent) : null;
-const stall = serverStallData?.stall || stalls[params.get('stall')] || stalls.starbucks;
-const stallId = String(stall.id || params.get('stall') || 'starbucks');
+if (!serverStallData?.stall) {
+    const page = document.querySelector('.stall-info-page');
+    const message = document.createElement('p');
+    message.textContent = 'Open a stall from the live stalls directory to load its menu.';
+    page?.replaceChildren(message);
+} else {
+// The controller embeds the selected stall, its available menu, and customization groups here.
+// Everything below runs only for a valid stall payload from the PHP controller.
+const stall = serverStallData.stall;
+const stallId = String(stall.id);
 const stallApplicationUrl = new URL('../', document.currentScript.src);
 
 function stallImageUrl(path) {
@@ -33,6 +20,7 @@ function stallImageUrl(path) {
     return new URL(`assets/starbucksMenu/${path}`, stallApplicationUrl).href;
 }
 
+// Escape database text before inserting it into the menu's generated markup.
 function escapeStallHtml(value) {
     return String(value).replace(/[&<>"']/g, character => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
@@ -96,6 +84,7 @@ function formatMinutesAsTime(minutes) {
 }
 
 function populatePickupTimes() {
+    // Prefer today's valid slots from the controller; derive them from display hours only for prototype pages.
     if (Array.isArray(stall.pickupTimes)) {
         [document.querySelector('#pickupTimeMobile'), document.querySelector('#pickupTime')].forEach(select => {
             for (const value of ['now', ...stall.pickupTimes]) {
@@ -135,6 +124,7 @@ function populatePickupTimes() {
     });
 }
 
+// Mirror the selected pickup slot between the desktop and mobile controls.
 populatePickupTimes();
 
 document.querySelector('#pickupTimeMobile').addEventListener('change', (event) => {
@@ -160,6 +150,7 @@ let stallReviewsLoading = false;
 stallReviewForm.hidden = true;
 
 function stallReviewElement(tag, className, text) {
+    // Use textContent for review text so user-written comments are displayed safely.
     const element = document.createElement(tag);
     if (className) element.className = className;
     if (text !== undefined) element.textContent = text;
@@ -209,6 +200,7 @@ function updateReviewFormVisibility(preferredOrderId) {
 }
 
 function renderReviews() {
+    // Apply the selected review filters before rebuilding the list.
     const filter = document.querySelector('#reviewStarFilter').value;
     const sort = document.querySelector('#reviewSort').value;
     const reviews = stallReviews.filter(review => filter === 'all' || review.rating === Number(filter))
@@ -251,6 +243,7 @@ function renderReviews() {
 
 async function refreshStallReviews(preferredOrderId) {
     if (!window.GreenDashReviews || !serverStallData) throw new Error('Reviews are currently unavailable. Please try again later.');
+    // Load public reviews and eligible orders together, then synchronize the modal and form.
     const result = await window.GreenDashReviews.load(stallId);
     stallReviews = result.reviews;
     eligibleReviewOrders = result.eligibleOrders;
@@ -363,19 +356,20 @@ const modal = document.querySelector('#itemModal');
 const modalPrice = document.querySelector('#modalBasePrice');
 const addToCartButton = document.querySelector('#addToCartButton');
 
-const menuProducts = serverStallData ? serverStallData.products.map(product => ({
+const menuProducts = serverStallData.products.map(product => ({
     productId: Number(product.id),
     name: product.name,
     price: Number(product.price),
     image: product.image_path || '',
     category: product.category ? product.category.toLowerCase() : 'all',
     optionGroups: Array.isArray(product.optionGroups) ? product.optionGroups : []
-})) : stall.menu.map(([name, price, image]) => ({name, price, image}));
+}));
 
+// Turn controller-provided product records into cards that can be filtered and opened.
 menuProducts.forEach(({productId, name, price, image, category}, index) => {
     const item = document.createElement('div');
     item.className = 'col-12 col-sm-6 col-md-4 col-lg-3 menu-column';
-    item.dataset.category = serverStallData ? category : index === 0 ? 'all coffee' : menuCategories[index];
+    item.dataset.category = category;
     item.dataset.name = name.toLowerCase();
     item.dataset.price = String(price);
     item.innerHTML = `
@@ -403,6 +397,7 @@ function belongsToCategory(item, category) {
 }
 
 function showMenuCategory(category, direction = 'next') {
+    // Keep active category, button styling, animation, and current filters in sync.
     activeCategory = category;
     menuAnimationDirection = direction;
 
@@ -452,6 +447,7 @@ function getCustomizationPrice() {
 }
 
 function selectedCustomizations() {
+    // Omit empty optional choices; keep selected option IDs for server-side validation.
     return [...document.querySelectorAll('#customizationGroups fieldset')]
         .map(fieldset => {
             const input = fieldset.querySelector('input[type="radio"]:checked');
@@ -468,6 +464,7 @@ function selectedCustomizations() {
 }
 
 function renderCustomizationGroups(item) {
+    // Build one set of choices per product option group and mark required groups.
     const container = document.querySelector('#customizationGroups');
     container.replaceChildren();
     for (const group of item.optionGroups || []) {
@@ -520,6 +517,7 @@ function updateModalPrice() {
 }
 
 function openItemModal(item) {
+    // Reset quantity and customizations whenever a product is opened.
     selectedItem = item;
     selectedQuantity = 1;
     document.querySelector('#modalItemName').textContent = item.name;
@@ -534,6 +532,7 @@ function openItemModal(item) {
 }
 
 function renderOrder() {
+    // Rebuild cart rows and total each time an item is added.
     const orderItems = document.querySelector('#orderItems');
     if (!cart.length) {
         orderItems.innerHTML = '<p class="empty-order-message">Your cart is empty!</p>';
@@ -575,6 +574,7 @@ function openCheckout() {
         return;
     }
 
+    // Persist this stall's cart for checkout.js, which reads it on the next page.
     const checkoutData = {
         stall: {
             id: stall.id || null,
@@ -582,6 +582,7 @@ function openCheckout() {
             location: stall.location,
             hours: stall.hours,
             logo: stallImageUrl(stall.logo),
+            qrCodePath: stall.qrCodePath || '',
             pickupTimes: stall.pickupTimes,
         },
         items: cart,
@@ -721,3 +722,4 @@ document.querySelector('#resetFilters').addEventListener('click', () => {
     sortMenuItems();
     applyMenuFilters();
 });
+}

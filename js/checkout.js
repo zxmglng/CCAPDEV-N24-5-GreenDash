@@ -1,67 +1,78 @@
-const checkoutStorageKey = 'greendash-checkout';
-const checkoutApplicationUrl = new URL('../', document.currentScript.src);
-const checkoutForm = document.querySelector('#checkoutForm');
-const pageExtension = window.location.pathname.endsWith('.html') ? '.html' : '.php';
-let checkoutData = null;
+const checkoutStorageKey = 'greendash-checkout';        // key used to store checkout data in sessionStorage
+const checkoutApplicationUrl = new URL('../', document.currentScript.src);  // base URL of the application, used to resolve relative paths for images
+const checkoutForm = document.querySelector('#checkoutForm');   // form element for submitting the checkout data
+const pageExtension = window.location.pathname.endsWith('.html') ? '.html' : '.php';  // file extension used for page URLs, based on the current page's URL
+let checkoutData = null;    // object containing the checkout data, including stall info, items, and pickup time
+
+// Attempt to read the checkout data from sessionStorage and parse it as JSON.
+// if parsing fails, log an error and set checkoutData to null.
 try {
     checkoutData = JSON.parse(sessionStorage.getItem(checkoutStorageKey) || 'null');
 } catch (error) {
     console.error('Unable to read your cart.', error);
 }
 
+// Convert the selected stall's pickup schedule into options and keep changes with the cart.
+// format a stored pickup time string (e.g., "540-600") into a human-readable format (e.g., "9:00 AM - 10:00 AM")
 function formatStoredPickupTime(pickupTime) {
-    if (!/^\d+-\d+$/.test(pickupTime)) return pickupTime;
+    if (!/^\d+-\d+$/.test(pickupTime)) return pickupTime;   // if the pickup time string does not match the expected format, return it as-is
     const formatMinutes = (minutes) => {
-        const hour = Math.floor(minutes / 60) % 24;
-        return `${hour % 12 || 12}:${String(minutes % 60).padStart(2, '0')} ${hour >= 12 ? 'PM' : 'AM'}`;
+        const hour = Math.floor(minutes / 60) % 24; // convert the total minutes into hours (0-23)
+        return `${hour % 12 || 12}:${String(minutes % 60).padStart(2, '0')} ${hour >= 12 ? 'PM' : 'AM'}`;   // format the hour and minute into a string with AM/PM notation
     };
     const [start, end] = pickupTime.split('-').map(Number);
     return `${formatMinutes(start)} - ${formatMinutes(end)}`;
 }
 
+// parse a time string (e.g., "9:00 AM") into the number of minutes since midnight.
 function parseTime(time) {
-    const match = time.match(/^(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)?$/i);
-    if (!match) return null;
-    let hour = Number(match[1]);
-    const minute = Number(match[2]);
-    if (minute > 59 || (match[3] ? hour < 1 || hour > 12 : hour > 23)) return null;
-    if (match[3]) hour = hour % 12 + (match[3].toUpperCase() === 'PM' ? 12 : 0);
-    return hour * 60 + minute;
+    const match = time.match(/^(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)?$/i);     // match the time string against a regular expression to extract the hour, minute, and optional AM/PM indicator
+    if (!match) return null;    // if the time string does not match the expected format, return null
+    let hour = Number(match[1]);    // convert the hour string to a number
+    const minute = Number(match[2]);    // convert the minute string to a number
+    if (minute > 59 || (match[3] ? hour < 1 || hour > 12 : hour > 23)) return null; // if the minute is greater than 59, or if the hour is out of range (1-12 for AM/PM, 0-23 for 24-hour format), return null
+    if (match[3]) hour = hour % 12 + (match[3].toUpperCase() === 'PM' ? 12 : 0);    // if the time string includes an AM/PM indicator, convert the hour to 24-hour format
+    return hour * 60 + minute;  // return the total number of minutes since midnight
 }
 
+// generate an array of pickup time slots (in 15-minute intervals) based on the stall's operating hours string (e.g., "9:00 AM - 5:00 PM").
 function getPickupTimes(hours) {
-    if (typeof hours !== 'string') return [];
-    const parts = hours.split(/\s*-\s*/);
-    if (parts.length !== 2) return [];
-    const opening = parseTime(parts[0]);
-    let closing = parseTime(parts[1]);
-    if (opening === null || closing === null) return [];
-    if (closing <= opening) closing += 1440;
-    const times = [];
-    for (let start = opening; start + 15 <= closing; start += 15) {
-        times.push(formatStoredPickupTime(`${start}-${start + 15}`));
+    if (typeof hours !== 'string') return [];   // if the hours parameter is not a string, return an empty array
+    const parts = hours.split(/\s*-\s*/);   // split the hours string into two parts (opening and closing times)
+    if (parts.length !== 2) return [];  // if the hours string does not contain exactly two parts, return an empty array
+    const opening = parseTime(parts[0]);    // parse the opening time string into the number of minutes since midnight
+    let closing = parseTime(parts[1]);  // parse the closing time string into the number of minutes since midnight
+    if (opening === null || closing === null) return [];    // if either the opening or closing time could not be parsed, return an empty array
+    if (closing <= opening) closing += 1440;    // if the closing time is earlier than or equal to the opening time, assume the stall closes after midnight and add 24 hours (1440 minutes) to the closing time
+    const times = [];   // initialize an empty array to hold the pickup time slots
+    for (let start = opening; start + 15 <= closing; start += 15) { // iterate through the time range in 15-minute intervals, starting from the opening time and ending before the closing time
+        times.push(formatStoredPickupTime(`${start}-${start + 15}`));   // format the start and end times of the current interval into a human-readable string and add it to the times array
     }
     return times;
 }
 
+// generate a full URL for an image path, based on the checkout application's base URL
 function checkoutImageUrl(path) {
-    if (!path) return '';
-    const marker = path.indexOf('assets/');
-    if (marker !== -1) return new URL(path.slice(marker), checkoutApplicationUrl).href;
-    if (/^(https?:|data:|\/)/i.test(path)) return new URL(path, checkoutApplicationUrl).href;
-    return new URL(`assets/starbucksMenu/${path}`, checkoutApplicationUrl).href;
+    if (!path) return '';   // if the path parameter is falsy (e.g., null, undefined, or an empty string), return an empty string
+    const marker = path.indexOf('assets/'); // find the index of the "assets/" substring in the path parameter
+    if (marker !== -1) return new URL(path.slice(marker), checkoutApplicationUrl).href; // if the "assets/" substring is found, create a new URL using the substring starting from "assets/" and return its href
+    if (/^(https?:|data:|\/)/i.test(path)) return new URL(path, checkoutApplicationUrl).href;   // if the path parameter starts with "http:", "https:", "data:", or "/", create a new URL using the entire path and return its href
+    return new URL(`assets/starbucksMenu/${path}`, checkoutApplicationUrl).href;    // if the path parameter does not match any of the previous conditions, create a new URL using the "assets/starbucksMenu/" prefix and return its href
 }
 
+// append a new element with the specified tag and text content to the parent element, and return the newly created element
 function appendCheckoutText(parent, tag, text) {
-    const element = document.createElement(tag);
-    element.textContent = text;
-    parent.appendChild(element);
+    const element = document.createElement(tag);    // create a new element with the specified tag name
+    element.textContent = text;     // set the text content of the new element to the specified text
+    parent.appendChild(element);    // append the new element to the parent element
     return element;
 }
 
-if (!checkoutData?.stall || !Array.isArray(checkoutData.items) || checkoutData.items.length === 0) {
+// Render the checkout only when the previous page supplied a stall and at least one cart item.
+if (!checkoutData?.stall || !Array.isArray(checkoutData.items) || checkoutData.items.length === 0) {    // if the checkout data is missing or invalid (e.g., no stall info or no items), redirect the user to the stalls directory page
     window.location.href = checkoutForm?.dataset.directoryUrl || `stalls-directory${pageExtension}`;
-} else {
+} else {    // if the checkout data is valid, populate the checkout page with the stall and order information
+    // Fill stall details and pickup slots before the user submits the order.
     const logo = document.querySelector('#checkoutStallLogo');
     logo.src = checkoutImageUrl(checkoutData.stall.logo);
     logo.alt = `Logo of ${checkoutData.stall.name}`;
@@ -88,10 +99,12 @@ if (!checkoutData?.stall || !Array.isArray(checkoutData.items) || checkoutData.i
     });
 
     if (!/^[a-f0-9]{32}$/.test(checkoutData.requestId || '')) {
+        // Reuse this ID on retries so the server can recognize duplicate submissions.
         checkoutData.requestId = Array.from(crypto.getRandomValues(new Uint8Array(16)),
             byte => byte.toString(16).padStart(2, '0')).join('');
         sessionStorage.setItem(checkoutStorageKey, JSON.stringify(checkoutData));
     }
+    // Build the order summary from cart data; the server will independently verify its prices.
     const itemsContainer = document.querySelector('#checkoutItems');
     itemsContainer.replaceChildren();
     checkoutData.items.forEach(item => {
@@ -114,19 +127,36 @@ if (!checkoutData?.stall || !Array.isArray(checkoutData.items) || checkoutData.i
     });
     document.querySelector('#checkoutTotal').textContent = `₱${Number(checkoutData.total).toFixed(2)}`;
 
+    // Offer QR payment only when the selected stall has a QR image.
     const paymentOptions = document.querySelectorAll('input[name="paymentMethod"], input[name="payment"]');
+    const onlinePaymentOption = document.querySelector('.online-payment-option');
+    const onlinePaymentInput = document.querySelector('input[name="paymentMethod"][value="online"]');
+    const qrCode = document.querySelector('.stall-qr-code');
+    const qrCodePath = checkoutData.stall.qrCodePath;
+    if (qrCodePath) {
+        qrCode.src = checkoutImageUrl(qrCodePath);
+        qrCode.hidden = true;
+    } else {
+        onlinePaymentOption.hidden = true;
+        onlinePaymentInput.disabled = true;
+    }
+
+    // Return the currently selected payment method, or undefined if none is selected.
     function selectedPaymentMethod() {
         return [...paymentOptions].find(option => option.checked)?.value;
     }
+    // Show or hide the online payment fields when the user selects a payment method.
     paymentOptions.forEach(option => option.addEventListener('change', () => {
         const online = selectedPaymentMethod() === 'online';
         document.querySelector('#onlinePaymentFields').hidden = !online;
         document.querySelector('#referenceNumber').required = online;
-        document.querySelector('.qr-placeholder').hidden = !online;
+        qrCode.hidden = !online || !qrCodePath;
     }));
 
+    // Handle the checkout form submission, including validation, sending the data to the server, and displaying a confirmation message or error.
     let isSubmitting = false;
     let isSubmitted = false;
+    // Prepare the cart for the POST, then show the server-created receipt on success.
     checkoutForm.addEventListener('submit', async event => {
         event.preventDefault();
         if (isSubmitting || isSubmitted) return;
@@ -165,6 +195,7 @@ if (!checkoutData?.stall || !Array.isArray(checkoutData.items) || checkoutData.i
         submitButton.disabled = true;
         submitButton.textContent = 'Submitting…';
         try {
+            // The server recalculates prices and validates the submitted IDs before saving.
             const response = await fetch(checkoutForm.action, {method: 'POST', body: fields});
             const result = await response.json();
             if (!response.ok || result.success !== true) {
