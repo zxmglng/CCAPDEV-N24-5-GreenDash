@@ -84,6 +84,51 @@ function cancelPendingUserOrder(PDO $pdo, int $userId, int $orderId): bool
     return $stmt->rowCount() === 1;
 }
 
+function getUserCompletedOrderCount(PDO $pdo, int $userId): int
+{
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM orders WHERE user_id = ? AND status = 'completed'");
+    $stmt->execute([$userId]);
+    return (int) $stmt->fetchColumn();
+}
+
+function getUserTotalSpent(PDO $pdo, int $userId): float
+{
+    $stmt = $pdo->prepare("SELECT COALESCE(SUM(total_amount), 0) FROM orders WHERE user_id = ? AND status = 'completed'");
+    $stmt->execute([$userId]);
+    return (float) $stmt->fetchColumn();
+}
+
+function getUserFavoriteStall(PDO $pdo, int $userId): ?string
+{
+    $stmt = $pdo->prepare(
+        "SELECT stall_name FROM orders WHERE user_id = ?
+        AND status = 'completed' GROUP BY stall_name
+        ORDER BY COUNT(*) DESC LIMIT 1"
+        );
+    $stmt->execute([$userId]);
+    $stall = $stmt->fetchColumn();
+    return $stall !== false ? $stall : null;
+}
+
+function getUserMonthlyOrderCounts(PDO $pdo, int $userId): array
+{
+    $stmt = $pdo->prepare(
+        "SELECT MONTH(created_at) AS order_month, COUNT(*) AS total_orders
+        FROM orders WHERE user_id = ? AND status = 'completed' AND YEAR(created_at) = YEAR(CURDATE())
+        GROUP BY MONTH(created_at) ORDER BY MONTH(created_at)"
+        );
+
+    $stmt->execute([$userId]);
+    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $monthlyOrders = array_fill(0, 12, 0);
+
+    foreach ($rows as $row) {
+        $monthIndex = (int) $row['order_month'] - 1;
+        $monthlyOrders[$monthIndex] = (int) $row['total_orders'];
+    }
+    return $monthlyOrders;
+}
+
 function getVendorOrderRecords(PDO $pdo, int $vendorId, array $statuses = [], ?int $orderId = null,
     ?string $orderNumber = null): array
 {

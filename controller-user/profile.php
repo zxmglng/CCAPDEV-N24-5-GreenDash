@@ -4,6 +4,7 @@
 session_start();
 require_once(__DIR__ . "/../app/core/db.php");
 require_once(__DIR__ . "/../app/models/user-model.php");
+require_once(__DIR__ . "/../app/models/order-model.php");
 
 //log out current user
 if (isset($_GET['logout'])) {
@@ -23,6 +24,12 @@ if (!$user) {
     header('Location: ../index.php');
     exit;
 }
+
+// get user's order activity
+$totalOrders = getUserCompletedOrderCount($pdo, $_SESSION['user_id']);
+$totalSpent = getUserTotalSpent($pdo, $_SESSION['user_id']);
+$favoriteStall = getUserFavoriteStall($pdo, $_SESSION['user_id']);
+$monthlyOrders = getUserMonthlyOrderCounts($pdo, $_SESSION['user_id']);
 
 // update profile info
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

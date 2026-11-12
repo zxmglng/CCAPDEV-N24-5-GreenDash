@@ -857,15 +857,19 @@ $(document).ready(function () {
 // Profile page - order frequency chart
 $(document).ready(function () {
     var chartCanvas = $('#orderFrequencyChart');
-    if (chartCanvas.length) {
+    var profileChartData = $('#profileChartData');
+
+    if (chartCanvas.length && profileChartData.length) {
+        var monthlyOrders = JSON.parse(profileChartData.text());
         var ctx = chartCanvas[0].getContext('2d');
-        var orderFrequencyChart = new Chart(ctx, {
+
+        new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
                 datasets: [{
                     label: 'Number of Orders',
-                    data: [0, 1, 4, 6, 3, 6, 7, 3, 10, 2, 12, 0],
+                    data: monthlyOrders,
                     backgroundColor: '#006937',
                     borderColor: '#006937',
                     borderWidth: 1
@@ -877,7 +881,9 @@ $(document).ready(function () {
                 scales: {
                     y: {
                         beginAtZero: true,
-                        ticks: {stepSize: 2}
+                        ticks: {
+                            stepSize: 1
+                        }
                     }
                 }
             }

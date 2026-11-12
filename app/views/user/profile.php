@@ -95,7 +95,7 @@
                                     </div>
                                     <div class="stat-text">
                                         <p class="stat-label">Total Orders</p>
-                                        <h3>25</h3>
+                                        <h3><?= (int) $totalOrders ?></h3>
                                     </div>
                                 </div>
 
@@ -105,7 +105,7 @@
                                     </div>
                                     <div class="stat-text">
                                         <p class="stat-label">Favorite Stall</p>
-                                        <h3>Starbucks</h3>
+                                        <h3><?= htmlspecialchars($favoriteStall ?? 'No orders yet', ENT_QUOTES, 'UTF-8') ?></h3>
                                     </div>
                                 </div>
 
@@ -115,7 +115,7 @@
                                     </div>
                                     <div class="stat-text">
                                         <p class="stat-label">Total Spent</p>
-                                        <h3>&#8369;3,550</h3>
+                                        <h3>&#8369;<?= number_format($totalSpent, 2) ?></h3>
                                     </div>
                                 </div>
                             </div>
@@ -138,6 +138,7 @@
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
         <script src="../js/jquery-4.0.0.min.js"></script>
+        <script type="application/json" id="profileChartData"><?= json_encode($monthlyOrders) ?></script>
         <script src="../js/user.js"></script>
         <script type="module" src="../js/centralized.js"></script>
 
