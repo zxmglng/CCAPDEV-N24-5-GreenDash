@@ -4,8 +4,9 @@ $currentPage = basename($_SERVER['SCRIPT_NAME'] ?? '');
 $assetBase = $assetBase ?? '../../../';
 $userPageBase = $userPageBase ?? '';
 
+$isUserController = str_contains($_SERVER['SCRIPT_NAME'] ?? '', '/controller-user/');
 // profile and stalls directory alr use controllers
-$profilePage = str_contains($_SERVER['SCRIPT_NAME'] ?? '', '/controller-user/')
+$profilePage = $isUserController
     ? 'profile.php'
     : '../../../controller-user/profile.php';
 $stallsDirectoryPage = $isUserController
@@ -14,7 +15,7 @@ $stallsDirectoryPage = $isUserController
 ?>
         <header>
             <div class="main-header">
-                <a href="<?= htmlspecialchars($userPageBase . 'stalls-directory.php', ENT_QUOTES, 'UTF-8') ?>" aria-label="Go to stalls directory">
+                <a href="<?= htmlspecialchars($stallsDirectoryPage, ENT_QUOTES, 'UTF-8') ?>" aria-label="Go to stalls directory">
                     <img id="logo" src="<?= htmlspecialchars($assetBase . 'assets/main/GreenDash_LOGO.png', ENT_QUOTES, 'UTF-8') ?>" alt="GreenDash Logo">
                 </a>
                 <div class="location">
