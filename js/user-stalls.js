@@ -356,21 +356,25 @@ let selectedItem = null;
 let selectedQuantity = 1;
 let activeCategory = 'all';
 let menuAnimationDirection = 'next';
-const menuCategories = serverStallData ? ['all'] : ['all', 'drinks', 'food', 'refreshers', 'coffee'];
+const menuCategories = [...document.querySelectorAll('.menu-categories button')]
+    .map(button => button.dataset.category);
 
 const modal = document.querySelector('#itemModal');
 const modalPrice = document.querySelector('#modalBasePrice');
 const addToCartButton = document.querySelector('#addToCartButton');
 
 const menuProducts = serverStallData ? serverStallData.products.map(product => ({
-    productId: Number(product.id), name: product.name, price: Number(product.price),
+    productId: Number(product.id),
+    name: product.name,
+    price: Number(product.price),
     image: product.image_path || '',
+    category: product.category ? product.category.toLowerCase() : 'all'
 })) : stall.menu.map(([name, price, image]) => ({name, price, image}));
 
-menuProducts.forEach(({productId, name, price, image}, index) => {
+menuProducts.forEach(({productId, name, price, image, category}, index) => {
     const item = document.createElement('div');
     item.className = 'col-12 col-sm-6 col-md-4 col-lg-3 menu-column';
-    item.dataset.category = serverStallData ? 'all' : index === 0 ? 'all coffee' : menuCategories[index];
+    item.dataset.category = serverStallData ? category : index === 0 ? 'all coffee' : menuCategories[index];
     item.dataset.name = name.toLowerCase();
     item.dataset.price = String(price);
     item.innerHTML = `
@@ -393,8 +397,7 @@ function belongsToCategory(item, category) {
     if (category === 'all') {
         return true;
     }
-
-    return item.dataset.category.split(' ').includes(category);
+    return item.dataset.category === category;
 }
 
 function showMenuCategory(category, direction = 'next') {
