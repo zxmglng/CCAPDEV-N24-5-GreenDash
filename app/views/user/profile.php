@@ -14,7 +14,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     </head>
-    <body class="profile-list-page">
+    <body class="profile-list-page" data-assets-path="<?= htmlspecialchars($assetBase . 'assets/', ENT_QUOTES, 'UTF-8') ?>">
         <!-- INCLUDE EVERYTHING FOR THE MAIN HEADER FOR ALL PAGES FROM HERE-->
         <?php include __DIR__ . "/../nav.php"; ?>
         <!-- TO HERE!-->

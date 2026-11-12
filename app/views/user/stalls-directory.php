@@ -15,7 +15,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 </head>
-<body>
+<body data-assets-path="<?= htmlspecialchars($assetBase . 'assets/', ENT_QUOTES, 'UTF-8') ?>">
     <?php include(__DIR__ . '/../nav.php'); ?>
         <main class="stalls-directory-page">
             <!-- SEARCH BAR -->
@@ -68,7 +68,7 @@
                 <!-- i figured it would be better to store the operating hours in a separate table and then join them 
                      with the stalls table to avoid redundancy and make it easier to update the hours if needed -->
                 <?php foreach ($stalls as $stall): ?>
-                    <div class="stall-card" data-stall-id="<?= (int) $stall['id'] ?>">
+                    <div class="stall-card" data-stall-id="<?= (int) $stall['id'] ?>" data-location="<?= htmlspecialchars(strtolower($stall['location'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                         <img
 
                             src="<?= htmlspecialchars($stall['image_path'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
