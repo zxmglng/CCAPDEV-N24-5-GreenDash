@@ -207,6 +207,9 @@ async function initManageStorePage() {
     } catch (error) {
         optionLoadError = error.message || 'Unable to load menu customizations.';
         console.error('Unable to load product customizations.', error);
+        store.categories = [];
+        store.items = [];
+        store._nextId = 1;
     }
 
     // STATE
@@ -226,6 +229,7 @@ async function initManageStorePage() {
     const categoryList = byId('categoryList');
     const categorySearch = byId('categorySearch');
     const categorySortBtn = byId('categorySort');
+    const addCategoryBtn = byId('addCategoryBtn');
     const itemList = byId('itemList');
     const itemSearch = byId('itemSearch');
     const itemSortBtn = byId('itemSort');
@@ -253,6 +257,7 @@ async function initManageStorePage() {
 
     // CATEGORIES
     function renderCategories() {
+        addCategoryBtn.disabled = Boolean(optionLoadError);
         const q = categorySearch.value.trim().toLowerCase();
         let list = store.categories.filter(c => c.name.toLowerCase().includes(q));
         list = [...list].sort((a, b) => categorySortAsc ? byText(a.name, b.name) : byText(b.name, a.name));
@@ -308,11 +313,11 @@ async function initManageStorePage() {
         itemSortBtn.innerHTML = '';
         itemSortBtn.appendChild(elem('i', 'bi ' + sort.icon));
         itemSortBtn.title = 'Sorted by ' + sort.label;
-        addItemBtn.disabled = !cat;
+        addItemBtn.disabled = !cat || Boolean(optionLoadError);
         itemList.replaceChildren();
 
         if (!cat) {
-            itemsNote.textContent = 'Add a category first, then you can add items to it.';
+            itemsNote.textContent = optionLoadError || 'Add a category first, then you can add items to it.';
             return;
         }
         itemsNote.textContent = 'Showing items under ' + cat.name + ' \u2022 sorted by ' + sort.label;

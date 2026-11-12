@@ -188,6 +188,10 @@
 
                     <section class="product-customizations" aria-labelledby="productCustomizationsTitle">
                         <div class="customization-editor-heading">
+
+                        <!-- i dont know if this should be before or after "shows up under"
+                        so just change the layout if ever -->
+                            <br>
                             <h3 id="productCustomizationsTitle">Item customizations</h3>
                             <button type="button" class="vendor-btn secondary small" id="addOptionGroupBtn">
                                 Add customization section
@@ -213,6 +217,6 @@
         <!-- shared team script: draws the dark-mode icon in the header -->
         <script type="module" src="../../../js/centralized.js"></script>
         <script src="../../../js/vendor-auth.js"></script>
-        <script src="../../../js/vendor-storemgmt.js"></script>
+        <script src="../../../js/vendor-storemgmt.js?v=<?= filemtime(__DIR__ . '/../../../js/vendor-storemgmt.js') ?>"></script>
     </body>
 </html>
