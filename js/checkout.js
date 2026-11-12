@@ -104,8 +104,9 @@ if (!checkoutData?.stall || !Array.isArray(checkoutData.items) || checkoutData.i
         row.appendChild(image);
         const details = document.createElement('div');
         appendCheckoutText(details, 'h3', item.name);
-        appendCheckoutText(details, 'p', item.size || 'Regular');
-        appendCheckoutText(details, 'p', item.milk === 'Oatmilk' ? 'Oat milk' : item.milk || 'No milk customization');
+        for (const option of item.options || []) {
+            appendCheckoutText(details, 'p', `${option.groupName}: ${option.optionName}`);
+        }
         appendCheckoutText(details, 'p', `Quantity: ${item.quantity}`);
         row.appendChild(details);
         appendCheckoutText(row, 'strong', `₱${Number(item.total).toFixed(2)}`);
@@ -147,7 +148,9 @@ if (!checkoutData?.stall || !Array.isArray(checkoutData.items) || checkoutData.i
         }
         const orderItems = checkoutData.items.map(item => ({
             productId: item.productId, quantity: item.quantity,
-            milk: item.milk ?? null, size: item.size ?? null,
+            options: (item.options || []).map(option => ({
+                groupId: option.groupId, optionId: option.optionId,
+            })),
             specialInstructions: item.specialInstructions || '',
         }));
         document.querySelector('#checkoutStallId').value = checkoutData.stall.id;

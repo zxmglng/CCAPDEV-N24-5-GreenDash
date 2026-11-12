@@ -368,7 +368,8 @@ const menuProducts = serverStallData ? serverStallData.products.map(product => (
     name: product.name,
     price: Number(product.price),
     image: product.image_path || '',
-    category: product.category ? product.category.toLowerCase() : 'all'
+    category: product.category ? product.category.toLowerCase() : 'all',
+    optionGroups: Array.isArray(product.optionGroups) ? product.optionGroups : []
 })) : stall.menu.map(([name, price, image]) => ({name, price, image}));
 
 menuProducts.forEach(({productId, name, price, image, category}, index) => {
@@ -382,6 +383,7 @@ menuProducts.forEach(({productId, name, price, image, category}, index) => {
             <div class="menu-image-container">
                 <img src="${escapeStallHtml(stallImageUrl(image))}" alt="${escapeStallHtml(name)}" ${image ? '' : 'hidden'}>
                 <button type="button" class="add-item-button" aria-label="Add ${escapeStallHtml(name)}"
+                    data-product-index="${index}"
                     data-product-id="${productId || ''}" data-menu-name="${escapeStallHtml(name)}"
                     data-menu-price="${price}" data-menu-image="${escapeStallHtml(image)}">
                     <span aria-hidden="true">+</span>
@@ -443,11 +445,68 @@ document.querySelector('#nextMenuItem').addEventListener('click', () => {
 showMenuCategory(activeCategory);
 
 function getCustomizationPrice() {
-    const milk = document.querySelector('input[name="milk"]:checked');
-    const size = document.querySelector('input[name="size"]:checked');
-    const cents = [selectedItem.price, milk?.dataset.price || 0, size?.dataset.price || 0]
-        .reduce((sum, price) => sum + Math.round(Number(price) * 100), 0);
+    const optionCents = [...document.querySelectorAll('#customizationGroups input[type="radio"]:checked')]
+        .reduce((sum, input) => sum + Math.round(Number(input.dataset.price || 0) * 100), 0);
+    const cents = Math.round(selectedItem.price * 100) + optionCents;
     return cents / 100;
+}
+
+function selectedCustomizations() {
+    return [...document.querySelectorAll('#customizationGroups fieldset')]
+        .map(fieldset => {
+            const input = fieldset.querySelector('input[type="radio"]:checked');
+            if (!input || !input.value) return null;
+            return {
+                groupId: Number(input.dataset.groupId),
+                optionId: Number(input.value),
+                groupName: input.dataset.groupName,
+                optionName: input.dataset.optionName,
+                extraPrice: Number(input.dataset.price || 0),
+            };
+        })
+        .filter(Boolean);
+}
+
+function renderCustomizationGroups(item) {
+    const container = document.querySelector('#customizationGroups');
+    container.replaceChildren();
+    for (const group of item.optionGroups || []) {
+        const fieldset = document.createElement('fieldset');
+        fieldset.className = 'customization-group';
+        const legend = document.createElement('legend');
+        legend.textContent = group.name + (group.required ? ' (required)' : '');
+        fieldset.appendChild(legend);
+
+        if (!group.choices.length) {
+            const emptyMessage = document.createElement('p');
+            emptyMessage.textContent = 'No options are currently available.';
+            fieldset.appendChild(emptyMessage);
+        }
+
+        const choices = group.required
+            ? group.choices
+            : [{optionId: '', name: 'No selection', extraPrice: '0.00'}, ...group.choices];
+        choices.forEach((choice, index) => {
+            const label = document.createElement('label');
+            const input = document.createElement('input');
+            input.type = 'radio';
+            input.name = `customization-${group.groupId}`;
+            input.value = choice.optionId;
+            input.dataset.groupId = group.groupId;
+            input.dataset.groupName = group.name;
+            input.dataset.optionName = choice.name;
+            input.dataset.price = choice.extraPrice;
+            input.checked = index === 0;
+            label.append(input, document.createTextNode(` ${choice.name} `));
+
+            const price = document.createElement('span');
+            const extraPrice = Number(choice.extraPrice);
+            price.textContent = extraPrice > 0 ? `+₱ ${extraPrice.toFixed(2)}` : 'Free';
+            label.appendChild(price);
+            fieldset.appendChild(label);
+        });
+        container.appendChild(fieldset);
+    }
 }
 
 function updateModalPrice() {
@@ -455,6 +514,9 @@ function updateModalPrice() {
     modalPrice.textContent = selectedItem.price;
     addToCartButton.innerHTML = `Add to cart - &#8369; ${total.toFixed(2)}`;
     document.querySelector('#itemQuantity').textContent = selectedQuantity;
+    addToCartButton.disabled = (selectedItem.optionGroups || [])
+        .some(group => group.required && (!group.choices.length
+            || !document.querySelector(`input[name="customization-${group.groupId}"]:checked`)));
 }
 
 function openItemModal(item) {
@@ -466,6 +528,7 @@ function openItemModal(item) {
     image.src = stallImageUrl(item.image);
     image.hidden = !item.image;
     image.alt = item.name;
+    renderCustomizationGroups(item);
     modal.hidden = false;
     updateModalPrice();
 }
@@ -475,12 +538,27 @@ function renderOrder() {
     if (!cart.length) {
         orderItems.innerHTML = '<p class="empty-order-message">Your cart is empty!</p>';
     } else {
-        orderItems.innerHTML = cart.map((item) => `
-            <div class="order-item">
-                <img src="${escapeStallHtml(stallImageUrl(item.image))}" alt="${escapeStallHtml(item.name)}" ${item.image ? '' : 'hidden'}>
-                <div><h3>${escapeStallHtml(item.name)}</h3><p>${escapeStallHtml(item.size)} · ${escapeStallHtml(item.milk || 'No milk customization')} · ${item.quantity}</p></div>
-                <strong>&#8369; ${item.total.toFixed(2)}</strong>
-            </div>`).join('');
+        orderItems.replaceChildren();
+        cart.forEach(item => {
+            const row = document.createElement('div');
+            row.className = 'order-item';
+            const image = document.createElement('img');
+            image.src = stallImageUrl(item.image);
+            image.alt = item.name;
+            image.hidden = !item.image;
+            row.appendChild(image);
+            const details = document.createElement('div');
+            const title = document.createElement('h3');
+            title.textContent = item.name;
+            const summary = document.createElement('p');
+            const selections = item.options.map(option => `${option.groupName}: ${option.optionName}`);
+            summary.textContent = [...selections, `Quantity: ${item.quantity}`].join(' · ');
+            details.append(title, summary);
+            const price = document.createElement('strong');
+            price.textContent = `₱ ${item.total.toFixed(2)}`;
+            row.append(details, price);
+            orderItems.appendChild(row);
+        });
     }
     const total = cart.reduce((sum, item) => sum + Math.round(item.total * 100), 0) / 100;
     document.querySelector('#checkoutButton').innerHTML = `Checkout - &#8369; ${total.toFixed(2)}`;
@@ -520,16 +598,11 @@ function openCheckout() {
 
 document.querySelectorAll('.add-item-button').forEach((button) => {
     button.addEventListener('click', () => openItemModal({
-        productId: Number(button.dataset.productId) || null,
-        name: button.dataset.menuName,
-        price: Number(button.dataset.menuPrice),
-        image: button.dataset.menuImage
+        ...menuProducts[Number(button.dataset.productIndex)],
     }));
 });
 
-document.querySelectorAll('input[name="milk"], input[name="size"]').forEach((input) => {
-    input.addEventListener('change', updateModalPrice);
-});
+document.querySelector('#customizationGroups').addEventListener('change', updateModalPrice);
 
 document.querySelector('#increaseQuantity').addEventListener('click', () => {
     selectedQuantity += 1;
@@ -542,12 +615,9 @@ document.querySelector('#decreaseQuantity').addEventListener('click', () => {
 });
 
 addToCartButton.addEventListener('click', () => {
-    const size = document.querySelector('input[name="size"]:checked').value;
-    const milk = document.querySelector('input[name="milk"]:checked').value;
     cart.push({
         ...selectedItem,
-        size,
-        milk,
+        options: selectedCustomizations(),
         quantity: selectedQuantity,
         total: Math.round(getCustomizationPrice() * 100) * selectedQuantity / 100
     });

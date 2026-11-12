@@ -123,19 +123,7 @@
                         <strong>From &#8369; <span id="modalBasePrice"></span></strong>
                     </div>
                 </div>
-                <?php foreach (checkoutOptionGroups() as $field => $group): ?>
-                <fieldset class="customization-group">
-                    <legend><?= htmlspecialchars($group['name'], ENT_QUOTES, 'UTF-8') ?></legend>
-                    <?php foreach ($group['choices'] as $choice => $extraPrice): ?>
-                    <label><input type="radio" name="<?= htmlspecialchars($field, ENT_QUOTES, 'UTF-8') ?>"
-                        value="<?= htmlspecialchars($choice, ENT_QUOTES, 'UTF-8') ?>"
-                        data-price="<?= checkoutMoney($extraPrice) ?>"<?= $choice === $group['default'] ? ' checked' : '' ?>>
-                        <?= htmlspecialchars($choice, ENT_QUOTES, 'UTF-8') ?>
-                        <span><?= $extraPrice ? '+&#8369; ' . checkoutMoney($extraPrice) : 'Free' ?></span>
-                    </label>
-                    <?php endforeach; ?>
-                </fieldset>
-                <?php endforeach; ?>
+                <div id="customizationGroups"></div>
                 <div class="modal-actions">
                     <div class="quantity-control">
                         <button type="button" id="decreaseQuantity" aria-label="Decrease quantity">−</button>

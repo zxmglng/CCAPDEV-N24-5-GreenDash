@@ -37,7 +37,7 @@ function insertCheckoutItemOption(PDO $pdo, int $orderItemId, array $option): vo
          option_name, quantity, extra_price) VALUES (?, ?, ?, ?, ?, ?)'
     );
     $stmt->execute([
-        $orderItemId, null, $option['option_group_name'], $option['option_name'],
+        $orderItemId, $option['option_id'], $option['option_group_name'], $option['option_name'],
         1, $option['extra_price'],
     ]);
 }

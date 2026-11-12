@@ -22,22 +22,29 @@ Should contain:
 
 The form submits `stallId`, `orderItems` (a JSON array), `pickupTime`,
 `paymentMethod`, `referenceNumber`, `csrfToken`, and `requestId`. Each item carries
-`productId`, `quantity`, `milk`, `size`, and optional `specialInstructions`.
+`productId`, `quantity`, `options` (a list of `groupId` and `optionId` pairs),
+and optional `specialInstructions`.
 Client-supplied prices, totals, names, and user IDs are not used to save the order.
 
 `app/core/checkout.php` coordinates validation and pricing. The model files contain
 the SQL for the supplied `orders`, `order_items`, `order_item_options`, `products`,
-`users`, `stalls`, and `stall_operating_hours` tables. No schema migration is needed
-for the supplied order/product definitions. Use transactional tables (InnoDB) so
-orders, items, and options can all roll back on failure.
+`product_option_groups`, `product_option_choices`, `users`, `stalls`, and
+`stall_operating_hours` tables. The option group/choice tables must exist and
+contain choices for products that require customization. Use transactional
+tables (InnoDB) so orders, items, and options can all roll back on failure.
 
 Product IDs are saved as `order_items.menu_item_id`; database names/prices and
 stall name/location are snapshotted. Category names remain NULL until the category
-schema is integrated. The existing fixed milk/size choices are defined once in
-`checkoutOptionGroups()` and used by the PHP menu and server pricing. Their
-snapshot `option_id` is NULL because no option catalog schema was supplied.
-Omitted choices use the same defaults as the UI. Payment references do not mark
-an online payment as paid; new orders and payments both start pending.
+schema is integrated. Customer customization groups and available choices are
+loaded from `product_option_groups` and `product_option_choices`. Each group is
+single-choice; required groups default to their first available choice by
+`display_order`, while optional groups default to no selection. Checkout verifies
+that each selected choice belongs to the product, calculates its price from the
+database, and saves its ID plus name and price snapshots in `order_item_options`.
+Populate these tables for each product that needs customization. The current
+vendor Manage Store page is still demo-only and does not edit these rows.
+Payment references do not mark an online payment as paid; new orders and payments
+both start pending.
 
 Scheduled pickup uses today's date in Asia/Manila and must fit a 15-minute window
 inside the stall's operating hours. The returned `orderNumber` and `totalAmount`

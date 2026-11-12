@@ -36,6 +36,14 @@ $products = array_values(
         static fn(array $product): bool => (bool) $product['is_available']
     )
 );
+$productOptionGroups = getProductOptionGroups(
+    $pdo,
+    array_column($products, 'id')
+);
+foreach ($products as &$product) {
+    $product['optionGroups'] = $productOptionGroups[(int) $product['id']] ?? [];
+}
+unset($product);
 
 $categories = getCategoriesByStall($pdo, $stallId); // categories will be integrated later
 

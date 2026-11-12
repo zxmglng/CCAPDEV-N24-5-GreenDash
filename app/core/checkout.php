@@ -23,17 +23,6 @@ function checkoutCsrfToken(): string
     return $_SESSION['checkout_csrf_token'];
 }
 
-// Existing UI choices, priced in centavos. Both the PHP menu and order calculation use this list.
-function checkoutOptionGroups(): array
-{
-    return [
-        'milk' => ['name' => 'Choice of milk', 'default' => 'Non-fat',
-                   'choices' => ['Whole' => 0, 'Non-fat' => 0, 'Oatmilk' => 5000]],
-        'size' => ['name' => 'Choice of size', 'default' => 'Grande',
-                   'choices' => ['Tall' => 1000, 'Grande' => 2000, 'Venti' => 4500]],
-    ];
-}
-
 function checkoutPositiveInteger($value, string $label): int
 {
     if ((!is_int($value) && !is_string($value))
@@ -84,14 +73,27 @@ function validateCheckoutRequest(array $data): array
             'quantity' => $quantity,
             'specialInstructions' => trim($instructions),
         ];
-        foreach (checkoutOptionGroups() as $field => $group) {
-            // Omitting a selection must not bypass the UI's default option surcharge.
-            $choice = $item[$field] ?? $group['default'];
-            if (!is_string($choice) || !array_key_exists($choice, $group['choices'])) {
-                throw new CheckoutValidationException('Invalid ' . $field . ' choice.');
-            }
-            $normalized[$field] = $choice;
+        $options = $item['options'] ?? [];
+        if (!is_array($options) || !array_is_list($options) || count($options) > 50) {
+            throw new CheckoutValidationException('Invalid product customizations.');
         }
+        $selectedGroups = [];
+        foreach ($options as $option) {
+            if (!is_array($option)) {
+                throw new CheckoutValidationException('Invalid product customization.');
+            }
+            $groupId = checkoutPositiveInteger($option['groupId'] ?? null, 'Customization group');
+            $optionId = checkoutPositiveInteger($option['optionId'] ?? null, 'Customization choice');
+            if (isset($selectedGroups[$groupId])) {
+                throw new CheckoutValidationException('Choose only one option per customization group.');
+            }
+            $selectedGroups[$groupId] = $optionId;
+        }
+        $normalized['options'] = array_map(
+            static fn(int $groupId, int $optionId): array => ['groupId' => $groupId, 'optionId' => $optionId],
+            array_keys($selectedGroups),
+            array_values($selectedGroups)
+        );
         $items[] = $normalized;
     }
 
@@ -204,6 +206,10 @@ function placeCheckoutOrder(PDO $pdo, int $userId, array $request, ?DateTimeImmu
         foreach (getStallProducts($pdo, $request['stallId']) as $product) {
             $products[(int) $product['id']] = $product;
         }
+        $optionGroupsByProduct = getProductOptionGroups(
+            $pdo,
+            array_column($request['orderItems'], 'productId')
+        );
         $items = [];
         $total = 0;
         foreach ($request['orderItems'] as $requestedItem) {
@@ -214,14 +220,48 @@ function placeCheckoutOrder(PDO $pdo, int $userId, array $request, ?DateTimeImmu
             $basePrice = checkoutPriceCents($product['price']);
             $unitPrice = $basePrice;
             $options = [];
-            foreach (checkoutOptionGroups() as $field => $group) {
-                $choice = $requestedItem[$field];
-                if ($choice !== null) {
-                    $extraPrice = $group['choices'][$choice];
-                    $unitPrice += $extraPrice;
-                    $options[] = ['option_group_name' => $group['name'], 'option_name' => $choice,
-                                  'extra_price' => checkoutMoney($extraPrice)];
+            $productGroups = $optionGroupsByProduct[$requestedItem['productId']] ?? [];
+            $selectedOptions = [];
+            foreach ($requestedItem['options'] as $selection) {
+                $selectedOptions[$selection['groupId']] = $selection['optionId'];
+            }
+            foreach ($productGroups as $group) {
+                $selectedOptionId = $selectedOptions[$group['groupId']] ?? null;
+                if ($selectedOptionId === null) {
+                    if ($group['required']) {
+                        throw new CheckoutValidationException(
+                            'Choose an option for ' . $group['name'] . ' on ' . $product['name'] . '.'
+                        );
+                    }
+                    continue;
                 }
+
+                $choice = null;
+                foreach ($group['choices'] as $availableChoice) {
+                    if ($availableChoice['optionId'] === $selectedOptionId) {
+                        $choice = $availableChoice;
+                        break;
+                    }
+                }
+                if ($choice === null) {
+                    throw new CheckoutValidationException(
+                        'A selected customization is no longer available. Please refresh the menu.'
+                    );
+                }
+                $extraPrice = checkoutPriceCents($choice['extraPrice']);
+                $unitPrice += $extraPrice;
+                $options[] = [
+                    'option_id' => $choice['optionId'],
+                    'option_group_name' => $group['name'],
+                    'option_name' => $choice['name'],
+                    'extra_price' => checkoutMoney($extraPrice),
+                ];
+                unset($selectedOptions[$group['groupId']]);
+            }
+            if ($selectedOptions) {
+                throw new CheckoutValidationException(
+                    'A selected customization does not belong to this product.'
+                );
             }
             $itemTotal = $unitPrice * $requestedItem['quantity'];
             $total += $itemTotal;
