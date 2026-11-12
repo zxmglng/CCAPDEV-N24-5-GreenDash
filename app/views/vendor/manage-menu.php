@@ -21,7 +21,7 @@ $vendorHeaderLocation = count($vendorStalls) === 1
         <link rel="stylesheet" href="../style/vendors-manage-menu.css">
         <link rel="icon" type="image/png" href="../assets/main/GreenDash_CIRCLE.png">
     </head>
-    <body class="vendor-page" data-page="manage-menu">
+    <body class="vendor-page" data-page="manage-menu" data-assets-path="../assets/">
         <header>
             <div class="main-header">
                 <img id="logo" src="../assets/main/GreenDash_LOGO.png" alt="GreenDash Logo">
