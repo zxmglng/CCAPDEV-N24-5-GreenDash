@@ -13,7 +13,7 @@ $vendorHeaderLocation = count($vendorStalls) === 1
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>GreenDash - Manage Store</title>
+        <title>GreenDash - <?= htmlspecialchars($stall['name']) ?></title>
         <link rel="stylesheet" href="../bootstrap/css/bootstrap-5.3.3.min.css">
         <link rel="stylesheet" href="../bootstrap-icons/bootstrap-icons.css">
         <link rel="stylesheet" href="../style/centralized.css">
@@ -22,7 +22,14 @@ $vendorHeaderLocation = count($vendorStalls) === 1
         <link rel="stylesheet" href="../style/vendors-manage-store.css?v=<?= filemtime(__DIR__ . '/../../../style/vendors-manage-store.css') ?>">
         <link rel="icon" type="image/png" href="../assets/main/GreenDash_CIRCLE.png">
     </head>
-    <body class="vendor-page" data-page="manage-store">
+    <body class="vendor-page"
+          data-page="manage-store"
+          data-stall-id="<?= (int) $stall['id'] ?>"
+          data-stall-name="<?= htmlspecialchars($stall['name']) ?>"
+          data-stall-location="<?= htmlspecialchars($stall['location'] ?? '') ?>"
+          data-stall-image="<?= htmlspecialchars($stall['image_path'] ?? '') ?>"
+          data-stall-hours="<?= htmlspecialchars($stallHoursText) ?>"
+          data-stall-open="<?= $stall['is_open'] ? '1' : '0' ?>">
         <header>
             <div class="main-header">
                 <img id="logo" src="../assets/main/GreenDash_LOGO.png" alt="GreenDash Logo">

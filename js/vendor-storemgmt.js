@@ -1,749 +1,732 @@
-// HELPERS
-const byId = id => document.getElementById(id);
+// js/vendor-storemgmt.js — real backend wiring for manage-store.php
 
-// create an element; text is set with textContent so user input is never parsed as HTML
-function elem(tag, className, text) {
-    const node = document.createElement(tag);
-    if (className) node.className = className;
-    if (text !== undefined) node.textContent = text;
-    return node;
-}
+(function () {
+    if (document.body.dataset.page !== 'manage-store') return;
 
-const peso = n => '\u20B1' + Number(n).toLocaleString('en-PH', { maximumFractionDigits: 2 });
+    const SCRIPT_BASE = new URL('../', document.currentScript.src);
+    const stallId = Number(document.body.dataset.stallId || 0);
+    if (!stallId) return;
 
-const byText = (a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' });
+    // ---- STATE ---------------------------------------------------------
+    const state = {
+        categories: [],
+        items: [],
+        open: document.body.dataset.stallOpen === '1',
+        selectedCategoryId: null,
+        csrfToken: null,
+        categorySortAsc: true,
+        itemSortIndex: 0,
+        editingCategory: null,
+        editingItem: null,
+        pendingPhoto: null,
+        pendingAvailable: true,
+        editingOptionGroups: [],
+        optionCsrfToken: null,
+    };
 
-// CLASSES 
-// used as temporary values for display only
-class Category {
-    constructor(id, name) {
-        this.id = id;
-        this.name = name;
-    }
-}
-
-class MenuItem {
-    constructor({
-        id, name, price, description = '', categoryIds = [], photo = null, available = true,
-        databaseProductId = null, optionGroups = []
-    }) {
-        this.id = id;
-        this.name = name;
-        this.price = price;
-        this.description = description;
-        this.categoryIds = categoryIds;
-        this.photo = photo;           // image URL or data: URL, null = no photo
-        this.available = available;
-        this.databaseProductId = databaseProductId;
-        this.optionGroups = optionGroups;
-    }
-}
-
-class Store {
-    constructor({ key, name, location, address, hours, logo, open }) {
-        this.key = key;
-        this.name = name;
-        this.location = location;
-        this.address = address;
-        this.hours = hours;
-        this.logo = logo;
-        this.open = open;
-        this.categories = [];
-        this.items = [];
-        this._nextId = 1;
-    }
-
-    newId() { return this._nextId++; }
-
-    addCategory(name) {
-        const cat = new Category(this.newId(), name);
-        this.categories.push(cat);
-        return cat;
-    }
-
-    addItem(fields) {
-        const item = new MenuItem({ id: this.newId(), ...fields });
-        this.items.push(item);
-        return item;
-    }
-
-    categoryNameTaken(name, exceptId = null) {
-        return this.categories.some(c => c.id !== exceptId && c.name.toLowerCase() === name.toLowerCase());
-    }
-
-    itemsIn(categoryId) {
-        return this.items.filter(i => i.categoryIds.includes(categoryId));
-    }
-
-    // items only in this category are also deleted
-    deleteCategory(id) {
-        this.categories = this.categories.filter(c => c.id !== id);
-        this.items.forEach(i => { i.categoryIds = i.categoryIds.filter(cid => cid !== id); });
-        this.items = this.items.filter(i => i.categoryIds.length > 0);
-    }
-
-    deleteItem(id) {
-        this.items = this.items.filter(i => i.id !== id);
-    }
-}
-
-function buildStores() {
-    // STARBUCKS
-    const sbux = new Store({
-        key: 'starbucks', name: 'Starbucks', location: 'Green Court',
-        address: 'Green Court (Fidel A. Reyes Street)', hours: '9:00 AM - 11:00 PM',
-        logo: '../../assets/stalls/starbucks.png', open: true
-    });
-    const popular = sbux.addCategory('Popular');
-    const drinks  = sbux.addCategory('Featured Drinks');
-    const food    = sbux.addCategory('Featured Food');
-    sbux.addItem({ name: 'Java Chip Frappuccino', price: 230, categoryIds: [popular.id, drinks.id],
-        photo: '../../assets/starbucksMenu/javachip.png',
-        description: 'Mocha sauce and Frappuccino chips blended with coffee and milk, finished with whipped cream.' });
-    sbux.addItem({ name: 'Caramel Macchiato', price: 215, categoryIds: [popular.id, drinks.id],
-        description: 'Freshly steamed milk with vanilla-flavored syrup, marked with espresso and caramel drizzle.' });
-    sbux.addItem({ name: 'Pure Matcha Latte', price: 225, categoryIds: [popular.id, drinks.id],
-        description: 'Smooth matcha green tea blended with steamed milk.' });
-    sbux.addItem({ name: 'Butter Croissant', price: 120, categoryIds: [food.id],
-        description: 'Flaky, buttery croissant, served warm.' });
-
-    // POTATO CORNER
-    const potcor = new Store({
-        key: 'potatocorner', name: 'Potato Corner', location: 'Bloemen',
-        address: 'Bloemen', hours: '9:00 AM - 8:00 PM',
-        logo: '../../assets/stalls/potcor.png', open: false
-    });
-    const pPopular = potcor.addCategory('Popular');
-    const fries    = potcor.addCategory('Fries');
-    potcor.addItem({ name: 'Cheese Fries', price: 75, categoryIds: [pPopular.id, fries.id],
-        description: 'Crispy fries dusted with cheese powder.' });
-    potcor.addItem({ name: 'BBQ Fries', price: 95, categoryIds: [fries.id],
-        description: 'Crispy fries with a smoky barbecue flavor.' });
-    potcor.addItem({ name: 'Sour Cream Fries', price: 55, categoryIds: [pPopular.id, fries.id],
-        description: 'Crispy fries with tangy sour cream seasoning.' });
-
-    return { [sbux.key]: sbux, [potcor.key]: potcor };
-}
-
-const STORES = buildStores();
-
-// MANAGE STORE PAGE
-const Modal = {
-    _returnFocus: null,
-    open(id) {
-        this._returnFocus = document.activeElement;
-        const modal = byId(id);
-        modal.classList.add('open');
-        const first = modal.querySelector('input:not([type=file]):not([type=checkbox]), textarea');
-        if (first) first.focus();
-    },
-    close(id) {
-        byId(id).classList.remove('open');
-        if (this._returnFocus && document.contains(this._returnFocus)) this._returnFocus.focus();
-    },
-    closeAll() {
-        document.querySelectorAll('.vmodal.open').forEach(m => this.close(m.id));
-    }
-};
-
-function normalizeProductName(name) {
-    return String(name).trim().toLocaleLowerCase();
-}
-
-function vendorProductImageUrl(path) {
-    if (!path) return null;
-    if (/^(https?:|data:|\/)/i.test(path)) return path;
-    return new URL(`../../../${path.replace(/^(\.\.\/)+/, '')}`, window.location.href).href;
-}
-
-async function loadStoreProductOptions(store) {
-    const endpoint = new URL('../../../controller-vendor/product-options.php', window.location.href);
-    endpoint.searchParams.set('store', store.name);
-    const response = await fetch(endpoint, {credentials: 'same-origin', cache: 'no-store'});
-    let result;
-    try {
-        result = await response.json();
-    } catch (error) {
-        throw new Error('The server returned an unexpected response while loading menu customizations.');
-    }
-    if (!response.ok || result.success !== true || !Array.isArray(result.products)) {
-        throw new Error(result.message || 'Unable to load menu customizations.');
-    }
-    store.name = result.stall.name;
-    store.location = result.stall.location;
-    store.address = result.stall.location;
-    store.categories = [];
-    store.items = [];
-    store._nextId = 1;
-    const categoriesByName = new Map();
-    result.products.forEach(product => {
-        const categoryName = product.category || 'Uncategorized';
-        let category = categoriesByName.get(normalizeProductName(categoryName));
-        if (!category) {
-            category = store.addCategory(categoryName);
-            categoriesByName.set(normalizeProductName(categoryName), category);
-        }
-        store.addItem({
-            databaseProductId: Number(product.id),
-            optionGroups: Array.isArray(product.optionGroups) ? product.optionGroups : [],
-            name: product.name,
-            price: Number(product.price),
-            description: product.description || '',
-            categoryIds: [category.id],
-            photo: vendorProductImageUrl(product.image_path),
-            available: Boolean(Number(product.is_available)),
-        });
-    });
-    return result.csrfToken;
-}
-
-async function initManageStorePage() {
-    const params = new URLSearchParams(window.location.search);
-    const store = STORES[params.get('store')] || STORES.starbucks;
-    let optionCsrfToken = null;
-    let optionLoadError = '';
-    try {
-        optionCsrfToken = await loadStoreProductOptions(store);
-    } catch (error) {
-        optionLoadError = error.message || 'Unable to load menu customizations.';
-        console.error('Unable to load product customizations.', error);
-        store.categories = [];
-        store.items = [];
-        store._nextId = 1;
-    }
-
-    // STATE
-    let selectedCategoryId = store.categories.length ? store.categories[0].id : null;
-    let categorySortAsc = true;
     const ITEM_SORTS = [
         { key: 'name-asc',   label: 'name (A to Z)',      icon: 'bi-sort-alpha-down',   fn: (a, b) => byText(a.name, b.name) },
         { key: 'name-desc',  label: 'name (Z to A)',      icon: 'bi-sort-alpha-up',     fn: (a, b) => byText(b.name, a.name) },
         { key: 'price-asc',  label: 'price (low to high)', icon: 'bi-sort-numeric-down', fn: (a, b) => a.price - b.price },
-        { key: 'price-desc', label: 'price (high to low)', icon: 'bi-sort-numeric-up',   fn: (a, b) => b.price - a.price }
+        { key: 'price-desc', label: 'price (high to low)', icon: 'bi-sort-numeric-up',   fn: (a, b) => b.price - a.price },
     ];
-    let itemSortIndex = 0;
 
-    // ELEMENTS
-    const statusPill = byId('storeStatus');
-    const toggleOpenBtn = byId('toggleOpenBtn');
-    const categoryList = byId('categoryList');
-    const categorySearch = byId('categorySearch');
-    const categorySortBtn = byId('categorySort');
-    const addCategoryBtn = byId('addCategoryBtn');
-    const itemList = byId('itemList');
-    const itemSearch = byId('itemSearch');
-    const itemSortBtn = byId('itemSort');
-    const itemsNote = byId('itemsNote');
-    const addItemBtn = byId('addItemBtn');
+    // ---- ELEMENT HELPERS -----------------------------------------------
+    const byId = id => document.getElementById(id);
 
-    // HEADER
-    document.title = 'GreenDash - ' + store.name + ' (' + store.location + ')';
-    byId('storeLogo').src = store.logo;
-    byId('storeLogo').alt = store.name + ' logo';
-    byId('storeName').textContent = store.name;
-    byId('storeAddress').textContent = store.address;
-    byId('storeHours').textContent = store.hours;
-
-    function renderStatus() {
-        statusPill.textContent = store.open ? 'OPEN' : 'CLOSED';
-        statusPill.className = 'status ' + (store.open ? 'open' : 'closed');
-        toggleOpenBtn.textContent = store.open ? 'Mark as closed' : 'Mark as open';
-        toggleOpenBtn.setAttribute('aria-pressed', String(!store.open));
+    function elem(tag, className, text) {
+        const node = document.createElement(tag);
+        if (className) node.className = className;
+        if (text !== undefined) node.textContent = text;
+        return node;
     }
-    toggleOpenBtn.addEventListener('click', () => {
-        store.open = !store.open;
+
+    const byText = (a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' });
+    const peso = n => '\u20B1' + Number(n).toLocaleString('en-PH', { maximumFractionDigits: 2 });
+
+    // ---- MODAL HELPERS -------------------------------------------------
+    const Modal = {
+        _returnFocus: null,
+        open(id) {
+            this._returnFocus = document.activeElement;
+            const modal = byId(id);
+            modal.classList.add('open');
+            const first = modal.querySelector('input:not([type=file]):not([type=checkbox]), textarea');
+            if (first) first.focus();
+        },
+        close(id) {
+            byId(id).classList.remove('open');
+            if (this._returnFocus && document.contains(this._returnFocus)) this._returnFocus.focus();
+        },
+        closeAll() {
+            document.querySelectorAll('.vmodal.open').forEach(m => this.close(m.id));
+        },
+    };
+
+    // ---- API HELPERS ---------------------------------------------------
+    async function menuRequest(body) {
+        const res = await fetch(new URL('controller-vendor/menu.php', SCRIPT_BASE), {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({...body, stallId, csrfToken: state.csrfToken}),
+        });
+        let data;
+        try {
+            data = await res.json();
+        } catch {
+            throw new Error('The server returned an unexpected response.');
+        }
+        if (!res.ok || !data.success) throw new Error(data.message || 'Request failed.');
+        return data;
+    }
+
+    async function uploadPhoto(file) {
+        const form = new FormData();
+        form.append('image', file);
+        form.append('csrfToken', state.csrfToken);
+        const res = await fetch(new URL('controller-vendor/upload-image.php', SCRIPT_BASE), {
+            method: 'POST',
+            credentials: 'same-origin',
+            body: form,
+        });
+        let data;
+        try {
+            data = await res.json();
+        } catch {
+            throw new Error('The server returned an unexpected response while uploading.');
+        }
+        if (!res.ok || !data.success) throw new Error(data.message || 'Upload failed.');
+        return data.path;
+    }
+
+    async function saveOptionGroups(productId, groups) {
+        if (!productId) return;
+        const res = await fetch(new URL('controller-vendor/product-options.php', SCRIPT_BASE), {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({csrfToken: state.csrfToken, productId, groups}),
+        });
+        let data;
+        try {
+            data = await res.json();
+        } catch {
+            throw new Error('The server returned an unexpected response while saving customizations.');
+        }
+        if (!res.ok || data.success !== true) throw new Error(data.message || 'Unable to save product customizations.');
+        return data.groups;
+    }
+
+    // ---- DISPLAY HELPERS -----------------------------------------------
+    function productImageUrl(path) {
+        if (!path) return null;
+        if (/^(https?:|data:|\/)/i.test(path)) return path;
+        return new URL(path, SCRIPT_BASE).href;
+    }
+
+    function toItem(p) {
+        return {
+            databaseProductId: Number(p.id),
+            name: p.name,
+            price: Number(p.price),
+            description: p.description || '',
+            categoryId: Number(p.category_id),
+            photo: p.image_path || null,
+            available: Boolean(Number(p.is_available)),
+            optionGroups: p.optionGroups || [],
+        };
+    }
+
+    // ---- BOOT ----------------------------------------------------------
+    async function load() {
+        try {
+            const res = await fetch(new URL('controller-vendor/menu.php?stallId=' + stallId, SCRIPT_BASE), {
+                credentials: 'same-origin',
+                cache: 'no-store',
+            });
+            const data = await res.json();
+            if (!res.ok || !data.success) throw new Error(data.message || 'Unable to load menu.');
+            state.csrfToken = data.csrfToken;
+            state.categories = data.categories.map(c => ({ id: Number(c.id), name: c.name }));
+            state.items = data.products.map(toItem);
+            state.selectedCategoryId = state.categories.length ? state.categories[0].id : null;
+            initUi();
+        } catch (err) {
+            const note = document.getElementById('itemsNote');
+            if (note) note.textContent = 'Unable to load the menu: ' + err.message;
+        }
+    }
+
+    // ---- MAIN UI WIRING ------------------------------------------------
+    function initUi() {
+        // HEADER ---------------------------------------------------------
+        const storeLogo = byId('storeLogo');
+        const storeName = byId('storeName');
+        const storeAddress = byId('storeAddress');
+        const storeHours = byId('storeHours');
+        const statusPill = byId('storeStatus');
+        const toggleOpenBtn = byId('toggleOpenBtn');
+
+        const imagePath = document.body.dataset.stallImage;
+        if (imagePath) storeLogo.src = productImageUrl(imagePath) || '';
+        storeLogo.alt = document.body.dataset.stallName + ' logo';
+        storeName.textContent = document.body.dataset.stallName;
+        storeAddress.textContent = document.body.dataset.stallLocation || '—';
+        storeHours.textContent = document.body.dataset.stallHours || 'Hours not set';
+
+        function renderStatus() {
+            statusPill.textContent = state.open ? 'OPEN' : 'CLOSED';
+            statusPill.className = 'status ' + (state.open ? 'open' : 'closed');
+            toggleOpenBtn.textContent = state.open ? 'Mark as closed' : 'Mark as open';
+            toggleOpenBtn.setAttribute('aria-pressed', String(!state.open));
+        }
         renderStatus();
-    });
 
-    // CATEGORIES
-    function renderCategories() {
-        addCategoryBtn.disabled = Boolean(optionLoadError);
-        const q = categorySearch.value.trim().toLowerCase();
-        let list = store.categories.filter(c => c.name.toLowerCase().includes(q));
-        list = [...list].sort((a, b) => categorySortAsc ? byText(a.name, b.name) : byText(b.name, a.name));
+        toggleOpenBtn.addEventListener('click', async () => {
+            const desired = !state.open;
+            toggleOpenBtn.disabled = true;
+            try {
+                await menuRequest({action: 'stall_toggle', isOpen: desired});
+                state.open = desired;
+                renderStatus();
+            } catch (err) {
+                alert(err.message);
+            } finally {
+                toggleOpenBtn.disabled = false;
+            }
+        });
 
-        categorySortBtn.innerHTML = '';
-        categorySortBtn.appendChild(elem('i', 'bi ' + (categorySortAsc ? 'bi-sort-alpha-down' : 'bi-sort-alpha-up')));
-        categorySortBtn.title = 'Sorted by name (' + (categorySortAsc ? 'A to Z' : 'Z to A') + ')';
+        // CATEGORIES -----------------------------------------------------
+        const categoryList = byId('categoryList');
+        const categorySearch = byId('categorySearch');
+        const categorySortBtn = byId('categorySort');
+        const addCategoryBtn = byId('addCategoryBtn');
 
-        categoryList.replaceChildren();
+        function renderCategories() {
+            const q = categorySearch.value.trim().toLowerCase();
+            let list = state.categories.filter(c => c.name.toLowerCase().includes(q));
+            list = [...list].sort((a, b) =>
+                state.categorySortAsc ? byText(a.name, b.name) : byText(b.name, a.name));
 
-        if (list.length === 0) {
-            categoryList.appendChild(elem('li', 'empty-note',
-                store.categories.length === 0 ? 'No categories yet. Add one to get started.' : 'No categories match your search.'));
-            return;
+            categorySortBtn.innerHTML = '';
+            categorySortBtn.appendChild(elem('i', 'bi ' + (state.categorySortAsc ? 'bi-sort-alpha-down' : 'bi-sort-alpha-up')));
+            categorySortBtn.title = 'Sorted by name (' + (state.categorySortAsc ? 'A to Z' : 'Z to A') + ')';
+
+            categoryList.replaceChildren();
+
+            if (list.length === 0) {
+                categoryList.appendChild(elem('li', 'empty-note',
+                    state.categories.length === 0
+                        ? 'No categories yet. Add one to get started.'
+                        : 'No categories match your search.'));
+                return;
+            }
+
+            list.forEach(cat => {
+                const selected = cat.id === state.selectedCategoryId;
+                const li = elem('li', 'list-row' + (selected ? ' selected' : ''));
+                const main = elem('button', 'row-main');
+                main.type = 'button';
+                main.setAttribute('aria-pressed', String(selected));
+                main.appendChild(elem('span', 'row-name', cat.name));
+                main.addEventListener('click', () => {
+                    state.selectedCategoryId = cat.id;
+                    renderCategories();
+                    renderItems();
+                });
+                const edit = elem('button', 'row-edit');
+                edit.type = 'button';
+                edit.setAttribute('aria-label', 'Edit category ' + cat.name);
+                edit.appendChild(elem('i', 'bi bi-pencil'));
+                edit.addEventListener('click', () => openCategoryModal(cat));
+                li.append(main, edit);
+                categoryList.appendChild(li);
+            });
         }
 
-        list.forEach(cat => {
-            const selected = cat.id === selectedCategoryId;
-            const li = elem('li', 'list-row' + (selected ? ' selected' : ''));
+        categorySearch.addEventListener('input', renderCategories);
+        categorySortBtn.addEventListener('click', () => {
+            state.categorySortAsc = !state.categorySortAsc;
+            renderCategories();
+        });
 
-            const main = elem('button', 'row-main');
-            main.type = 'button';
-            main.setAttribute('aria-pressed', String(selected));
-            main.appendChild(elem('span', 'row-name', cat.name));
-            main.addEventListener('click', () => {
-                selectedCategoryId = cat.id;
+        // ITEMS ----------------------------------------------------------
+        const itemList = byId('itemList');
+        const itemSearch = byId('itemSearch');
+        const itemSortBtn = byId('itemSort');
+        const itemsNote = byId('itemsNote');
+        const addItemBtn = byId('addItemBtn');
+
+        function itemsIn(categoryId) {
+            return state.items.filter(i => i.categoryId === categoryId);
+        }
+
+        function renderItems() {
+            const sort = ITEM_SORTS[state.itemSortIndex];
+            const cat = state.categories.find(c => c.id === state.selectedCategoryId);
+
+            itemSortBtn.innerHTML = '';
+            itemSortBtn.appendChild(elem('i', 'bi ' + sort.icon));
+            itemSortBtn.title = 'Sorted by ' + sort.label;
+            addItemBtn.disabled = !cat;
+            itemList.replaceChildren();
+
+            if (!cat) {
+                itemsNote.textContent = 'Add a category first, then you can add items to it.';
+                return;
+            }
+            itemsNote.textContent = 'Showing items under ' + cat.name + ' \u2022 sorted by ' + sort.label;
+
+            const q = itemSearch.value.trim().toLowerCase();
+            const list = itemsIn(cat.id).filter(i => i.name.toLowerCase().includes(q)).sort(sort.fn);
+
+            if (list.length === 0) {
+                itemList.appendChild(elem('li', 'empty-note',
+                    q ? 'No items match your search.' : 'No items in this category yet.'));
+                return;
+            }
+
+            list.forEach(item => {
+                const li = elem('li', 'list-row');
+                const main = elem('button', 'row-main item-main');
+                main.type = 'button';
+                main.setAttribute('aria-label', 'Edit ' + item.name);
+                const text = elem('span', 'row-text');
+                text.appendChild(elem('span', 'row-name', item.name));
+                text.appendChild(elem('span', 'row-meta', peso(item.price)));
+                if (!item.available) text.appendChild(elem('span', 'tag-unavailable', 'Unavailable'));
+                main.append(text, elem('i', 'bi bi-pencil row-icon'));
+                main.addEventListener('click', () => openItemModal(item));
+                li.appendChild(main);
+                itemList.appendChild(li);
+            });
+        }
+
+        itemSearch.addEventListener('input', renderItems);
+        itemSortBtn.addEventListener('click', () => {
+            state.itemSortIndex = (state.itemSortIndex + 1) % ITEM_SORTS.length;
+            renderItems();
+        });
+
+        // CATEGORY MODAL -------------------------------------------------
+        const categoryForm = byId('categoryForm');
+        const categoryNameInput = byId('categoryName');
+        const categoryError = byId('categoryError');
+        const deleteCategoryBtn = byId('deleteCategoryBtn');
+
+        function openCategoryModal(cat = null) {
+            state.editingCategory = cat;
+            categoryError.textContent = '';
+            categoryNameInput.value = cat ? cat.name : '';
+            byId('categoryModalTitle').textContent = cat ? 'Edit category' : 'Add category';
+            deleteCategoryBtn.hidden = !cat;
+            Modal.open('category-modal');
+        }
+
+        addCategoryBtn.addEventListener('click', () => openCategoryModal());
+
+        categoryForm.addEventListener('submit', async e => {
+            e.preventDefault();
+            const name = categoryNameInput.value.trim();
+            if (!name) { categoryError.textContent = 'Please enter a category name.'; return; }
+            if (state.categories.some(c =>
+                c.name.toLowerCase() === name.toLowerCase() &&
+                (!state.editingCategory || c.id !== state.editingCategory.id))) {
+                categoryError.textContent = 'You already have a category with that name.';
+                return;
+            }
+            const saveBtn = categoryForm.querySelector('button[type=submit]');
+            saveBtn.disabled = true;
+            try {
+                if (state.editingCategory) {
+                    await menuRequest({action: 'category_rename', categoryId: state.editingCategory.id, name});
+                    state.editingCategory.name = name;
+                } else {
+                    const data = await menuRequest({action: 'category_add', name});
+                    state.categories.push({id: data.category.id, name: data.category.name});
+                    state.selectedCategoryId = data.category.id;
+                }
+                Modal.close('category-modal');
                 renderCategories();
                 renderItems();
-            });
-
-            const edit = elem('button', 'row-edit');
-            edit.type = 'button';
-            edit.setAttribute('aria-label', 'Edit category ' + cat.name);
-            edit.appendChild(elem('i', 'bi bi-pencil'));
-            edit.addEventListener('click', () => openCategoryModal(cat));
-
-            li.append(main, edit);
-            categoryList.appendChild(li);
+            } catch (err) {
+                categoryError.textContent = err.message;
+            } finally {
+                saveBtn.disabled = false;
+            }
         });
-    }
 
-    categorySearch.addEventListener('input', renderCategories);
-    categorySortBtn.addEventListener('click', () => {
-        categorySortAsc = !categorySortAsc;
-        renderCategories();
-    });
-
-    // ITEMS
-    function renderItems() {
-        const sort = ITEM_SORTS[itemSortIndex];
-        const cat = store.categories.find(c => c.id === selectedCategoryId);
-
-        itemSortBtn.innerHTML = '';
-        itemSortBtn.appendChild(elem('i', 'bi ' + sort.icon));
-        itemSortBtn.title = 'Sorted by ' + sort.label;
-        addItemBtn.disabled = !cat || Boolean(optionLoadError);
-        itemList.replaceChildren();
-
-        if (!cat) {
-            itemsNote.textContent = optionLoadError || 'Add a category first, then you can add items to it.';
-            return;
-        }
-        itemsNote.textContent = 'Showing items under ' + cat.name + ' \u2022 sorted by ' + sort.label;
-
-        const q = itemSearch.value.trim().toLowerCase();
-        const list = store.itemsIn(cat.id)
-            .filter(i => i.name.toLowerCase().includes(q))
-            .sort(sort.fn);
-
-        if (list.length === 0) {
-            itemList.appendChild(elem('li', 'empty-note',
-                q ? 'No items match your search.' : 'No items in this category yet.'));
-            return;
-        }
-
-        list.forEach(item => {
-            const li = elem('li', 'list-row');
-            const main = elem('button', 'row-main item-main');
-            main.type = 'button';
-            main.setAttribute('aria-label', 'Edit ' + item.name);
-
-            const text = elem('span', 'row-text');
-            text.appendChild(elem('span', 'row-name', item.name));
-            text.appendChild(elem('span', 'row-meta', peso(item.price)));
-            if (!item.available) text.appendChild(elem('span', 'tag-unavailable', 'Unavailable'));
-
-            main.append(text, elem('i', 'bi bi-pencil row-icon'));
-            main.addEventListener('click', () => openItemModal(item));
-
-            li.appendChild(main);
-            itemList.appendChild(li);
+        deleteCategoryBtn.addEventListener('click', async () => {
+            if (!state.editingCategory) return;
+            const only = itemsIn(state.editingCategory.id).length;
+            const warn = only ? ` ${only} item(s) in it must be moved or deleted first.` : '';
+            if (!confirm(`Delete the category "${state.editingCategory.name}"?${warn}`)) return;
+            deleteCategoryBtn.disabled = true;
+            try {
+                await menuRequest({action: 'category_delete', categoryId: state.editingCategory.id});
+                state.categories = state.categories.filter(c => c.id !== state.editingCategory.id);
+                if (state.selectedCategoryId === state.editingCategory.id) {
+                    state.selectedCategoryId = state.categories.length ? state.categories[0].id : null;
+                }
+                Modal.close('category-modal');
+                renderCategories();
+                renderItems();
+            } catch (err) {
+                categoryError.textContent = err.message;
+            } finally {
+                deleteCategoryBtn.disabled = false;
+            }
         });
-    }
 
-    itemSearch.addEventListener('input', renderItems);
-    itemSortBtn.addEventListener('click', () => {
-        itemSortIndex = (itemSortIndex + 1) % ITEM_SORTS.length;
-        renderItems();
-    });
+        // ITEM MODAL -----------------------------------------------------
+        const itemForm = byId('itemForm');
+        const itemNameInput = byId('itemName');
+        const itemPriceInput = byId('itemPrice');
+        const itemDescInput = byId('itemDescription');
+        const itemCats = byId('itemCategoryChecks');
+        const itemError = byId('itemError');
+        const photoBox = byId('itemPhotoPreview');
+        const photoInput = byId('itemPhotoInput');
+        const photoBtn = byId('itemPhotoBtn');
+        const removePhotoBtn = byId('itemPhotoRemove');
+        const deleteItemBtn = byId('deleteItemBtn');
+        const availBtn = byId('toggleAvailableBtn');
+        const optionGroupsEditor = byId('productOptionGroups');
+        const optionGroupsStatus = byId('customizationEditorStatus');
+        const addOptionGroupBtn = byId('addOptionGroupBtn');
+        const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
 
-    // CATEGORY MODAL
-    const categoryForm = byId('categoryForm');
-    const categoryNameInput = byId('categoryName');
-    const categoryError = byId('categoryError');
-    const deleteCategoryBtn = byId('deleteCategoryBtn');
-    let editingCategory = null;
-
-    function openCategoryModal(cat = null) {
-        editingCategory = cat;
-        categoryError.textContent = '';
-        categoryNameInput.value = cat ? cat.name : '';
-        byId('categoryModalTitle').textContent = cat ? 'Edit category' : 'Add category';
-        deleteCategoryBtn.hidden = !cat;
-        Modal.open('category-modal');
-    }
-
-    byId('addCategoryBtn').addEventListener('click', () => openCategoryModal());
-
-    categoryForm.addEventListener('submit', e => {
-        e.preventDefault();
-        const name = categoryNameInput.value.trim();
-        if (!name) { categoryError.textContent = 'Please enter a category name.'; return; }
-        if (store.categoryNameTaken(name, editingCategory ? editingCategory.id : null)) {
-            categoryError.textContent = 'You already have a category with that name.';
-            return;
-        }
-        if (editingCategory) {
-            editingCategory.name = name;
-        } else {
-            selectedCategoryId = store.addCategory(name).id;   // jump to the new category
-        }
-        Modal.close('category-modal');
-        renderCategories();
-        renderItems();
-    });
-
-    deleteCategoryBtn.addEventListener('click', () => {
-        if (!editingCategory) return;
-        const only = store.itemsIn(editingCategory.id).filter(i => i.categoryIds.length === 1).length;
-        const warn = only ? ' ' + only + ' item(s) that only belong to it will be deleted too.' : '';
-        if (!window.confirm('Delete the category "' + editingCategory.name + '"?' + warn)) return;
-
-        store.deleteCategory(editingCategory.id);
-        if (selectedCategoryId === editingCategory.id) {
-            selectedCategoryId = store.categories.length ? store.categories[0].id : null;
-        }
-        Modal.close('category-modal');
-        renderCategories();
-        renderItems();
-    });
-
-    // ITEM MODAL
-    const itemForm = byId('itemForm');
-    const itemNameInput = byId('itemName');
-    const itemPriceInput = byId('itemPrice');
-    const itemDescInput = byId('itemDescription');
-    const itemCats = byId('itemCategoryChecks');
-    const itemError = byId('itemError');
-    const photoBox = byId('itemPhotoPreview');
-    const photoInput = byId('itemPhotoInput');
-    const photoBtn = byId('itemPhotoBtn');
-    const removePhotoBtn = byId('itemPhotoRemove');
-    const deleteItemBtn = byId('deleteItemBtn');
-    const availBtn = byId('toggleAvailableBtn');
-    const optionGroupsEditor = byId('productOptionGroups');
-    const optionGroupsStatus = byId('customizationEditorStatus');
-    const addOptionGroupBtn = byId('addOptionGroupBtn');
-
-    const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
-    let editingItem = null;
-    let pendingPhoto = null;
-    let pendingAvailable = true;
-    let editingOptionGroups = [];
-
-    // ITEM CUSTOMIZATIONS (PLEASE DONT DELETE): build each section and choice row from the item's saved option data.
-    function renderOptionGroups() {
-        optionGroupsEditor.replaceChildren();
-        if (optionLoadError) {
-            optionGroupsStatus.textContent = optionLoadError;
-            addOptionGroupBtn.disabled = true;
-            return;
-        }
-        if (!editingItem?.databaseProductId) {
-            optionGroupsStatus.textContent = editingItem
-                ? 'This demo item does not match a product in your database, so its customizations cannot be saved.'
-                : 'Save customizations for an existing database product by editing it.';
-            addOptionGroupBtn.disabled = true;
-            return;
+        function renderPhoto() {
+            photoBox.replaceChildren();
+            if (state.pendingPhoto) {
+                const img = elem('img');
+                img.src = productImageUrl(state.pendingPhoto) || '';
+                img.alt = itemNameInput.value.trim() || 'Item photo';
+                photoBox.appendChild(img);
+            } else {
+                photoBox.appendChild(elem('i', 'bi bi-image'));
+            }
+            photoBtn.textContent = state.pendingPhoto ? 'Change photo' : 'Upload photo';
+            removePhotoBtn.hidden = !state.pendingPhoto;
         }
 
-        optionGroupsStatus.textContent = '';
-        addOptionGroupBtn.disabled = false;
-        editingOptionGroups.forEach((group, groupIndex) => {
-            const groupCard = elem('section', 'option-group-editor');
-            const groupHead = elem('div', 'option-group-editor-head');
-            // Give the section name three quarters of the row and place Remove section on the right.
-            groupHead.style.display = 'grid';
-            groupHead.style.gridTemplateColumns = 'minmax(0, 3fr) minmax(0, 1fr)';
-            groupHead.style.alignItems = 'center';
-            groupHead.style.gap = '6px';
+        function renderAvailability() {
+            availBtn.textContent = state.pendingAvailable ? 'Mark as unavailable' : 'Mark as available';
+        }
 
-            const nameInput = elem('input', 'form-control');
-            nameInput.style.width = '100%';
-            nameInput.type = 'text';
-            nameInput.maxLength = 100;
-            nameInput.placeholder = 'Section name (e.g. Size)';
-            nameInput.value = group.name;
-            nameInput.setAttribute('aria-label', 'Customization section name');
-            nameInput.addEventListener('input', () => { group.name = nameInput.value; });
+        function renderOptionGroups() {
+            optionGroupsEditor.replaceChildren();
+            if (!state.editingItem?.databaseProductId) {
+                optionGroupsStatus.textContent = 'Save the item once before adding customizations.';
+                addOptionGroupBtn.disabled = true;
+                return;
+            }
+            optionGroupsStatus.textContent = '';
+            addOptionGroupBtn.disabled = false;
 
-            const deleteGroupButton = elem('button', 'vendor-btn danger small', 'Remove section');
-            deleteGroupButton.type = 'button';
-            deleteGroupButton.style.width = '100%';
-            deleteGroupButton.addEventListener('click', () => {
-                editingOptionGroups.splice(groupIndex, 1);
-                renderOptionGroups();
-            });
+            state.editingOptionGroups.forEach((group, groupIndex) => {
+                const groupCard = elem('section', 'option-group-editor');
+                const groupHead = elem('div', 'option-group-editor-head');
+                groupHead.style.display = 'grid';
+                groupHead.style.gridTemplateColumns = 'minmax(0, 3fr) minmax(0, 1fr)';
+                groupHead.style.alignItems = 'center';
+                groupHead.style.gap = '6px';
 
-            const requiredLabel = elem('label', 'option-required-toggle');
-            const requiredInput = elem('input');
-            requiredInput.type = 'checkbox';
-            requiredInput.checked = group.required;
-            requiredInput.addEventListener('change', () => { group.required = requiredInput.checked; });
-            requiredLabel.append(requiredInput, document.createTextNode(' Required'));
+                const nameInput = elem('input', 'form-control');
+                nameInput.style.width = '100%';
+                nameInput.type = 'text';
+                nameInput.maxLength = 100;
+                nameInput.placeholder = 'Section name (e.g. Size)';
+                nameInput.value = group.name;
+                nameInput.addEventListener('input', () => { group.name = nameInput.value; });
 
-            groupHead.append(nameInput, deleteGroupButton);
-            groupCard.append(groupHead, requiredLabel);
-
-            const choices = elem('div', 'option-choice-list');
-            group.choices.forEach((choice, choiceIndex) => {
-                const row = elem('div', 'option-choice-editor');
-                // choice name spans the row; price and remove share the next row equally.
-                row.style.display = 'grid';
-                row.style.gridTemplateColumns = 'minmax(0, 1fr)';
-                row.style.alignItems = 'center';
-                row.style.gap = '6px';
-
-                const deleteChoiceButton = elem('button', 'vendor-btn danger small', 'Remove choice');
-                deleteChoiceButton.type = 'button';
-                deleteChoiceButton.style.width = '100%';
-                deleteChoiceButton.addEventListener('click', () => {
-                    group.choices.splice(choiceIndex, 1);
+                const delGroup = elem('button', 'vendor-btn danger small', 'Remove section');
+                delGroup.type = 'button';
+                delGroup.style.width = '100%';
+                delGroup.addEventListener('click', () => {
+                    state.editingOptionGroups.splice(groupIndex, 1);
                     renderOptionGroups();
                 });
 
-                const choiceName = elem('input', 'form-control option-choice-name');
-                choiceName.style.width = '100%';
-                choiceName.type = 'text';
-                choiceName.maxLength = 100;
-                choiceName.placeholder = 'Choice name';
-                choiceName.value = choice.name;
-                choiceName.setAttribute('aria-label', 'Choice name');
-                choiceName.addEventListener('input', () => { choice.name = choiceName.value; });
+                const reqLabel = elem('label', 'option-required-toggle');
+                const reqInput = elem('input');
+                reqInput.type = 'checkbox';
+                reqInput.checked = group.required;
+                reqInput.addEventListener('change', () => { group.required = reqInput.checked; });
+                reqLabel.append(reqInput, document.createTextNode(' Required'));
 
-                const priceInput = elem('input', 'form-control option-choice-price');
-                priceInput.style.width = '100%';
-                priceInput.type = 'number';
-                priceInput.min = '0';
-                priceInput.max = '99999999.99';
-                priceInput.step = '0.01';
-                priceInput.inputMode = 'decimal';
-                priceInput.placeholder = 'Extra price';
-                priceInput.value = choice.extraPrice;
-                priceInput.setAttribute('aria-label', 'Extra price in pesos');
-                priceInput.addEventListener('input', () => { choice.extraPrice = priceInput.value; });
+                groupHead.append(nameInput, delGroup);
+                groupCard.append(groupHead, reqLabel);
 
-                const availableLabel = elem('label', 'option-available-toggle');
-                const availableInput = elem('input');
-                availableInput.type = 'checkbox';
-                availableInput.checked = choice.available !== false;
-                availableInput.addEventListener('change', () => { choice.available = availableInput.checked; });
-                availableLabel.append(availableInput, document.createTextNode(' Available'));
+                const choices = elem('div', 'option-choice-list');
+                group.choices.forEach((choice, choiceIndex) => {
+                    const row = elem('div', 'option-choice-editor');
+                    row.style.display = 'grid';
+                    row.style.gridTemplateColumns = 'minmax(0, 1fr)';
+                    row.style.alignItems = 'center';
+                    row.style.gap = '6px';
 
-                const priceRemoveRow = elem('div', 'option-choice-price-remove');
-                priceRemoveRow.style.display = 'grid';
-                priceRemoveRow.style.gridTemplateColumns = 'minmax(0, 1fr) minmax(0, 1fr)';
-                priceRemoveRow.style.alignItems = 'center';
-                priceRemoveRow.style.gap = '6px';
-                priceRemoveRow.append(priceInput, deleteChoiceButton);
+                    const delChoice = elem('button', 'vendor-btn danger small', 'Remove choice');
+                    delChoice.type = 'button';
+                    delChoice.style.width = '100%';
+                    delChoice.addEventListener('click', () => {
+                        group.choices.splice(choiceIndex, 1);
+                        renderOptionGroups();
+                    });
 
-                row.append(choiceName, priceRemoveRow, availableLabel);
-                choices.appendChild(row);
-            });
-            groupCard.appendChild(choices);
+                    const choiceName = elem('input', 'form-control option-choice-name');
+                    choiceName.style.width = '100%';
+                    choiceName.type = 'text';
+                    choiceName.maxLength = 100;
+                    choiceName.placeholder = 'Choice name';
+                    choiceName.value = choice.name;
+                    choiceName.addEventListener('input', () => { choice.name = choiceName.value; });
 
-            const addChoiceButton = elem('button', 'vendor-btn secondary small', 'Add choice');
-            addChoiceButton.type = 'button';
-            addChoiceButton.addEventListener('click', () => {
-                group.choices.push({
-                    optionId: null, name: '', extraPrice: '0.00', available: true,
+                    const priceInput = elem('input', 'form-control option-choice-price');
+                    priceInput.style.width = '100%';
+                    priceInput.type = 'number';
+                    priceInput.min = '0';
+                    priceInput.max = '99999999.99';
+                    priceInput.step = '0.01';
+                    priceInput.inputMode = 'decimal';
+                    priceInput.placeholder = 'Extra price';
+                    priceInput.value = choice.extraPrice;
+                    priceInput.addEventListener('input', () => { choice.extraPrice = priceInput.value; });
+
+                    const avLabel = elem('label', 'option-available-toggle');
+                    const avInput = elem('input');
+                    avInput.type = 'checkbox';
+                    avInput.checked = choice.available !== false;
+                    avInput.addEventListener('change', () => { choice.available = avInput.checked; });
+                    avLabel.append(avInput, document.createTextNode(' Available'));
+
+                    const priceRemoveRow = elem('div', 'option-choice-price-remove');
+                    priceRemoveRow.style.display = 'grid';
+                    priceRemoveRow.style.gridTemplateColumns = 'minmax(0, 1fr) minmax(0, 1fr)';
+                    priceRemoveRow.style.alignItems = 'center';
+                    priceRemoveRow.style.gap = '6px';
+                    priceRemoveRow.append(priceInput, delChoice);
+
+                    row.append(choiceName, priceRemoveRow, avLabel);
+                    choices.appendChild(row);
                 });
-                renderOptionGroups();
+                groupCard.appendChild(choices);
+
+                const addChoice = elem('button', 'vendor-btn secondary small', 'Add choice');
+                addChoice.type = 'button';
+                addChoice.addEventListener('click', () => {
+                    group.choices.push({optionId: null, name: '', extraPrice: '0.00', available: true});
+                    renderOptionGroups();
+                });
+                groupCard.appendChild(addChoice);
+                optionGroupsEditor.appendChild(groupCard);
             });
-            groupCard.appendChild(addChoiceButton);
-            optionGroupsEditor.appendChild(groupCard);
-        });
-    }
+        }
 
-    addOptionGroupBtn.addEventListener('click', () => {
-        editingOptionGroups.push({
-            groupId: null,
-            name: '',
-            required: true,
-            choices: [{optionId: null, name: '', extraPrice: '0.00', available: true}],
-        });
-        renderOptionGroups();
-    });
-
-    async function saveOptionGroups(item) {
-        if (!item.databaseProductId) return;
-        const response = await fetch(
-            new URL('../../../controller-vendor/product-options.php', window.location.href),
-            {
-                method: 'POST',
-                credentials: 'same-origin',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    csrfToken: optionCsrfToken,
-                    productId: item.databaseProductId,
-                    groups: editingOptionGroups,
-                }),
+        addOptionGroupBtn.addEventListener('click', () => {
+            if (!state.editingItem?.databaseProductId) {
+                optionGroupsStatus.textContent = 'Save the item once before adding customizations.';
+                return;
             }
-        );
-        let result;
-        try {
-            result = await response.json();
-        } catch (error) {
-            throw new Error('The server returned an unexpected response while saving customizations.');
-        }
-        if (!response.ok || result.success !== true || !Array.isArray(result.groups)) {
-            throw new Error(result.message || 'Unable to save product customizations.');
-        }
-        item.optionGroups = result.groups;
-        editingOptionGroups = result.groups.map(group => ({
-            ...group,
-            choices: group.choices.map(choice => ({...choice})),
-        }));
-    }
-
-    function renderPhoto() {
-        photoBox.replaceChildren();
-        if (pendingPhoto) {
-            const img = elem('img');
-            img.src = pendingPhoto;
-            img.alt = itemNameInput.value.trim() || 'Item photo';
-            photoBox.appendChild(img);
-        } else {
-            photoBox.appendChild(elem('i', 'bi bi-image'));
-        }
-        photoBtn.textContent = pendingPhoto ? 'Change photo' : 'Upload photo';
-        removePhotoBtn.hidden = !pendingPhoto;
-    }
-
-    function renderAvailability() {
-        availBtn.textContent = pendingAvailable ? 'Mark as unavailable' : 'Mark as available';
-    }
-
-    function openItemModal(item = null) {
-        editingItem = item;
-        itemForm.reset();
-        itemError.textContent = '';
-        photoInput.value = '';
-        pendingPhoto = item ? item.photo : null;
-        pendingAvailable = item ? item.available : true;
-
-        byId('itemModalTitle').textContent = item ? 'Edit item' : 'Add item';
-        itemNameInput.value = item ? item.name : '';
-        itemPriceInput.value = item ? item.price : '';
-        itemDescInput.value = item ? item.description : '';
-        editingOptionGroups = item
-            ? item.optionGroups.map(group => ({
-                ...group,
-                choices: group.choices.map(choice => ({...choice})),
-            }))
-            : [];
-
-        itemCats.replaceChildren();
-        store.categories.forEach(cat => {
-            const wrap = elem('div', 'form-check');
-            const box = elem('input', 'form-check-input');
-            box.type = 'checkbox';
-            box.id = 'item-cat-' + cat.id;
-            box.value = cat.id;
-            box.checked = item ? item.categoryIds.includes(cat.id) : cat.id === selectedCategoryId;
-            const label = elem('label', 'form-check-label', cat.name);
-            label.htmlFor = box.id;
-            wrap.append(box, label);
-            itemCats.appendChild(wrap);
+            state.editingOptionGroups.push({
+                groupId: null,
+                name: '',
+                required: true,
+                choices: [{optionId: null, name: '', extraPrice: '0.00', available: true}],
+            });
+            renderOptionGroups();
         });
 
-        deleteItemBtn.hidden = !item;
-        availBtn.hidden = !item;
-        renderAvailability();
-        renderPhoto();
-        renderOptionGroups();
-        Modal.open('item-modal');
-    }
-
-    addItemBtn.addEventListener('click', () => openItemModal());
-
-    photoBtn.addEventListener('click', () => photoInput.click());
-    removePhotoBtn.addEventListener('click', () => {
-        pendingPhoto = null;
-        photoInput.value = '';
-        renderPhoto();
-    });
-    photoInput.addEventListener('change', () => {
-        const file = photoInput.files[0];
-        if (!file) return;
-        if (!file.type.startsWith('image/')) {
-            itemError.textContent = 'Please choose an image file (PNG, JPG, WEBP...).';
+        function openItemModal(item = null) {
+            state.editingItem = item;
+            itemForm.reset();
+            itemError.textContent = '';
             photoInput.value = '';
-            return;
+            state.pendingPhoto = item ? item.photo : null;
+            state.pendingAvailable = item ? item.available : true;
+            state.editingOptionGroups = item
+                ? item.optionGroups.map(g => ({...g, choices: g.choices.map(c => ({...c}))}))
+                : [];
+
+            byId('itemModalTitle').textContent = item ? 'Edit item' : 'Add item';
+            itemNameInput.value = item ? item.name : '';
+            itemPriceInput.value = item ? item.price : '';
+            itemDescInput.value = item ? item.description : '';
+
+            itemCats.replaceChildren();
+            state.categories.forEach(cat => {
+                const wrap = elem('div', 'form-check');
+                const box = elem('input', 'form-check-input');
+                box.type = 'checkbox';
+                box.id = 'item-cat-' + cat.id;
+                box.value = cat.id;
+                box.checked = item ? item.categoryId === cat.id : cat.id === state.selectedCategoryId;
+                box.addEventListener('change', () => {
+                    if (box.checked) {
+                        itemCats.querySelectorAll('input[type="checkbox"]').forEach(b => {
+                            if (b !== box) b.checked = false;
+                        });
+                    }
+                });
+                const label = elem('label', 'form-check-label', cat.name);
+                label.htmlFor = box.id;
+                wrap.append(box, label);
+                itemCats.appendChild(wrap);
+            });
+
+            deleteItemBtn.hidden = !item;
+            availBtn.hidden = !item;
+            renderAvailability();
+            renderPhoto();
+            renderOptionGroups();
+            Modal.open('item-modal');
         }
-        if (file.size > MAX_PHOTO_BYTES) {
-            itemError.textContent = 'That image is too big. Please choose one under 5 MB.';
+
+        addItemBtn.addEventListener('click', () => openItemModal());
+
+        photoBtn.addEventListener('click', () => photoInput.click());
+        removePhotoBtn.addEventListener('click', () => {
+            state.pendingPhoto = null;
             photoInput.value = '';
-            return;
-        }
-        itemError.textContent = '';
-        const reader = new FileReader();
-        reader.onload = () => { pendingPhoto = reader.result; renderPhoto(); };
-        reader.readAsDataURL(file);
-    });
-
-    availBtn.addEventListener('click', () => {
-        pendingAvailable = !pendingAvailable;
-        renderAvailability();
-    });
-
-    itemForm.addEventListener('submit', async e => {
-        e.preventDefault();
-        const name = itemNameInput.value.trim();
-        const price = parseFloat(itemPriceInput.value);
-        const categoryIds = [...itemCats.querySelectorAll('input:checked')].map(b => Number(b.value));
-
-        if (!name) { itemError.textContent = 'Please enter an item name.'; return; }
-        if (Number.isNaN(price) || price < 0) { itemError.textContent = 'Please enter a valid price (0 or more).'; return; }
-        if (categoryIds.length === 0) { itemError.textContent = 'Pick at least one category for this item.'; return; }
-
-        const saveButton = itemForm.querySelector('button[type="submit"]');
-        saveButton.disabled = true;
-        try {
-            if (editingItem?.databaseProductId) {
-                await saveOptionGroups(editingItem);
+            renderPhoto();
+        });
+        photoInput.addEventListener('change', async () => {
+            const file = photoInput.files[0];
+            if (!file) return;
+            if (!file.type.startsWith('image/')) {
+                itemError.textContent = 'Please choose an image file.';
+                photoInput.value = '';
+                return;
             }
-        } catch (error) {
-            itemError.textContent = error.message || 'Unable to save product customizations.';
-            saveButton.disabled = false;
-            return;
-        }
-        const fields = {
-            name, price, categoryIds,
-            description: itemDescInput.value.trim(),
-            photo: pendingPhoto,
-            available: pendingAvailable
-        };
-        if (editingItem) Object.assign(editingItem, fields);
-        else store.addItem(fields);
+            if (file.size > MAX_PHOTO_BYTES) {
+                itemError.textContent = 'That image is too big. Please choose one under 5 MB.';
+                photoInput.value = '';
+                return;
+            }
+            itemError.textContent = '';
+            photoBtn.disabled = true;
+            try {
+                const path = await uploadPhoto(file);
+                state.pendingPhoto = path;
+                renderPhoto();
+            } catch (err) {
+                itemError.textContent = err.message;
+            } finally {
+                photoBtn.disabled = false;
+            }
+        });
 
-        // if the item no longer shows in the current category, keep the view on existing category
-        if (!categoryIds.includes(selectedCategoryId) && !editingItem) selectedCategoryId = categoryIds[0];
+        availBtn.addEventListener('click', () => {
+            state.pendingAvailable = !state.pendingAvailable;
+            renderAvailability();
+        });
 
-        Modal.close('item-modal');
+        itemForm.addEventListener('submit', async e => {
+            e.preventDefault();
+            const name = itemNameInput.value.trim();
+            const price = parseFloat(itemPriceInput.value);
+            const categoryBox = itemCats.querySelector('input:checked');
+            const categoryId = categoryBox ? Number(categoryBox.value) : null;
+
+            if (!name) { itemError.textContent = 'Please enter an item name.'; return; }
+            if (Number.isNaN(price) || price < 0) { itemError.textContent = 'Please enter a valid price.'; return; }
+            if (!categoryId) { itemError.textContent = 'Pick a category for this item.'; return; }
+
+            const saveBtn = itemForm.querySelector('button[type=submit]');
+            saveBtn.disabled = true;
+            try {
+                const payload = {
+                    categoryId,
+                    name,
+                    price,
+                    description: itemDescInput.value.trim(),
+                    imagePath: state.pendingPhoto,
+                    available: state.pendingAvailable,
+                };
+
+                let productId;
+                if (state.editingItem?.databaseProductId) {
+                    await menuRequest({action: 'product_update', productId: state.editingItem.databaseProductId, ...payload});
+                    productId = state.editingItem.databaseProductId;
+                } else {
+                    const data = await menuRequest({action: 'product_add', ...payload});
+                    productId = data.productId;
+                }
+
+                // Save option groups after the product exists.
+                if (productId && state.editingOptionGroups.length >= 0) {
+                    try {
+                        const groups = await saveOptionGroups(productId, state.editingOptionGroups);
+                        if (Array.isArray(groups)) {
+                            state.editingOptionGroups = groups.map(g => ({
+                                ...g,
+                                choices: g.choices.map(c => ({...c})),
+                            }));
+                        }
+                    } catch (optErr) {
+                        itemError.textContent = 'Item saved, but customizations failed: ' + optErr.message;
+                        saveBtn.disabled = false;
+                        return;
+                    }
+                }
+
+                // Refresh the local record.
+                const refreshed = {
+                    databaseProductId: productId,
+                    name,
+                    price,
+                    description: payload.description,
+                    categoryId,
+                    photo: payload.imagePath,
+                    available: payload.available,
+                    optionGroups: state.editingOptionGroups,
+                };
+                if (state.editingItem?.databaseProductId) {
+                    const idx = state.items.findIndex(i => i.databaseProductId === state.editingItem.databaseProductId);
+                    if (idx >= 0) state.items[idx] = refreshed;
+                } else {
+                    state.items.push(refreshed);
+                }
+                state.selectedCategoryId = categoryId;
+                Modal.close('item-modal');
+                renderCategories();
+                renderItems();
+            } catch (err) {
+                itemError.textContent = err.message;
+            } finally {
+                saveBtn.disabled = false;
+            }
+        });
+
+        deleteItemBtn.addEventListener('click', async () => {
+            if (!state.editingItem?.databaseProductId) return;
+            if (!confirm(`Delete "${state.editingItem.name}"? This cannot be undone.`)) return;
+            deleteItemBtn.disabled = true;
+            try {
+                await menuRequest({action: 'product_delete', productId: state.editingItem.databaseProductId});
+                state.items = state.items.filter(i => i.databaseProductId !== state.editingItem.databaseProductId);
+                Modal.close('item-modal');
+                renderItems();
+            } catch (err) {
+                itemError.textContent = err.message;
+            } finally {
+                deleteItemBtn.disabled = false;
+            }
+        });
+
+        // CLOSE MODALS ---------------------------------------------------
+        document.querySelectorAll('[data-close]').forEach(btn => {
+            btn.addEventListener('click', () => Modal.closeAll());
+        });
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') Modal.closeAll();
+        });
+
+        // FIRST RENDER ---------------------------------------------------
         renderCategories();
         renderItems();
-        saveButton.disabled = false;
-    });
+    }
 
-    deleteItemBtn.addEventListener('click', () => {
-        if (!editingItem) return;
-        if (!window.confirm('Delete "' + editingItem.name + '"? This cannot be undone.')) return;
-        store.deleteItem(editingItem.id);
-        Modal.close('item-modal');
-        renderItems();
-    });
-
-    // close modals
-    document.querySelectorAll('[data-close]').forEach(btn => {
-        btn.addEventListener('click', () => Modal.closeAll());
-    });
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') Modal.closeAll(); });
-
-    renderStatus();
-    renderCategories();
-    renderItems();
-}
-
-if (document.body.dataset.page === 'manage-store') initManageStorePage();
+    load();
+})();

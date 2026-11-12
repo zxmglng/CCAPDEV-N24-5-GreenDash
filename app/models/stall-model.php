@@ -185,3 +185,10 @@ function get_stall_counts(PDO $pdo): array
         'open'  => (int) $pdo->query("SELECT COUNT(*) FROM stalls WHERE is_open = 1")->fetchColumn(),
     ];
 }
+
+function setStallOpenStatus(PDO $pdo, int $stallId, int $vendorId, bool $isOpen): bool
+{
+    $stmt = $pdo->prepare("UPDATE stalls SET is_open = ? WHERE id = ? AND vendor_id = ?");
+    $stmt->execute([$isOpen ? 1 : 0, $stallId, $vendorId]);
+    return $stmt->rowCount() > 0;
+}

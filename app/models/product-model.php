@@ -9,7 +9,6 @@ function getStallProducts(PDO $pdo, int $stallId): array
         WHERE p.stall_id = ?
         ORDER BY p.id
     ");
-
     $stmt->execute([$stallId]);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
@@ -61,4 +60,47 @@ function getProductOptionGroups(PDO $pdo, array $productIds, bool $includeUnavai
         $groups[$productId] = array_values($productGroups);
     }
     return $groups;
+}
+
+function addProduct(PDO $pdo, int $stallId, int $categoryId, string $name, ?string $description,
+    string $price, ?string $imagePath, bool $isAvailable): int
+{
+    $stmt = $pdo->prepare(
+        "INSERT INTO products (stall_id, category_id, name, description, price, image_path, is_available)
+         VALUES (?, ?, ?, ?, ?, ?, ?)"
+    );
+    $stmt->execute([$stallId, $categoryId, $name, $description, $price, $imagePath, $isAvailable ? 1 : 0]);
+    return (int) $pdo->lastInsertId();
+}
+
+function updateProduct(PDO $pdo, int $productId, int $stallId, int $categoryId, string $name,
+    ?string $description, string $price, ?string $imagePath, bool $isAvailable): bool
+{
+    $stmt = $pdo->prepare(
+        "UPDATE products
+         SET category_id = ?, name = ?, description = ?, price = ?, image_path = ?, is_available = ?
+         WHERE id = ? AND stall_id = ?"
+    );
+    $stmt->execute([$categoryId, $name, $description, $price, $imagePath, $isAvailable ? 1 : 0, $productId, $stallId]);
+    return $stmt->rowCount() > 0;
+}
+
+function deleteProduct(PDO $pdo, int $productId, int $stallId): bool
+{
+    // Refuse if this product appears in order history.
+    $check = $pdo->prepare("SELECT COUNT(*) FROM order_items WHERE menu_item_id = ?");
+    $check->execute([$productId]);
+    if ((int) $check->fetchColumn() > 0) {
+        throw new RuntimeException('This item appears in order history and cannot be deleted. Mark it unavailable instead.');
+    }
+    $stmt = $pdo->prepare("DELETE FROM products WHERE id = ? AND stall_id = ?");
+    $stmt->execute([$productId, $stallId]);
+    return $stmt->rowCount() > 0;
+}
+
+function setProductAvailability(PDO $pdo, int $productId, int $stallId, bool $available): bool
+{
+    $stmt = $pdo->prepare("UPDATE products SET is_available = ? WHERE id = ? AND stall_id = ?");
+    $stmt->execute([$available ? 1 : 0, $productId, $stallId]);
+    return $stmt->rowCount() > 0;
 }
