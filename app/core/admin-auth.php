@@ -65,11 +65,29 @@ function getAdminDisplayName(): string
     return 'Administrator';
 }
 
-function getAdminUserId(): ?int
+function getAdminUserId(?PDO $pdo = null): ?int
 {
-    $id = getenv('GREENDASH_ADMIN_USER_ID');
-    if (!is_string($id) || !ctype_digit($id) || (int) $id <= 0) {
-        return null;
+    if (isset($_SESSION['admin_user_id'])) {
+        return (int) $_SESSION['admin_user_id'];
     }
-    return (int) $id;
+
+    $id = getenv('GREENDASH_ADMIN_USER_ID');
+    if (is_string($id) && ctype_digit($id) && (int) $id > 0) {
+        return (int) $id;
+    }
+
+    if ($pdo !== null) {
+        $stmt = $pdo->prepare(
+            "SELECT user_id FROM users
+             WHERE user_role = 'admin' AND acc_status = 'active'
+             ORDER BY user_id LIMIT 1"
+        );
+        $stmt->execute();
+        $row = $stmt->fetchColumn();
+        if ($row) {
+            return (int) $row;
+        }
+    }
+
+    return null;
 }
