@@ -186,6 +186,7 @@
                         <div class="category-checks" id="itemCategoryChecks"></div>
                     </fieldset>
 
+                    <!-- ITEM CUSTOMIZATIONS: section and choice editor templates are below. -->
                     <section class="product-customizations" aria-labelledby="productCustomizationsTitle">
                         <hr>
                         <div class="customization-editor-heading">

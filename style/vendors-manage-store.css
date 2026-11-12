@@ -96,6 +96,7 @@
 	padding-right: 0;
 }
 
+/* ITEM CUSTOMIZATIONS: editor section, group cards, and choice rows in the item modal. */
 .product-customizations {
 	margin-top: 18px;
 	padding: 18px 0 0;
@@ -185,6 +186,36 @@
 
 #item-modal .vmodal-box {
 	max-width: 760px;
+}
+
+#item-modal .option-group-editor-head {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+#item-modal .option-choice-editor {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) minmax(90px, 120px) auto;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+}
+
+#item-modal .option-group-editor-head > button,
+#item-modal .option-choice-editor > button {
+    width: auto;
+    margin: 0;
+    white-space: nowrap;
+}
+
+#item-modal .option-group-editor-head > .form-control,
+#item-modal .option-choice-editor > .form-control {
+    width: 100%;
+    min-width: 0;
+    margin: 0;
 }
 
 @media (max-width: 700px) {
