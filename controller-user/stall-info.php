@@ -6,6 +6,7 @@ require_once(__DIR__ . "/../app/core/checkout.php");
 require_once(__DIR__ . "/../app/models/stall-model.php");
 require_once(__DIR__ . "/../app/models/stall-hours-model.php");
 require_once(__DIR__ . "/../app/models/product-model.php");
+require_once(__DIR__ . "/../app/models/category-model.php");
 
 if (!isset($_SESSION['user_id'])) {
     header('Location: ../index.php');
@@ -36,7 +37,7 @@ $products = array_values(
     )
 );
 
-$categories = []; // categories will be integrated later
+$categories = getCategoriesByStall($pdo, $stallId); // categories will be integrated later
 
 // calculate today's operating hrs and avail pickup times
 $now = new DateTimeImmutable(

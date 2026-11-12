@@ -60,12 +60,13 @@
 
                         <!-- foreach.. for each category... -->
                         <div class="menu-categories">
-                            <?php foreach ($categories as $category): ?>
-                                <button class="category-button" data-category="<?php echo htmlspecialchars($category); ?>">
-                                    <?php echo htmlspecialchars($category); ?>
+                            <?php foreach ($categories as $index => $category): ?>
+                                <button
+                                    class="<?= $index === 0 ? 'category-button-active' : 'category-button' ?>"
+                                    data-category="<?= htmlspecialchars(strtolower($category), ENT_QUOTES, 'UTF-8') ?>">
+                                    <?= htmlspecialchars($category, ENT_QUOTES, 'UTF-8') ?>
                                 </button>
                             <?php endforeach; ?>
-                            <button class="category-button" data-category="all">All</button>
                         </div>
                         <div class="menu-items-wrapper">
                             <button type="button" class="menu-carousel-button menu-carousel-previous"
