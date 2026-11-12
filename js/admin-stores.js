@@ -18,6 +18,9 @@ const Modal = {
     },
     close(id) {
         byId(id).classList.remove('open');
+        const storeError = byId('addStoreError');
+        
+        if (storeError) storeError.textContent = '';
         if (this._returnFocus && document.contains(this._returnFocus)) {
             this._returnFocus.focus();
         }
@@ -27,6 +30,41 @@ const Modal = {
             .forEach(m => this.close(m.id));
     }
 };
+
+// --- Day-hours helpers --------------------------------------------------
+function setDayEnabled(prefix, day, enabled) {
+    const cb = byId(prefix + '-day-' + day);
+    const opens = byId(prefix + '-opens-' + day);
+    const closes = byId(prefix + '-closes-' + day);
+    if (!cb || !opens || !closes) return;
+
+    cb.checked = enabled;
+    opens.disabled = !enabled;
+    closes.disabled = !enabled;
+
+    if (!enabled) {
+        opens.value = '';
+        closes.value = '';
+    }
+}
+
+function wireDayCheckboxes(prefix) {
+    for (let i = 0; i < 7; i++) {
+        const cb = byId(prefix + '-day-' + i);
+        const opens = byId(prefix + '-opens-' + i);
+        const closes = byId(prefix + '-closes-' + i);
+        if (!cb || !opens || !closes) continue;
+
+        cb.addEventListener('change', () => {
+            opens.disabled = !cb.checked;
+            closes.disabled = !cb.checked;
+            if (!cb.checked) {
+                opens.value = '';
+                closes.value = '';
+            }
+        });
+    }
+}
 
 function initManageStoresPage() {
     const listBody    = byId('storesBody');
@@ -82,7 +120,7 @@ function initManageStoresPage() {
         const q      = searchEl.value.trim().toLowerCase();
         const loc    = filterLocEl.value;
         const status = filterStaEl.value;
-        const field  = sortFieldEl.value;   // "stall" | "vendor" | "location"
+        const field  = sortFieldEl.value;
 
         const rows = [...listBody.querySelectorAll('tr.stall-row')];
 
@@ -111,7 +149,7 @@ function initManageStoresPage() {
         if (!tr) return;
 
         activeStoreId = tr.dataset.id;
-        
+
         const d = rowData(tr);
         byId('storeModalTitle').textContent = tr.dataset.name || d.stall;
         byId('mOwner').textContent          = d.vendor || '—';
@@ -124,6 +162,7 @@ function initManageStoresPage() {
     function openAddModal() {
         byId('addStoreForm').reset();
         byId('addStoreError').textContent = '';
+        for (let i = 0; i < 7; i++) setDayEnabled('add', i, false);
         Modal.open('addStoreModal');
     }
     byId('addStoreBtn').addEventListener('click', openAddModal);
@@ -159,26 +198,20 @@ function initManageStoresPage() {
         byId('editStall').value = tr.dataset.name;
         byId('editVendor').value = tr.dataset.vendorId || '';
         byId('editLocation').value = tr.querySelectorAll('td')[2].textContent.trim();
-        
+
         const isOpen = tr.querySelector('.status').classList.contains('open') ? '1' : '0';
         byId('editStatus').value = isOpen;
 
-        document.querySelectorAll('#editStoreForm input[name="days[]"]').forEach(cb => cb.checked = false);
-
-        const hours = JSON.parse(tr.dataset.hoursJson || '[]');
+        for (let i = 0; i < 7; i++) setDayEnabled('edit', i, false);
         
-        if (hours.length > 0) {
-
-            hours.forEach(h => {
-                const cb = byId('edit-day-' + h.day_of_week);
-                if (cb) cb.checked = true;
-            });
-            byId('editOpens').value = hours[0].opens_at.substring(0, 5);
-            byId('editCloses').value = hours[0].closes_at.substring(0, 5);
-        } else {
-            byId('editOpens').value = '';
-            byId('editCloses').value = '';
-        }
+        const hours = JSON.parse(tr.dataset.hoursJson || '[]');
+        hours.forEach(h => {
+            const day = parseInt(h.day_of_week, 10);
+            if (isNaN(day) || day < 0 || day > 6) return;
+            setDayEnabled('edit', day, true);
+            byId('edit-opens-' + day).value = h.opens_at.substring(0, 5);
+            byId('edit-closes-' + day).value = h.closes_at.substring(0, 5);
+        });
 
         Modal.close('storeModal');
         Modal.open('editStoreModal');
@@ -211,10 +244,17 @@ function initManageStoresPage() {
         if (e.key === 'Escape') Modal.closeAll();
     });
 
+    // --- Wire day checkbox toggles --------------------------------------
+    wireDayCheckboxes('add');
+    wireDayCheckboxes('edit');
+
     // --- Boot -----------------------------------------------------------
     populateLocations();
     applyFilters();
 
+    if (document.body.dataset.flash === 'add') {
+        Modal.open('addStoreModal');
+    }
 }
 
 if (document.body.dataset.page === 'manage-stores') initManageStoresPage();
