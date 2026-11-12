@@ -1,24 +1,4 @@
 <?php
-
-function parse_hours_range(string $hours_text): array
-{
-    if (!preg_match('/\b(\d{1,2}):(\d{2})\s*[-–]\s*(\d{1,2}):(\d{2})\b/u', $hours_text, $m)) {
-        throw new InvalidArgumentException('Operating hours must look like 09:00-17:00.');
-    }
-    foreach ([$m[1], $m[3]] as $h) {
-        if ((int) $h > 23) {
-            throw new InvalidArgumentException('Opening and closing hours must be 00–23.');
-        }
-    }
-    foreach ([$m[2], $m[4]] as $min) {
-        if ((int) $min > 59) {
-            throw new InvalidArgumentException('Minutes must be 00–59.');
-        }
-    }
-    return [sprintf('%02d:%02d:00', (int) $m[1], (int) $m[2]),
-            sprintf('%02d:%02d:00', (int) $m[3], (int) $m[4])];
-}
-
 // models/stall_model.php - simple stall functions.
 function getCheckoutStall(PDO $pdo, int $stallId): ?array
 {
@@ -93,49 +73,27 @@ function get_locations()
     )->fetchAll(PDO::FETCH_COLUMN);
 }
 
-// Add a stall. $hours_text is optional; if it contains something like "09:00-17:00"
-// we store those hours for all 7 days. Day-specific hours would need a richer UI.
-function add_stall($name, $vendor_id, $location, $is_open, $hours_text = '')
+function add_stall($name, $vendor_id, $location, $is_open, array $hours_rows = [])
 {
     global $pdo;
-
-    // Parse hours BEFORE any DB work so bad string fails without creating a row.
-    [$open, $close] = parse_hours_range($hours_text);
-
-    $stmt = $pdo->prepare(
-        "INSERT INTO stalls (name, vendor_id, location, is_open) VALUES (?, ?, ?, ?)"
-    );
+    $stmt = $pdo->prepare("INSERT INTO stalls (name, vendor_id, location, is_open) VALUES (?, ?, ?, ?)");
     $stmt->execute([$name, $vendor_id ?: null, $location, $is_open ? 1 : 0]);
     $stall_id = (int) $pdo->lastInsertId();
 
-    // Reuse the existing helper; it deletes any old hours and inserts new rows atomically.
-    $rows = [];
-    for ($d = 0; $d < 7; $d++) {
-        $rows[] = ['day_of_week' => $d, 'opens_at' => $open, 'closes_at' => $close];
+    if (!empty($hours_rows)) {
+        replace_stall_hours($pdo, $stall_id, $hours_rows);
     }
-    replace_stall_hours($pdo, $stall_id, $rows);
-
     return $stall_id;
 }
 
-function update_stall($id, $name, $vendor_id, $location, $is_open, $hours_text = '')
+function update_stall($id, $name, $vendor_id, $location, $is_open, array $hours_rows = [])
 {
     global $pdo;
-
-    // Parse hours first; a bad string aborts before we touch the stall row.
-    [$open, $close] = parse_hours_range($hours_text);
-
-    $stmt = $pdo->prepare(
-        "UPDATE stalls SET name = ?, vendor_id = ?, location = ?, is_open = ? WHERE id = ?"
-    );
+    $stmt = $pdo->prepare("UPDATE stalls SET name = ?, vendor_id = ?, location = ?, is_open = ? WHERE id = ?");
     $stmt->execute([$name, $vendor_id ?: null, $location, $is_open ? 1 : 0, $id]);
 
-    $rows = [];
-    for ($d = 0; $d < 7; $d++) {
-        $rows[] = ['day_of_week' => $d, 'opens_at' => $open, 'closes_at' => $close];
-    }
-    replace_stall_hours($pdo, $id, $rows);
-
+    // replace_stall_hours handles the delete and insert safely in a transaction
+    replace_stall_hours($pdo, $id, $hours_rows);
     return true;
 }
 

@@ -52,7 +52,7 @@
                     </thead>
                     <tbody id="usersBody">
                         <?php if (empty($users)): ?>
-                            <tr><td colspan="3" style="text-align:center;">No users found.</td></tr>
+                            <tr><td colspan="4" style="text-align:center;">No users found.</td></tr>
                         <?php else: ?>
                             <?php foreach ($users as $u): ?>
                                 <tr class="user-row"
@@ -145,9 +145,14 @@
                     <input class="form-control" id="editLastName" name="last_name" type="text" required></div>
                 <div class="modal-row"><label class="modal-label" for="editEmail">Email</label>
                     <input class="form-control" id="editEmail" name="email" type="email" required></div>
+                <div class="modal-row"><label class="modal-label" for="editContact">Contact Number</label>
+                    <input class="form-control" id="editContact" name="contact_num" type="tel"></div>
+
                 <div class="modal-row"><label class="modal-label" for="editRole">Role</label>
                     <select class="form-select" id="editRole" name="role">
-                        <option value="student">User</option>
+                        <option value="student">Student</option>
+                        <option value="faculty">Faculty</option>
+                        <option value="staff">Staff</option>
                         <option value="vendor">Vendor</option>
                         <option value="admin">Admin</option>
                     </select></div>

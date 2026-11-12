@@ -70,7 +70,8 @@
                                     data-name="<?= htmlspecialchars($s['name']) ?>"
                                     data-vendor-id="<?= (int)($s['vendor_id'] ?? 0) ?>"
                                     data-vendor-name="<?= htmlspecialchars($s['vendor_name'] ?? '') ?>"
-                                    data-hours="<?= htmlspecialchars($s['hours_text'] ?? 'Hours not set') ?>">
+                                    data-hours="<?= htmlspecialchars($s['hours_text'] ?? 'Hours not set') ?>"
+                                    data-hours-json="<?= htmlspecialchars(json_encode($allHours[(int)$s['id']] ?? [])) ?>">
                                     <td><?= htmlspecialchars($s['name']) ?></td>
                                     <td><?= htmlspecialchars($s['vendor_name'] ?: '—') ?></td>
                                     <td><?= htmlspecialchars($s['location']) ?></td>
@@ -130,9 +131,26 @@
                     <input class="form-control" id="newLocation" name="location" type="text" required>
                 </div>
                 <div class="modal-row">
-                    <label class="modal-label" for="newHours">Operating hours</label>
-                    <input class="form-control" id="newHours" name="operating_hours" type="text"
-                           placeholder="e.g. 09:00-17:00" required>
+                    <label class="modal-label">Operating days</label>
+                    <div class="day-picker">
+                        <input class="day-input" type="checkbox" id="add-day-0" name="days[]" value="0"><label class="day-pill" for="add-day-0">Sun</label>
+                        <input class="day-input" type="checkbox" id="add-day-1" name="days[]" value="1"><label class="day-pill" for="add-day-1">Mon</label>
+                        <input class="day-input" type="checkbox" id="add-day-2" name="days[]" value="2"><label class="day-pill" for="add-day-2">Tue</label>
+                        <input class="day-input" type="checkbox" id="add-day-3" name="days[]" value="3"><label class="day-pill" for="add-day-3">Wed</label>
+                        <input class="day-input" type="checkbox" id="add-day-4" name="days[]" value="4"><label class="day-pill" for="add-day-4">Thu</label>
+                        <input class="day-input" type="checkbox" id="add-day-5" name="days[]" value="5"><label class="day-pill" for="add-day-5">Fri</label>
+                        <input class="day-input" type="checkbox" id="add-day-6" name="days[]" value="6"><label class="day-pill" for="add-day-6">Sat</label>
+                    </div>
+                </div>
+                <div class="d-flex gap-3 mt-2">
+                    <div>
+                        <label class="modal-label" for="addOpens">Opens</label>
+                        <input class="form-control" type="time" id="addOpens" name="opens_at" required>
+                    </div>
+                    <div>
+                        <label class="modal-label" for="addCloses">Closes</label>
+                        <input class="form-control" type="time" id="addCloses" name="closes_at" required>
+                    </div>
                 </div>
                 <div class="modal-row">
                     <label class="modal-label" for="newStatus">Status</label>
@@ -179,8 +197,33 @@
                     <input class="form-control" id="editLocation" name="location" type="text" required>
                 </div>
                 <div class="modal-row">
-                    <label class="modal-label" for="editHours">Operating hours</label>
-                    <input class="form-control" id="editHours" name="operating_hours" type="text" placeholder="e.g. 09:00-17:00">
+                    <label class="modal-label">Operating days</label>
+                    <div class="day-picker">
+                        <input class="day-input" type="checkbox" id="edit-day-0" name="days[]" value="0">
+                        <label class="day-pill" for="edit-day-0">Sun</label>
+                        <input class="day-input" type="checkbox" id="edit-day-1" name="days[]" value="1">
+                        <label class="day-pill" for="edit-day-1">Mon</label>
+                        <input class="day-input" type="checkbox" id="edit-day-2" name="days[]" value="2">
+                        <label class="day-pill" for="edit-day-2">Tue</label>
+                        <input class="day-input" type="checkbox" id="edit-day-3" name="days[]" value="3">
+                        <label class="day-pill" for="edit-day-3">Wed</label>
+                        <input class="day-input" type="checkbox" id="edit-day-4" name="days[]" value="4">
+                        <label class="day-pill" for="edit-day-4">Thu</label>
+                        <input class="day-input" type="checkbox" id="edit-day-5" name="days[]" value="5">
+                        <label class="day-pill" for="edit-day-5">Fri</label>
+                        <input class="day-input" type="checkbox" id="edit-day-6" name="days[]" value="6"
+                        ><label class="day-pill" for="edit-day-6">Sat</label>
+                    </div>
+                </div>
+                <div class="d-flex gap-3 mt-2">
+                    <div>
+                        <label class="modal-label" for="editOpens">Opens</label>
+                        <input class="form-control" type="time" id="editOpens" name="opens_at" required>
+                    </div>
+                    <div>
+                        <label class="modal-label" for="editCloses">Closes</label>
+                        <input class="form-control" type="time" id="editCloses" name="closes_at" required>
+                    </div>
                 </div>
                 <div class="modal-row">
                     <label class="modal-label" for="editStatus">Status</label>

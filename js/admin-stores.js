@@ -157,15 +157,29 @@ function initManageStoresPage() {
 
         byId('editStoreId').value = activeStoreId;
         byId('editStall').value = tr.dataset.name;
-        byId('editVendor').value   = tr.dataset.vendorId || '';
+        byId('editVendor').value = tr.dataset.vendorId || '';
         byId('editLocation').value = tr.querySelectorAll('td')[2].textContent.trim();
-        byId('editHours').value = tr.dataset.hours || '';
         
-        // Select the correct status (Open/Closed)
         const isOpen = tr.querySelector('.status').classList.contains('open') ? '1' : '0';
         byId('editStatus').value = isOpen;
 
-        // Close details modal, open edit modal
+        document.querySelectorAll('#editStoreForm input[name="days[]"]').forEach(cb => cb.checked = false);
+
+        const hours = JSON.parse(tr.dataset.hoursJson || '[]');
+        
+        if (hours.length > 0) {
+
+            hours.forEach(h => {
+                const cb = byId('edit-day-' + h.day_of_week);
+                if (cb) cb.checked = true;
+            });
+            byId('editOpens').value = hours[0].opens_at.substring(0, 5);
+            byId('editCloses').value = hours[0].closes_at.substring(0, 5);
+        } else {
+            byId('editOpens').value = '';
+            byId('editCloses').value = '';
+        }
+
         Modal.close('storeModal');
         Modal.open('editStoreModal');
     });
@@ -201,8 +215,6 @@ function initManageStoresPage() {
     populateLocations();
     applyFilters();
 
-    // Controller flashed back an error → reopen the add modal
-    if (document.body.dataset.flash === 'add') openAddModal();
 }
 
 if (document.body.dataset.page === 'manage-stores') initManageStoresPage();

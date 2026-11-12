@@ -109,3 +109,49 @@
 .field-error:empty {
     display: none;
 }
+
+/* Day picker (Manage Stores) */
+.day-picker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.day-input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+}
+.day-pill {
+    display: inline-grid;
+    place-items: center;
+    min-width: 48px;
+    min-height: 38px;
+    padding: 0 12px;
+    border: 1px solid var(--a-border);
+    border-radius: 999px;
+    background: #ffffff;
+    font-weight: 700;
+    font-size: .85rem;
+    cursor: pointer;
+    user-select: none;
+}
+.day-input:checked + .day-pill {
+    background: var(--a-green);
+    border-color: var(--a-green);
+    color: #ffffff;
+}
+.day-input:focus-visible + .day-pill {
+    outline: 2px solid var(--a-green);
+    outline-offset: 2px;
+}
+body.dark-mode .day-pill {
+    background: var(--a-gray-bar);
+    border-color: var(--a-border);
+    color: var(--a-text);
+}
+body.dark-mode .day-input:checked + .day-pill {
+    background: var(--a-green);
+    color: #ffffff;
+}
