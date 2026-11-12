@@ -729,11 +729,9 @@ async function handleGoogleLogin(response) {
     try {
         const loginButton = document.getElementById('googleLoginButton');
         const loginEndpoint = loginButton?.dataset.loginEndpoint
-            || (window.location.pathname.includes('/app/views/user/')
+            || (window.location.pathname.includes('/controller-user/')
                 ? 'google-login.php'
-                : window.location.pathname.includes('/pages/user/')
-                    ? '../../app/views/user/google-login.php'
-                    : 'app/views/user/google-login.php');
+                : 'controller-user/google-login.php');
         const backendResponse = await fetch(loginEndpoint, {
             method: 'POST',
             headers: {

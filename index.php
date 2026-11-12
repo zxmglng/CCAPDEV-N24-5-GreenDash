@@ -22,7 +22,7 @@
             <img src="assets/main/GreenDash_LOGO.png" alt="Greendash Logo" class="login-logo">
             <div id="googleLoginButton"
                 data-login-redirect="app/views/user/stalls-directory.php"
-                data-login-endpoint="app/views/user/google-login.php"></div>
+                data-login-endpoint="controller-user/google-login.php"></div>
             <a href="app/views/vendor/login.php" class="vendor-login-btn">
                 Sign in as a food vendor
             </a>

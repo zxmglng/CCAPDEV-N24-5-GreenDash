@@ -36,6 +36,23 @@ function getUserByEmail(PDO $pdo, string $email): ?array // get a user by their 
     return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
 }
 
+// creates new user fron their google acc info
+function createGoogleUser(PDO $pdo, string $email, string $firstName, string $lastName, ?string $profileImage): int
+{
+    $stmt = $pdo->prepare("
+        INSERT INTO users (email_add, first_name, last_name, profile_image)
+        VALUES (?, ?, ?, ?)
+    ");
+
+    $stmt->execute([
+        $email,
+        $firstName,
+        $lastName,
+        $profileImage
+    ]);
+    return (int) $pdo->lastInsertId();
+}
+
 // uppdates the login user profile information
 function updateUserProfile(PDO $pdo, int $userId, string $firstName, string $lastName, ?string $contactNum, ?string $profileImage): bool
 {
