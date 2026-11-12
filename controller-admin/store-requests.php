@@ -21,8 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif ($id > 0 && $act === 'deny') {
             deny_request($id, getAdminUserId());
         }
-        $qs = $statusFilter !== '' ? '?status=' . urlencode($statusFilter) : '';
-        header('Location: store-requests.php' . $qs);
+        header('Location: store-requests.php?status=' . urlencode($statusFilter));
         exit;
     } catch (Throwable $e) {
         error_log('Request action failed: ' . $e->getMessage());

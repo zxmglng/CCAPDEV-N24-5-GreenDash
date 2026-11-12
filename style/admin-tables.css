@@ -276,6 +276,38 @@
     white-space: nowrap;
 }
 
+/* Consistent column widths */
+.requests-table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+/* Per column width */
+/* Stall Name */
+.requests-table th:nth-child(1) { 
+    width: 25%; 
+}
+
+/* Vendor */
+.requests-table th:nth-child(2) { 
+    width: 25%; 
+}
+
+/* Date */
+.requests-table th:nth-child(3) { 
+    width: 15%; 
+} 
+
+/* Type */
+.requests-table th:nth-child(4) { 
+    width: 15%; 
+} 
+
+/* Status */
+.requests-table th:nth-child(5) { 
+    width: 20%; 
+}
+
 /* Row action buttons (Add Stall / Remove Stall in the last column) */
 .row-actions {
     display: inline-flex;
@@ -305,6 +337,18 @@
 /* Pending status = red */
 .status.pending {
     background: #f59e0b; /* Amber */
+    color: #ffffff;
+}
+
+/* Approved status = green */
+.status.approved {
+    background: var(--a-green);
+    color: #ffffff;
+}
+
+/* Denied status = red */
+.status.denied {
+    background: var(--a-red-btn);
     color: #ffffff;
 }
 

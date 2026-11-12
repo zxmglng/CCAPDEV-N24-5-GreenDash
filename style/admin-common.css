@@ -491,3 +491,41 @@ body.admin-page {
 .admin-stat-card a:hover { 
     text-decoration: underline; 
 }
+
+/* Inline error banner */
+.admin-flash {
+    margin: 0 0 14px;
+    padding: 12px 16px;
+    border: 1px solid #f5c2c7;
+    border-radius: 10px;
+    background: #fbe9ea;
+    color: #842029;
+    font-size: .95rem;
+    font-weight: 600;
+}
+
+/* Status tabs on store-requests */
+.admin-tabs {
+    display: flex;
+    gap: 6px;
+    margin: 0 0 14px;
+    border-bottom: 1px solid var(--a-border);
+    padding-bottom: 8px;
+    overflow-x: auto;
+}
+.admin-tab {
+    padding: 8px 14px;
+    border-radius: 8px 8px 0 0;
+    color: var(--a-text-muted);
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+}
+.admin-tab:hover { background: var(--a-gray-bar); color: var(--a-green); }
+.admin-tab.active {
+    background: var(--a-gray-bar);
+    color: var(--a-green);
+    border-bottom: 3px solid var(--a-green);
+    margin-bottom: -11px;
+    padding-bottom: 11px;
+}

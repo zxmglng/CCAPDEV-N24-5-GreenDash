@@ -17,6 +17,7 @@
     <body class="admin-page" data-page="<?= htmlspecialchars($page) ?>">
         <?php require __DIR__ . '/nav.php'; ?>
             <h1 class="page-title">Requests</h1>
+
             <?php if ($error !== ''): ?>
                 <p class="admin-flash" role="alert"><?= htmlspecialchars($error) ?></p>
             <?php endif; ?>
@@ -24,6 +25,15 @@
             <?php
             $tabs = ['pending' => 'Pending', 'approved' => 'Approved', 'denied' => 'Denied', '' => 'All'];
             ?>
+            <div class="admin-tabs" role="tablist">
+                <?php foreach ($tabs as $value => $label): ?>
+                    <a href="controller-admin/store-requests.php?status=<?= urlencode($value) ?>"
+                       class="admin-tab <?= $statusFilter === $value ? 'active' : '' ?>"
+                       <?= $statusFilter === $value ? 'aria-current="page"' : '' ?>>
+                        <?= htmlspecialchars($label) ?>
+                    </a>
+                <?php endforeach; ?>
+            </div>
 
             <div class="admin-toolbar">
                 <div class="admin-search">
@@ -59,7 +69,7 @@
                     </thead>
                     <tbody id="requestsBody">
                         <?php if (empty($requests)): ?>
-                            <tr><td colspan="5" class="empty-row" style="text-align:center;">No requests found.</td></tr>
+                            <tr><td colspan="5" class="empty-row">No requests found.</td></tr>
                         <?php else: ?>
                             <?php foreach ($requests as $r): ?>
                                 <tr class="request-row"
@@ -68,6 +78,7 @@
                                     data-vendor-name="<?= htmlspecialchars($r['vendor_name']) ?>"
                                     data-vendor-email="<?= htmlspecialchars($r['vendor_email']) ?>"
                                     data-location="<?= htmlspecialchars($r['proposed_location'] ?? $r['stall_location'] ?? '—') ?>"
+                                    data-hours="<?= htmlspecialchars($r['proposed_hours'] ?? '—') ?>"
                                     data-date="<?= htmlspecialchars(substr($r['created_at'], 0, 10)) ?>"
                                     data-type="<?= $r['type'] === 'add' ? 'Add Stall' : 'Remove Stall' ?>"
                                     data-status="<?= htmlspecialchars($r['status']) ?>">
