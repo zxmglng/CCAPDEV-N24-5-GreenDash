@@ -99,6 +99,7 @@
             <button class="close-x" type="button" data-close aria-label="Close"><i class="bi bi-x-lg"></i></button>
             <h2 id="addUserTitle">Add a user</h2>
             <form id="addUserForm" method="POST">
+                <input type="hidden" name="csrfToken" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
                 <input type="hidden" name="action" value="add">
                 <div class="modal-row">
                     <label class="modal-label" for="newName">First Name</label>
@@ -141,6 +142,7 @@
             <button class="close-x" type="button" data-close aria-label="Close"><i class="bi bi-x-lg"></i></button>
             <h2 id="editUserTitle">Edit user</h2>
             <form id="editUserForm" method="POST">
+                <input type="hidden" name="csrfToken" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
                 <input type="hidden" name="action" value="edit">
                 <input type="hidden" name="id" id="editId">
                 <div class="modal-row"><label class="modal-label" for="editFirstName">First Name</label>
@@ -194,6 +196,7 @@
     </div>
 
     <form method="POST" id="deleteForm" style="display:none;">
+        <input type="hidden" name="csrfToken" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
         <input type="hidden" name="action" value="delete">
         <input type="hidden" name="id" id="deleteId">
     </form>
