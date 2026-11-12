@@ -1,57 +1,15 @@
- <?php
- session_start();
- require __DIR__ . '/../../core/db.php';
-
- if (isset($_GET['logout'])) {
-    session_destroy();
-    header('Location: login.php');
-    exit;
-}
-
- if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
-    exit;
- }
-
- // get logged in user's info
- $stmt = $pdo->prepare("SELECT * FROM users WHERE user_id = ?");
- $stmt->execute([$_SESSION['user_id']]);
- $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
- if (!$user) {
-    // user not found, redirect to login page
-    header('Location: login.php');
-    exit;
- }
-
- // update profile information if form is submitted
- if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $firstName = trim($_POST['first_name'] ?? '');
-    $lastName = trim($_POST['last_name'] ?? '');
-    $contactNum = trim($_POST['contact_num'] ?? '');
-    $profileImage = trim($_POST['profile_image'] ?? '');
-
-    $stmt = $pdo->prepare("UPDATE users SET first_name = ?, last_name = ?, contact_num = ?, profile_image = ? WHERE user_id = ?");
-    $stmt->execute([$firstName, $lastName, $contactNum !== '' ? $contactNum : null, $profileImage !== '' ? $profileImage : $user['profile_image'], $_SESSION['user_id']]);
-    exit;
- }
- ?>
-
-<!-- User Profile Page -->
+ <!-- User Profile Page -->
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <title>GreenDash - Profile</title>
-        <link rel="stylesheet" href="../../../bootstrap/css/bootstrap.min.css">
-        <link rel="stylesheet" href="../../../bootstrap-icons/bootstrap-icons.css">
-        <link rel="stylesheet" href="../../../style/centralized.css">
-        <link rel="stylesheet" href="../../../style/user.css">
-        
-        <!-- bootstrap icons -->
-         <link rel="stylesheet" href="../../../bootstrap-icons/bootstrap-icons.css">
+        <link rel="stylesheet" href="../bootstrap/css/bootstrap.min.css">
+        <link rel="stylesheet" href="../bootstrap-icons/bootstrap-icons.css">
+        <link rel="stylesheet" href="../style/centralized.css">
+        <link rel="stylesheet" href="../style/user.css">
 
         <!-- website icon -->
-        <link rel="icon" type="image/png" href="../../../assets/main/GreenDash_CIRCLE.png">
+        <link rel="icon" type="image/png" href="../assets/main/GreenDash_CIRCLE.png">
 
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -71,7 +29,12 @@
                     <div class="col-lg-5 d-flex">
                         <section class="profile-card">
                             <div class="profile-top">
-                                <img src="<?= htmlspecialchars($user['profile_image'] ?: '../../../assets/main/defaultAvatar.png') ?>" alt="User Avatar" id="profileAvatar" class="profile-avatar">
+                                <img 
+                                    src="<?= htmlspecialchars($user['profile_image'] ?: '../assets/main/defaultAvatar.png') ?>"
+                                    alt="User Avatar"
+                                    id="profileAvatar"
+                                    class="profile-avatar"
+                                >
                                 <input type="file" id="profilePictureInput" accept="image/*" hidden>
                                 <!-- REPLACED THE HARDCODED VALUE WITH DB VALS!! -->
                                 <h2 id="profileName">
@@ -107,7 +70,7 @@
 
                                     <div class="col-md-6">
                                         <label for="contactNumber" class="profile-label">Contact Number</label>
-                                        <input type="tel" id="contactNumber" class="profile-input" value="<?= htmlspecialchars($user['contact_num']) ?>" readonly>
+                                        <input type="tel" id="contactNumber" class="profile-input" value="<?= htmlspecialchars($user['contact_num'] ?? '') ?>" readonly>
                                     </div>
                                 </div>
 
@@ -174,9 +137,9 @@
         <!-- CHART JS -->
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-        <script src="../../../js/jquery-4.0.0.min.js"></script>
-        <script src="../../../js/user.js"></script>
-        <script type="module" src="../../../js/centralized.js"></script>
+        <script src="../js/jquery-4.0.0.min.js"></script>
+        <script src="../js/user.js"></script>
+        <script type="module" src="../js/centralized.js"></script>
 
     </body>     
 </html>
