@@ -4,10 +4,13 @@ $currentPage = basename($_SERVER['SCRIPT_NAME'] ?? '');
 $assetBase = $assetBase ?? '../../../';
 $userPageBase = $userPageBase ?? '';
 
-// profile already uses a controller, while other user pages are still views
+// profile and stalls directory alr use controllers
 $profilePage = str_contains($_SERVER['SCRIPT_NAME'] ?? '', '/controller-user/')
     ? 'profile.php'
     : '../../../controller-user/profile.php';
+$stallsDirectoryPage = $isUserController
+    ? 'stalls-directory.php'
+    : '../../../controller-user/stalls-directory.php';
 ?>
         <header>
             <div class="main-header">
@@ -34,7 +37,7 @@ $profilePage = str_contains($_SERVER['SCRIPT_NAME'] ?? '', '/controller-user/')
             <nav>
                 <div class="nav-links">
                     <a href="<?= htmlspecialchars($profilePage, ENT_QUOTES, 'UTF-8') ?>"<?= $currentPage === 'profile.php' ? ' aria-current="page"' : '' ?>>Profile</a>
-                    <a href="<?= htmlspecialchars($userPageBase . 'stalls-directory.php', ENT_QUOTES, 'UTF-8') ?>">Stalls directory</a>
+                    <a href="<?= htmlspecialchars($stallsDirectoryPage, ENT_QUOTES, 'UTF-8') ?>"<?= $currentPage === 'stalls-directory.php' ? ' aria-current="page"' : '' ?>>Stalls Directory</a>
                     <a href="<?= htmlspecialchars($userPageBase . 'orders.php', ENT_QUOTES, 'UTF-8') ?>">Orders</a>
                 </div>
 

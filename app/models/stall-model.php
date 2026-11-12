@@ -1,15 +1,27 @@
 <?php
 
+// models/stall_model.php - simple stall functions.
 function getCheckoutStall(PDO $pdo, int $stallId): ?array
 {
     $stmt = $pdo->prepare('SELECT * FROM stalls WHERE id = ?');
     $stmt->execute([$stallId]);
     return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
 }
-// models/stall_model.php - simple stall functions.
+
+// gets all stalls for the user stalls directory
+function getAllStalls(PDO $pdo): array
+{
+    $stmt = $pdo->query("
+        SELECT *
+        FROM stalls
+        ORDER BY name
+    ");
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 
 // All stalls with vendor_name and a readable hours_text, for manage-stores.php.
-function get_stalls()
+function get_stalls() // for the admin
 {
     global $pdo;
 

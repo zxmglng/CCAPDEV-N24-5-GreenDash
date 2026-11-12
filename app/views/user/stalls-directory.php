@@ -1,30 +1,16 @@
 <!-- Home would immediately be the Stalls Directory section -->
 <?php
-require __DIR__ . '/../../core/db.php';
-
-$stalls = $pdo->query("SELECT * FROM stalls ORDER BY name")
-              ->fetchAll(PDO::FETCH_ASSOC);
-
-$hoursRows = $pdo->query("
-    SELECT stall_id, day_of_week, opens_at, closes_at
-    FROM stall_operating_hours
-    ORDER BY stall_id, day_of_week, opens_at
-")->fetchAll(PDO::FETCH_ASSOC);
-
-$hoursByStall = [];
-foreach ($hoursRows as $hours) {
-    $hoursByStall[$hours['stall_id']][] = $hours;
-}
+// $stalls and $hoursByStall are provided by controller-user/stalls-directory.php
 ?>
 <head>
     <title>GreenDash - Stalls</title>
-        <link rel="stylesheet" href="../../../bootstrap/css/bootstrap.min.css">
-        <link rel="stylesheet" href="../../../bootstrap-icons/bootstrap-icons.css">
-        <link rel="stylesheet" href="../../../style/centralized.css">
-        <link rel="stylesheet" href="../../../style/user.css">
-        
+        <link rel="stylesheet" href="<?= $assetBase ?>bootstrap/css/bootstrap.min.css">
+        <link rel="stylesheet" href="<?= $assetBase ?>bootstrap-icons/bootstrap-icons.css">
+        <link rel="stylesheet" href="<?= $assetBase ?>style/centralized.css">
+        <link rel="stylesheet" href="<?= $assetBase ?>style/user.css">
+
         <!-- website icon -->
-        <link rel="icon" type="image/png" href="../../../assets/main/GreenDash_CIRCLE.png">
+        <link rel="icon" type="image/png" href="<?= $assetBase ?>assets/main/GreenDash_CIRCLE.png">
 
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -103,9 +89,8 @@ foreach ($hoursRows as $hours) {
                             <?php
                             // i lowkey just realized kasi na stalls have different operating hours per day, 
                             // so i was thinking of refining this 
-                            $days = [1 => 'Monday', 'Tuesday', 'Wednesday', 'Thursday',
-                                    'Friday', 'Saturday', 'Sunday'];
-                            $stallHours = $hoursByStall[$stall['id']] ?? [];
+                            $days = [0 => 'Sunday', 1 => 'Monday', 2 => 'Tuesday', 3 => 'Wednesday', 4 => 'Thursday', 5 => 'Friday', 6 => 'Saturday'];
+                            $stallHours = $hoursByStall[(int) $stall['id']] ?? [];
                             ?>
 
                             <div class="stall-hours">
@@ -115,7 +100,7 @@ foreach ($hoursRows as $hours) {
                                         <p>
                                             <?= $days[(int) $hours['day_of_week']] ?? 'Unknown day' ?>:
                                             <?= date('g:i A', strtotime($hours['opens_at'])) ?>
-                                            –
+                                            -
                                             <?= date('g:i A', strtotime($hours['closes_at'])) ?>
                                         </p>
                                     <?php endforeach; ?>
@@ -123,9 +108,8 @@ foreach ($hoursRows as $hours) {
                                     <p>Hours not available</p>
                                 <?php endif; ?>
                             </div>
-                            <a class="view-stall-button"
-                               href="stall-info.php?stall=<?= (int) $stall['id'] ?>">
-                                View Stall
+                            <a class="view-stall-button" href="../app/views/user/stall-info.php?stall=<?= (int) $stall['id'] ?>">
+                            View Stall
                             </a>
                         </div>            
                     </div>
@@ -134,7 +118,6 @@ foreach ($hoursRows as $hours) {
             </main>
 
         <!-- SCRIPTS --> 
-        <script src="../../../js/jquery-4.0.0.min.js"></script>
         <div class="closed-stall-backdrop" id="closedStallMessage" hidden>
             <section class="closed-stall-modal" role="alertdialog" aria-modal="true"
                 aria-labelledby="closedStallTitle">
@@ -143,8 +126,9 @@ foreach ($hoursRows as $hours) {
                 <button type="button" class="view-stall-button" id="closeClosedStallMessage">Okay</button>
             </section>
         </div>
-        <script src="../../../js/user.js"></script>
-        <script src="../../../js/user-stalls-directory.js"></script>
-        <script type="module" src="../../../js/centralized.js"></script>
+        <script src="<?= $assetBase ?>js/jquery-4.0.0.min.js"></script>
+        <script src="<?= $assetBase ?>js/user.js"></script>
+        <script src="<?= $assetBase ?>js/user-stalls-directory.js"></script>
+        <script type="module" src="<?= $assetBase ?>js/centralized.js"></script>
     </body>
 </html>
