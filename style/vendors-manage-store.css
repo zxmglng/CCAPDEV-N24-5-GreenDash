@@ -142,12 +142,18 @@
 }
 
 .option-group-editor-head {
-	grid-template-columns: minmax(0, 1fr) auto;
+	grid-template-columns: minmax(0, 1fr) auto auto;
+	align-items: center;
 	margin-bottom: 14px;
 }
 
 .option-group-editor-head .form-control {
 	grid-column: 1 / -1;
+}
+
+.option-group-editor-head .option-required-toggle,
+.option-group-editor-head .vendor-btn {
+	justify-self: end;
 }
 
 .option-required-toggle,
