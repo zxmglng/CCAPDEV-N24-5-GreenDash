@@ -178,6 +178,18 @@
 	white-space: nowrap;
 }
 
+.option-group-editor-head > .vendor-btn.small,
+.option-choice-price-remove > .vendor-btn.small {
+	padding-inline: 4px;
+	font-size: .75rem;
+}
+
+.option-choice-price-remove > .form-control,
+.option-choice-price-remove > .vendor-btn {
+	width: 100%;
+	min-width: 0;
+}
+
 .option-choice-list {
 	display: grid;
 	gap: 10px;

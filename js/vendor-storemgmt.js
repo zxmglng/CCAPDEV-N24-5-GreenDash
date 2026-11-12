@@ -453,9 +453,9 @@ async function initManageStorePage() {
         editingOptionGroups.forEach((group, groupIndex) => {
             const groupCard = elem('section', 'option-group-editor');
             const groupHead = elem('div', 'option-group-editor-head');
-            // remove section uses the left 1/4; the name uses the remaining 3/4s.
+            // Give the section name three quarters of the row and place Remove section on the right.
             groupHead.style.display = 'grid';
-            groupHead.style.gridTemplateColumns = 'minmax(0, 1fr) minmax(0, 3fr)';
+            groupHead.style.gridTemplateColumns = 'minmax(0, 3fr) minmax(0, 1fr)';
             groupHead.style.alignItems = 'center';
             groupHead.style.gap = '6px';
 
@@ -483,14 +483,13 @@ async function initManageStorePage() {
             requiredInput.addEventListener('change', () => { group.required = requiredInput.checked; });
             requiredLabel.append(requiredInput, document.createTextNode(' Required'));
 
-            groupHead.append(deleteGroupButton, nameInput);
+            groupHead.append(nameInput, deleteGroupButton);
             groupCard.append(groupHead, requiredLabel);
 
             const choices = elem('div', 'option-choice-list');
             group.choices.forEach((choice, choiceIndex) => {
                 const row = elem('div', 'option-choice-editor');
-                // choice name: full modal
-                // remove and extra price share the second row equally.
+                // choice name spans the row; price and remove share the next row equally.
                 row.style.display = 'grid';
                 row.style.gridTemplateColumns = 'minmax(0, 1fr)';
                 row.style.alignItems = 'center';
@@ -537,7 +536,7 @@ async function initManageStorePage() {
                 priceRemoveRow.style.gridTemplateColumns = 'minmax(0, 1fr) minmax(0, 1fr)';
                 priceRemoveRow.style.alignItems = 'center';
                 priceRemoveRow.style.gap = '6px';
-                priceRemoveRow.append(deleteChoiceButton, priceInput);
+                priceRemoveRow.append(priceInput, deleteChoiceButton);
 
                 row.append(choiceName, priceRemoveRow, availableLabel);
                 choices.appendChild(row);
