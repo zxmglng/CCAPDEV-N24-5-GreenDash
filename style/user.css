@@ -285,12 +285,24 @@
     font-size: 18px;
 }
 
-.rating .bi-star, .rating .bi-star-fill {
+.rating .bi-star, .rating .bi-star-fill, .rating .bi-star-half {
     color: #bebebe;
 }
 
-.rating .checked {
+.rating .checked,
+.rating-value {
     color: #fcc42c;
+}
+
+.rating-value {
+    margin-left: 4px;
+    color: #555555;
+    font-size: 13px;
+}
+
+.rating-empty {
+    color: #666666;
+    font-size: 13px;
 }
 
 .status {
