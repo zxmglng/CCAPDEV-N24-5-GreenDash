@@ -1,35 +1,34 @@
-<!-- Vendor Manage Menu (individual store) -->
+<?php
+if (!defined('GREENDASH_VENDOR_MANAGE_STORE_VIEW')) {
+    header('Location: ../../../controller-vendor/manage-menu.php', true, 302);
+    exit;
+}
+$vendorHeaderName = count($vendorStalls) === 1 ? $vendorStalls[0]['name'] : 'Your stores';
+$vendorHeaderLocation = count($vendorStalls) === 1
+    ? ($vendorStalls[0]['location'] ?? '')
+    : count($vendorStalls) . ' assigned stalls';
+?>
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>GreenDash - Manage Store</title>
-
-        <link rel="stylesheet" href="../../../bootstrap/css/bootstrap-5.3.3.min.css">
-        <link rel="stylesheet" href="../../../bootstrap-icons/bootstrap-icons.css">
-        <link rel="stylesheet" href="../../../style/centralized.css">
-        <link rel="stylesheet" href="../../../style/vendors-common.css">
-        <link rel="stylesheet" href="../../../style/vendors-modal.css">
-
-        <!-- to check if the file has been updated, we use filemtime() to get the last 
-            modified time of the CSS file and append it as a query parameter to the URL. 
-            this way, if the file is updated, the browser will see a different 
-            URL and fetch the new version instead of using a cached version. -->
-        <link rel="stylesheet" href="../../../style/vendors-manage-store.css?v=<?= filemtime(__DIR__ . '/../../../style/vendors-manage-store.css') ?>">
-
-        <!-- website icon -->
-        <link rel="icon" type="image/png" href="../../../assets/main/GreenDash_CIRCLE.png">
+        <link rel="stylesheet" href="../bootstrap/css/bootstrap-5.3.3.min.css">
+        <link rel="stylesheet" href="../bootstrap-icons/bootstrap-icons.css">
+        <link rel="stylesheet" href="../style/centralized.css">
+        <link rel="stylesheet" href="../style/vendors-common.css">
+        <link rel="stylesheet" href="../style/vendors-modal.css">
+        <link rel="stylesheet" href="../style/vendors-manage-store.css?v=<?= filemtime(__DIR__ . '/../../../style/vendors-manage-store.css') ?>">
+        <link rel="icon" type="image/png" href="../assets/main/GreenDash_CIRCLE.png">
     </head>
-    
     <body class="vendor-page" data-page="manage-store">
-        <!-- INCLUDE EVERYTHING FOR THE MAIN HEADER FOR ALL PAGES FROM HERE-->
         <header>
             <div class="main-header">
-                <img id="logo" src="../../../assets/main/GreenDash_LOGO.png" alt="GreenDash Logo">
+                <img id="logo" src="../assets/main/GreenDash_LOGO.png" alt="GreenDash Logo">
                 <div class="location">
-                    <strong>Starbucks</strong>
-                    <span>Green Court</span>
+                    <strong><?= htmlspecialchars($vendorHeaderName) ?></strong>
+                    <span><?= htmlspecialchars($vendorHeaderLocation) ?></span>
                 </div>
                 <button class="icon-button" id="eclipse" type="button" aria-label="Toggle dark mode">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
@@ -40,24 +39,19 @@
                     </svg>
                 </button>
             </div>
-
-            <!-- VENDOR NAVIGATION LINKS -->
             <nav>
                 <div class="nav-links">
-                    <a href="profile.php" class="active" aria-current="page">Profile</a>
+                    <a href="profile.php">Profile</a>
                     <a href="orders.php">Order Requests</a>
                     <a href="transaction-history.php">Transaction History</a>
                 </div>
             </nav>
         </header>
-        <!-- TO HERE!-->
 
         <div class="vendor-layout">
-            <!-- LEFT SIDEBAR (same on all 3 Profile sections) -->
             <aside class="vendor-sidebar" aria-label="Profile sections">
                 <h2>Profile</h2>
-                <p class="vendor-greeting">Hello, Jonny!</p>
-
+                <p class="vendor-greeting">Hello, <?= htmlspecialchars($vendor['first_name']) ?>!</p>
                 <ul class="sidebar-links">
                     <li><a href="profile.php">Your account</a></li>
                     <li><a href="manage-menu.php" class="active" aria-current="page">Manage store</a></li>
@@ -73,7 +67,6 @@
                 </a>
 
                 <div class="store-panel">
-                    <!-- STORE HEADER: filled in by vendor.js -->
                     <div class="store-header">
                         <img class="store-header-logo" id="storeLogo" src="" alt="">
                         <div class="store-header-info">
@@ -88,47 +81,38 @@
                     </div>
 
                     <div class="menu-columns">
-                        <!-- COLUMN 1: CATEGORIES -->
                         <section class="menu-column" aria-labelledby="categoriesTitle">
                             <div class="column-head">
                                 <h2 id="categoriesTitle">Menu</h2>
                                 <button type="button" class="sort-btn" id="categorySort" aria-label="Sort categories"></button>
                             </div>
-
                             <label class="search-field">
                                 <i class="bi bi-search" aria-hidden="true"></i>
                                 <span class="visually-hidden">Search categories</span>
                                 <input type="search" id="categorySearch" placeholder="Search categories" autocomplete="off">
                             </label>
-
                             <button type="button" class="list-row add-row" id="addCategoryBtn">
                                 <span>Add new category</span>
                                 <i class="bi bi-plus-lg" aria-hidden="true"></i>
                             </button>
-
                             <ul class="row-list" id="categoryList"></ul>
                         </section>
 
-                        <!-- COLUMN 2: ITEMS IN THE SELECTED CATEGORY -->
                         <section class="menu-column" aria-labelledby="itemsTitle">
                             <div class="column-head">
                                 <h2 id="itemsTitle">Menu items</h2>
                                 <button type="button" class="sort-btn" id="itemSort" aria-label="Change how items are sorted"></button>
                             </div>
-
                             <label class="search-field">
                                 <i class="bi bi-search" aria-hidden="true"></i>
                                 <span class="visually-hidden">Search items</span>
                                 <input type="search" id="itemSearch" placeholder="Search items" autocomplete="off">
                             </label>
-
                             <button type="button" class="list-row add-row" id="addItemBtn">
                                 <span>Add new item</span>
                                 <i class="bi bi-plus-lg" aria-hidden="true"></i>
                             </button>
-
                             <p class="column-note" id="itemsNote" aria-live="polite"></p>
-
                             <ul class="row-list" id="itemList"></ul>
                         </section>
                     </div>
@@ -136,9 +120,6 @@
             </main>
         </div>
 
-        <!-- POP-UPS (filled by vendor-storemgmt.js) -->
-
-        <!-- ADD / EDIT CATEGORY -->
         <div class="vmodal" id="category-modal" role="dialog" aria-modal="true" aria-labelledby="categoryModalTitle">
             <button type="button" class="vmodal-backdrop" data-close aria-label="Close"></button>
             <form class="vmodal-box" id="categoryForm" novalidate>
@@ -158,7 +139,6 @@
             </form>
         </div>
 
-        <!-- ADD / EDIT ITEM -->
         <div class="vmodal" id="item-modal" role="dialog" aria-modal="true" aria-labelledby="itemModalTitle">
             <button type="button" class="vmodal-backdrop" data-close aria-label="Close"></button>
             <form class="vmodal-box" id="itemForm" novalidate>
@@ -177,7 +157,6 @@
                         <div class="item-top-fields">
                             <label for="itemName" class="form-label">Item name</label>
                             <input type="text" class="form-control" id="itemName" maxlength="60" autocomplete="off">
-
                             <label for="itemPrice" class="form-label mt-3">Price (&#8369;)</label>
                             <input type="number" class="form-control" id="itemPrice" min="0" step="0.01" inputmode="decimal">
                         </div>
@@ -191,7 +170,6 @@
                         <div class="category-checks" id="itemCategoryChecks"></div>
                     </fieldset>
 
-                    <!-- ITEM CUSTOMIZATIONS: section and choice editor templates are below. -->
                     <section class="product-customizations" aria-labelledby="productCustomizationsTitle">
                         <div class="customization-editor-heading">
                             <h4 id="productCustomizationsTitle">Item customizations</h4>
@@ -216,9 +194,7 @@
             </form>
         </div>
 
-        <!-- shared team script: draws the dark-mode icon in the header -->
-        <script type="module" src="../../../js/centralized.js"></script>
-        <script src="../../../js/vendor-auth.js"></script>
-        <script src="../../../js/vendor-storemgmt.js?v=<?= filemtime(__DIR__ . '/../../../js/vendor-storemgmt.js') ?>"></script>
+        <script type="module" src="../js/centralized.js"></script>
+        <script src="../js/vendor-storemgmt.js?v=<?= filemtime(__DIR__ . '/../../../js/vendor-storemgmt.js') ?>"></script>
     </body>
 </html>

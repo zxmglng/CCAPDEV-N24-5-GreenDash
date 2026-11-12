@@ -35,7 +35,7 @@ $vendorPageTitle = ['orders' => 'Order Requests', 'history' => 'Transaction Hist
         </div>
         <nav aria-label="Vendor navigation">
             <div class="nav-links">
-                <a href="../app/views/vendor/profile.php">Profile</a>
+                <a href="profile.php">Profile</a>
                 <a href="orders.php" <?= $vendorPage === 'orders' ? 'aria-current="page"' : '' ?>>Order Requests</a>
                 <a href="pickup.php" <?= $vendorPage === 'pickup' ? 'aria-current="page"' : '' ?>>Pickup</a>
                 <a href="transaction-history.php" <?= $vendorPage === 'history' ? 'aria-current="page"' : '' ?>>Transaction History</a>

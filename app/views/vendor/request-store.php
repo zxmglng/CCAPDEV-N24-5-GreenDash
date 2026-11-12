@@ -1,29 +1,30 @@
-<!-- Request Store -->
+<?php
+if (!defined('GREENDASH_VENDOR_REQUEST_STORE_VIEW')) {
+    header('Location: ../../../controller-vendor/request-store.php', true, 302);
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>GreenDash - Request a New Store</title>
-
-        <link rel="stylesheet" href="../../../bootstrap/css/bootstrap-5.3.3.min.css">
-        <link rel="stylesheet" href="../../../bootstrap-icons/bootstrap-icons.css">
-        <link rel="stylesheet" href="../../../style/centralized.css">
-        <link rel="stylesheet" href="../../../style/vendors-common.css">
-        <link rel="stylesheet" href="../../../style/vendors-request-store.css">
-        <link rel="stylesheet" href="../../../style/vendors-modal.css">
-
-        <!-- website icon -->
-        <link rel="icon" type="image/png" href="../../../assets/main/GreenDash_CIRCLE.png">
+        <link rel="stylesheet" href="../bootstrap/css/bootstrap-5.3.3.min.css">
+        <link rel="stylesheet" href="../bootstrap-icons/bootstrap-icons.css">
+        <link rel="stylesheet" href="../style/centralized.css">
+        <link rel="stylesheet" href="../style/vendors-common.css">
+        <link rel="stylesheet" href="../style/vendors-request-store.css">
+        <link rel="stylesheet" href="../style/vendors-modal.css">
+        <link rel="icon" type="image/png" href="../assets/main/GreenDash_CIRCLE.png">
     </head>
-    <body class="vendor-page">
-        <!-- INCLUDE EVERYTHING FOR THE MAIN HEADER FOR ALL PAGES FROM HERE-->
+    <body class="vendor-page" data-page="request-store">
         <header>
             <div class="main-header">
-                <img id="logo" src="../../../assets/main/GreenDash_LOGO.png" alt="GreenDash Logo">
+                <img id="logo" src="../assets/main/GreenDash_LOGO.png" alt="GreenDash Logo">
                 <div class="location">
-                    <strong>Starbucks</strong>
-                    <span>Green Court</span>
+                    <strong><?= count($vendorStalls) === 1 ? htmlspecialchars($vendorStalls[0]['name']) : 'Your stores' ?></strong>
+                    <span><?= count($vendorStalls) === 1 ? htmlspecialchars($vendorStalls[0]['location'] ?? '') : count($vendorStalls) . ' assigned stalls' ?></span>
                 </div>
                 <button class="icon-button" id="eclipse" type="button" aria-label="Toggle dark mode">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
@@ -34,24 +35,19 @@
                     </svg>
                 </button>
             </div>
-
-            <!-- VENDOR NAVIGATION LINKS -->
             <nav>
                 <div class="nav-links">
-                    <a href="profile.php" class="active" aria-current="page">Profile</a>
+                    <a href="profile.php">Profile</a>
                     <a href="orders.php">Order Requests</a>
                     <a href="transaction-history.php">Transaction History</a>
                 </div>
             </nav>
         </header>
-        <!-- TO HERE!-->
 
         <div class="vendor-layout">
-            <!-- LEFT SIDEBAR -->
             <aside class="vendor-sidebar" aria-label="Profile sections">
                 <h2>Profile</h2>
-                <p class="vendor-greeting">Hello, Jonny!</p>
-
+                <p class="vendor-greeting">Hello, <?= htmlspecialchars($vendor['first_name']) ?>!</p>
                 <ul class="sidebar-links">
                     <li><a href="profile.php">Your account</a></li>
                     <li><a href="manage-menu.php">Manage store</a></li>
@@ -66,13 +62,11 @@
                     <h2 class="form-section-title">Store details</h2>
 
                     <div class="request-grid">
-                        <!-- LEFT COLUMN -->
                         <div class="request-col">
                             <div class="request-field">
                                 <label for="store-name" class="form-label">Store name</label>
                                 <input type="text" class="form-control" id="store-name" name="storeName" maxlength="40" required autocomplete="off">
                             </div>
-
                             <div class="request-field">
                                 <label for="store-type" class="form-label">Store type</label>
                                 <select class="form-select" id="store-type" name="storeType" required>
@@ -82,7 +76,6 @@
                                     <option value="Restaurant">Restaurant</option>
                                 </select>
                             </div>
-
                             <fieldset class="request-field">
                                 <legend class="form-label">Operating days</legend>
                                 <div class="day-picker">
@@ -105,14 +98,12 @@
                             </fieldset>
                         </div>
 
-                        <!-- RIGHT COLUMN -->
                         <div class="request-col">
                             <div class="request-field">
                                 <label for="store-logo" class="form-label">Store logo</label>
                                 <input type="file" class="form-control" id="store-logo" name="storeLogo" accept="image/png" required>
                                 <p class="form-hint">PNG only.</p>
                             </div>
-
                             <div class="request-field">
                                 <label for="store-location" class="form-label">Location</label>
                                 <select class="form-select" id="store-location" name="location" required>
@@ -124,7 +115,6 @@
                                     <option value="La Salle Hall">La Salle Hall</option>
                                 </select>
                             </div>
-
                             <fieldset class="request-field">
                                 <legend class="form-label">Operating hours</legend>
                                 <div class="hours-pair">
@@ -231,7 +221,6 @@
             </main>
         </div>
 
-        <!-- POP-UP: REQUEST SUBMITTED -->
         <div class="vmodal" id="request-sent" role="dialog" aria-modal="true" aria-labelledby="request-sent-title">
             <a class="vmodal-backdrop" href="#_" aria-label="Close"></a>
             <div class="vmodal-box">
@@ -244,13 +233,11 @@
                 </div>
                 <div class="vmodal-foot">
                     <a class="vendor-btn secondary" href="request-store.php">Make another request</a>
-                    <a class="vendor-btn primary" href="manage-store.php">Back to my stores</a>
+                    <a class="vendor-btn primary" href="manage-menu.php">Back to my stores</a>
                 </div>
             </div>
         </div>
 
-        <!-- shared team script: only needed to draw the dark-mode icon in the header -->
-        <script type="module" src="../../../js/centralized.js"></script>
-        <script src="../../../js/vendor-auth.js"></script>
+        <script type="module" src="../js/centralized.js"></script>
     </body>
 </html>
