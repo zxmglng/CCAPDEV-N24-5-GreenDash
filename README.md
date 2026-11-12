@@ -85,6 +85,14 @@ All significant changes to this project will be logged in this section
 - Rating only for completed order
 - Order status progression (pending, preparing, ready, etc)
 
+### Backend implementation
+- User orders and reviews use the database; reviews are allowed only for the customer's completed orders.
+- Vendor controllers load orders only for stalls assigned through `stalls.vendor_id`.
+- Active orders support search, stall/status filters, and pickup-time/status sorting.
+- The pickup page verifies the customer's order ID and records collection after payment confirmation.
+- PHP enforces `pending` → `preparing` → `ready` → `completed`; completed/cancelled orders appear in transaction history with actual customer ratings.
+- See [vendor controller setup and routes](controller-vendor/README.md). No additional tables are required for this workflow.
+
 
 ## Raph — Vendor Store + Admin
 ### Vendor

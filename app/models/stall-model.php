@@ -8,6 +8,13 @@ function getCheckoutStall(PDO $pdo, int $stallId): ?array
     return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
 }
 
+function getVendorStalls(PDO $pdo, int $vendorId): array
+{
+    $stmt = $pdo->prepare('SELECT id, name, location FROM stalls WHERE vendor_id = ? ORDER BY name');
+    $stmt->execute([$vendorId]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
 // gets all stalls for the user stalls directory
 function getAllStalls(PDO $pdo): array
 {

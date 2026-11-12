@@ -1,378 +1,51 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>GreenDash - Order Requests</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="../../../bootstrap/css/bootstrap-5.3.3.min.css">
-        <link rel="stylesheet" href="../../../style/centralized.css">
-        <link rel="stylesheet" href="../../../style/vendor.css">
-        <link rel="icon" type="image/png" href="../../../assets/main/GreenDash_CIRCLE.png">
-    </head>
-    <body class="vendor-page vendor-orders-page">
-        <header>
-            <div class="main-header">
-                <img id="logo" src="../../../assets/main/GreenDash_LOGO.png" alt="GreenDash Logo">
-                <div class="location">
-                    <strong>Starbucks</strong>
-                    <span>Green Court</span>
-                </div>
-                <button class="icon-button" id="eclipse" type="button" aria-label="Toggle dark mode">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" aria-hidden="true">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <path d="M12 2a7 7 0 1 0 10 10"></path>
-                    </svg>
-                </button>
-            </div>
-            <nav aria-label="Vendor navigation">
-                <div class="nav-links">
-                    <a href="profile.php">Profile</a>
-                    <a href="orders.php" aria-current="page">Order Requests</a>
-                    <a href="transaction-history.php">Transaction History</a>
-                </div>
-            </nav>
-        </header>
-
-        <main class="vendor-orders-layout">
-            <section class="vendor-orders-list" aria-labelledby="ongoingOrdersHeading">
-                <label class="vendor-search-container">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" aria-hidden="true">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <path d="m21 21-4.35-4.35"></path>
-                    </svg>
-                    <input type="search" id="vendorOrderSearchInput"
-                        aria-label="Search orders by order ID, customer, or item"
-                        placeholder="Search orders by order ID, name, or item">
+<?php
+if (!defined('GREENDASH_VENDOR_ORDERS_VIEW')) {
+    $queryString = $_SERVER['QUERY_STRING'] ?? '';
+    header('Location: ../../../controller-vendor/orders.php' . ($queryString !== '' ? '?' . $queryString : ''), true, 302);
+    exit;
+}
+require __DIR__ . '/order-header.php';
+?>
+<main class="vendor-orders-layout">
+    <section class="vendor-orders-list" aria-labelledby="ongoingOrdersHeading">
+        <label class="vendor-search-container">
+            <span class="visually-hidden">Search orders</span>
+            <input type="search" id="vendorOrderSearchInput" aria-label="Search orders by order ID, customer, or item"
+                placeholder="Search orders by order ID, name, or item">
+        </label>
+        <div class="vendor-orders-heading">
+            <h1 id="ongoingOrdersHeading">Active Orders</h1>
+            <div class="vendor-order-controls">
+                <label class="vendor-sort-control">Sort by
+                    <select id="vendorOrderSort">
+                        <option value="pickup">Pickup time (Now first)</option>
+                        <option value="status">Status</option>
+                    </select>
                 </label>
-                <div class="vendor-orders-heading">
-                    <h1 id="ongoingOrdersHeading">Order Requests</h1>
-                    <div class="vendor-order-controls">
-                        <label class="vendor-sort-control">
-                            <span>Sort by</span>
-                            <select id="vendorOrderSort" aria-label="Sort orders">
-                                <option value="pickup">Pickup time (Now first)</option>
-                                <option value="status">Status</option>
-                            </select>
-                        </label>
-                        <label class="vendor-sort-control">
-                            <span>Filter status</span>
-                            <select id="vendorOrderStatusFilter" aria-label="Filter orders by status">
-                                <option value="all">All statuses</option>
-                                <option value="pending">Pending</option>
-                                <option value="preparing">Preparing</option>
-                                <option value="ready">Ready</option>
-                                <option value="completed">Completed</option>
-                                <option value="cancelled">Cancelled</option>
-                            </select>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- Card amounts and default profile photos are filled from each order's data. -->
-                <div class="vendor-order-grid" id="vendorOrderGrid">
-                    <article class="vendor-order-card" data-customer="David" data-order-id="6767HI"
-                        data-item="Java Chip Frappuccino" data-image="javachip.png" data-options="Non-fat, Grande"
-                        data-quantity="2" data-total="460" data-payment="Cash"
-                        data-payment-status="Pending" data-status="pending"
-                        data-pickup-time="now">
-                        <h2>David</h2>
-                        <span class="vendor-card-order-id">ORDER #6767HI</span>
-                        <p>Java Chip Frappuccino × 2</p>
-                        <p class="vendor-card-options">Non-fat · Grande</p>
-                        <div class="vendor-card-meta">
-                            <span class="vendor-order-status pending">Pending</span>
-                            <span>Pickup: Now</span>
-                            <span class="vendor-card-payment-status pending">Payment: Pending</span>
-                        </div>
-                        <div class="vendor-card-actions">
-                            <button class="vendor-open-order" type="button" data-bs-toggle="modal"
-                                data-bs-target="#vendorOrderModal">Open order</button>
-                        </div>
-                    </article>
-                    <article class="vendor-order-card" data-customer="Alyssa" data-order-id="6768AB"
-                        data-item="Caffè Americano" data-image="americano.png" data-options="Iced, Tall"
-                        data-quantity="1" data-total="150" data-payment="Online payment"
-                        data-payment-status="Paid" data-reference-number="0928475163021" data-status="preparing"
-                        data-pickup-time="11:25">
-                        <h2>Alyssa</h2>
-                        <span class="vendor-card-order-id">ORDER #6768AB</span>
-                        <p>Caffè Americano × 1</p>
-                        <p class="vendor-card-options">Iced · Tall</p>
-                        <div class="vendor-card-meta">
-                            <span class="vendor-order-status preparing">Preparing</span>
-                            <span>Pickup: 11:25 AM</span>
-                            <span class="vendor-card-payment-status paid">Payment: Paid</span>
-                        </div>
-                        <div class="vendor-card-actions">
-                            <button class="vendor-open-order" type="button" data-bs-toggle="modal"
-                                data-bs-target="#vendorOrderModal">Open order</button>
-                        </div>
-                    </article>
-                    <article class="vendor-order-card" data-customer="Marco" data-order-id="6769CD"
-                        data-item="Caramel Macchiato" data-image="caramel.png" data-options="Oat milk, Grande"
-                        data-quantity="1" data-total="230" data-payment="Cash"
-                        data-payment-status="Pending" data-status="ready"
-                        data-pickup-time="11:30">
-                        <h2>Marco</h2>
-                        <span class="vendor-card-order-id">ORDER #6769CD</span>
-                        <p>Caramel Macchiato × 1</p>
-                        <p class="vendor-card-options">Oat milk · Grande</p>
-                        <div class="vendor-card-meta">
-                            <span class="vendor-order-status ready">Ready</span>
-                            <span>Pickup: 11:30 AM</span>
-                            <span class="vendor-card-payment-status pending">Payment: Pending</span>
-                        </div>
-                        <div class="vendor-card-actions">
-                            <button class="vendor-open-order" type="button" data-bs-toggle="modal"
-                                data-bs-target="#vendorOrderModal">Open order</button>
-                        </div>
-                    </article>
-                    <article class="vendor-order-card" data-customer="Bea" data-order-id="6770EF"
-                        data-item="Matcha Latte, Caffè Americano" data-image="matchalatte.png" data-options="Iced, Grande"
-                        data-items='[{"name":"Matcha Latte","image":"matchalatte.png","options":"Iced, Grande","quantity":1,"price":195},{"name":"Caffè Americano","image":"americano.png","options":"Iced, Tall","quantity":1,"price":150}]'
-                        data-quantity="2" data-total="345" data-payment="Online payment"
-                        data-payment-status="Paid" data-reference-number="4710392851642" data-status="pending"
-                        data-pickup-time="11:35">
-                        <h2>Bea</h2>
-                        <span class="vendor-card-order-id">ORDER #6770EF</span>
-                        <p>Matcha Latte × 1, Caffè Americano × 1</p>
-                        <p class="vendor-card-options">Iced Grande · Iced Tall</p>
-                        <div class="vendor-card-meta">
-                            <span class="vendor-order-status pending">Pending</span>
-                            <span>Pickup: 11:35 AM</span>
-                            <span class="vendor-card-payment-status paid">Payment: Paid</span>
-                        </div>
-                        <div class="vendor-card-actions">
-                            <button class="vendor-open-order" type="button" data-bs-toggle="modal"
-                                data-bs-target="#vendorOrderModal">Open order</button>
-                        </div>
-                    </article>
-                    <article class="vendor-order-card" data-customer="Nina" data-order-id="6771GH"
-                        data-item="Caffè Americano, Java Chip Frappuccino" data-image="americano.png" data-options="Hot, Grande"
-                        data-items='[{"name":"Caffè Americano","image":"americano.png","options":"Hot, Grande","quantity":1,"price":150},{"name":"Java Chip Frappuccino","image":"javachip.png","options":"Non-fat, Tall","quantity":1,"price":190}]'
-                        data-quantity="2" data-total="340" data-payment="Online payment"
-                        data-payment-status="Paid" data-reference-number="6251840392716" data-status="preparing"
-                        data-pickup-time="11:40">
-                        <h2>Nina</h2>
-                        <span class="vendor-card-order-id">ORDER #6771GH</span>
-                        <p>Caffè Americano × 1, Java Chip Frappuccino × 1</p>
-                        <p class="vendor-card-options">Hot Grande · Non-fat Tall</p>
-                        <div class="vendor-card-meta">
-                            <span class="vendor-order-status preparing">Preparing</span>
-                            <span>Pickup: 11:40 AM</span>
-                            <span class="vendor-card-payment-status paid">Payment: Paid</span>
-                        </div>
-                        <div class="vendor-card-actions">
-                            <button class="vendor-open-order" type="button" data-bs-toggle="modal"
-                                data-bs-target="#vendorOrderModal">Open order</button>
-                        </div>
-                    </article>
-                    <article class="vendor-order-card" data-customer="Paolo" data-order-id="6772JK"
-                        data-item="Java Chip Frappuccino" data-image="javachip.png" data-options="Non-fat, Tall"
-                        data-quantity="1" data-total="190" data-payment="Cash"
-                        data-payment-status="Pending" data-status="ready"
-                        data-pickup-time="11:45">
-                        <h2>Paolo</h2>
-                        <span class="vendor-card-order-id">ORDER #6772JK</span>
-                        <p>Java Chip Frappuccino × 1</p>
-                        <p class="vendor-card-options">Non-fat · Tall</p>
-                        <div class="vendor-card-meta">
-                            <span class="vendor-order-status ready">Ready</span>
-                            <span>Pickup: 11:45 AM</span>
-                            <span class="vendor-card-payment-status pending">Payment: Pending</span>
-                        </div>
-                        <div class="vendor-card-actions">
-                            <button class="vendor-open-order" type="button" data-bs-toggle="modal"
-                                data-bs-target="#vendorOrderModal">Open order</button>
-                        </div>
-                    </article>
-                    <article class="vendor-order-card" data-customer="James" data-order-id="6773LM"
-                        data-item="Caramel Macchiato" data-image="caramel.png" data-options="Hot, Grande"
-                        data-quantity="1" data-total="220" data-payment="Cash"
-                        data-payment-status="Paid" data-status="completed"
-                        data-pickup-time="11:05" data-rating="5"
-                        data-completed-at="2026-10-13T11:04:00+08:00">
-                        <h2>James</h2>
-                        <span class="vendor-card-order-id">ORDER #6773LM</span>
-                        <p>Caramel Macchiato × 1</p>
-                        <p class="vendor-card-options">Hot · Grande</p>
-                        <div class="vendor-card-meta">
-                            <span class="vendor-order-status completed">Completed</span>
-                            <span>Pickup: 11:05 AM</span>
-                            <span class="vendor-card-payment-status paid">Payment: Paid</span>
-                        </div>
-                        <div class="vendor-card-actions">
-                            <button class="vendor-open-order" type="button" data-bs-toggle="modal"
-                                data-bs-target="#vendorOrderModal">Open order</button>
-                        </div>
-                    </article>
-                    <article class="vendor-order-card" data-customer="Ella" data-order-id="6774NP"
-                        data-item="Matcha Latte" data-image="matchalatte.png" data-options="Iced, Tall"
-                        data-quantity="1" data-total="195" data-payment="Online payment"
-                        data-payment-status="Not charged" data-status="cancelled"
-                        data-pickup-time="11:10"
-                        data-cancellation-reason="Customer requested cancellation before preparation.">
-                        <h2>Ella</h2>
-                        <span class="vendor-card-order-id">ORDER #6774NP</span>
-                        <p>Matcha Latte × 1</p>
-                        <p class="vendor-card-options">Iced · Tall</p>
-                        <div class="vendor-card-meta">
-                            <span class="vendor-order-status cancelled">Cancelled</span>
-                            <span>Pickup: 11:10 AM</span>
-                            <span class="vendor-card-payment-status">Payment: Not charged</span>
-                        </div>
-                        <div class="vendor-card-actions">
-                            <button class="vendor-open-order" type="button" data-bs-toggle="modal"
-                                data-bs-target="#vendorOrderModal">Open order</button>
-                        </div>
-                    </article>
-                    <article class="vendor-order-card" data-customer="Chris" data-order-id="6775QR"
-                        data-item="Caramel Macchiato" data-image="caramel.png" data-options="Extra shot, Grande"
-                        data-quantity="2" data-total="460" data-payment="Cash"
-                        data-payment-status="Pending" data-status="pending"
-                        data-pickup-time="11:50">
-                        <h2>Chris</h2>
-                        <span class="vendor-card-order-id">ORDER #6775QR</span>
-                        <p>Caramel Macchiato × 2</p>
-                        <p class="vendor-card-options">Extra shot · Grande</p>
-                        <div class="vendor-card-meta">
-                            <span class="vendor-order-status pending">Pending</span>
-                            <span>Pickup: 11:50 AM</span>
-                            <span class="vendor-card-payment-status pending">Payment: Pending</span>
-                        </div>
-                        <div class="vendor-card-actions">
-                            <button class="vendor-open-order" type="button" data-bs-toggle="modal"
-                                data-bs-target="#vendorOrderModal">Open order</button>
-                        </div>
-                    </article>
-                    <article class="vendor-order-card" data-customer="Sofia" data-order-id="6776ST"
-                        data-item="Matcha Latte, Caramel Macchiato" data-image="matchalatte.png" data-options="Iced, Tall"
-                        data-items='[{"name":"Matcha Latte","image":"matchalatte.png","options":"Iced, Tall","quantity":1,"price":180},{"name":"Caramel Macchiato","image":"caramel.png","options":"Hot, Grande","quantity":1,"price":220}]'
-                        data-quantity="2" data-total="400" data-payment="Online payment"
-                        data-payment-status="Paid" data-reference-number="1837604925184" data-status="preparing"
-                        data-pickup-time="12:00">
-                        <h2>Sofia</h2>
-                        <span class="vendor-card-order-id">ORDER #6776ST</span>
-                        <p>Matcha Latte × 1, Caramel Macchiato × 1</p>
-                        <p class="vendor-card-options">Iced Tall · Hot Grande</p>
-                        <div class="vendor-card-meta">
-                            <span class="vendor-order-status preparing">Preparing</span>
-                            <span>Pickup: 12:00 PM</span>
-                            <span class="vendor-card-payment-status paid">Payment: Paid</span>
-                        </div>
-                        <div class="vendor-card-actions">
-                            <button class="vendor-open-order" type="button" data-bs-toggle="modal"
-                                data-bs-target="#vendorOrderModal">Open order</button>
-                        </div>
-                    </article>
-                </div>
-                <p class="vendor-orders-empty" id="vendorOrdersEmpty" hidden>
-                    No orders match your search or filter.
-                </p>
-            </section>
-
-        </main>
-
-        <!-- Keep order details in a dismissible, right-side modal. -->
-        <div class="modal fade vendor-order-modal vendor-right-modal" id="vendorOrderModal" tabindex="-1"
-            aria-labelledby="selectedOrderHeading" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content vendor-order-detail vendor-right-panel">
-                    <div class="vendor-order-modal-header">
-                        <h2 id="selectedOrderHeading">Customer2’s order</h2>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                            aria-label="Close order details"></button>
-                    </div>
-                    <div class="vendor-order-modal-body">
-                        <div class="vendor-modal-items" id="vendorModalItems"></div>
-
-                        <div class="vendor-order-summary">
-                            <p class="vendor-order-id" id="vendorModalOrderId">ORDER ID: 6767HI</p>
-                            <dl>
-                                <div>
-                                    <dt>Subtotal:</dt>
-                                    <dd id="vendorModalSubtotal">₱460</dd>
-                                </div>
-                                <div>
-                                    <dt>Payment method:</dt>
-                                    <dd id="vendorModalPayment">Cash</dd>
-                                </div>
-                                <div>
-                                    <dt>Payment status:</dt>
-                                    <dd id="vendorModalPaymentStatus" class="vendor-payment-status pending">Pending</dd>
-                                </div>
-                                <div id="vendorModalReferenceRow" hidden>
-                                    <dt>Reference number:</dt>
-                                    <dd id="vendorModalReferenceNumber"></dd>
-                                </div>
-                                <div>
-                                    <dt>Status:</dt>
-                                    <dd id="vendorModalStatus" class="vendor-payment-status pending">Pending</dd>
-                                </div>
-                                <div>
-                                    <dt>Pickup time:</dt>
-                                    <dd id="vendorModalPickup">11:20 AM</dd>
-                                </div>
-                            </dl>
-                            <p class="vendor-cancellation-reason" id="vendorModalCancellationReason" hidden></p>
-                        </div>
-                        <div class="vendor-order-modal-actions">
-                            <p>Update status</p>
-                            <div class="vendor-status-options" role="group" aria-label="Set order status">
-                                <button type="button" class="vendor-status-option pending" data-status="pending">
-                                    Pending
-                                </button>
-                                <button type="button" class="vendor-status-option preparing" data-status="preparing">
-                                    Preparing
-                                </button>
-                                <button type="button" class="vendor-status-option ready" data-status="ready">
-                                    Ready
-                                </button>
-                                <button type="button" class="vendor-status-option completed" data-status="completed">
-                                    Complete order
-                                </button>
-                            </div>
-                            <button type="button" class="vendor-cancel-order" id="vendorCancelOrderButton">
-                                Cancel order
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                <label class="vendor-sort-control">Status
+                    <select id="vendorOrderStatusFilter">
+                        <option value="all">All active</option>
+                        <option value="pending">Pending</option>
+                        <option value="preparing">Preparing</option>
+                        <option value="ready">Ready for pickup</option>
+                    </select>
+                </label>
+                <label class="vendor-sort-control">Stall
+                    <select id="vendorStallFilter">
+                        <option value="all">All your stalls</option>
+                        <?php foreach ($vendorStalls as $stall): ?>
+                            <option value="<?= (int) $stall['id'] ?>"><?= htmlspecialchars($stall['name']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </label>
+                <button type="button" class="vendor-action secondary" id="vendorRefreshOrders">Refresh</button>
             </div>
         </div>
-
-        <div class="modal fade vendor-cancel-modal vendor-right-modal" id="vendorCancelModal" tabindex="-1"
-            aria-labelledby="vendorCancelHeading" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content vendor-order-detail vendor-right-panel">
-                    <div class="vendor-order-modal-header">
-                        <h2 id="vendorCancelHeading">Cancel order</h2>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                            aria-label="Close cancellation dialog"></button>
-                    </div>
-                    <form id="vendorCancelForm" class="vendor-cancel-form">
-                        <div class="vendor-order-modal-body">
-                            <p id="vendorCancelOrderLabel" class="vendor-cancel-order-label"></p>
-                            <label for="vendorCancelReason">Reason for cancellation</label>
-                            <textarea id="vendorCancelReason" rows="5" maxlength="500" required></textarea>
-                            <p class="vendor-cancel-hint">A reason is required (up to 500 characters).</p>
-                            <div class="vendor-cancel-actions">
-                                <button type="button" class="vendor-status-cancel"
-                                    data-bs-dismiss="modal">Keep order</button>
-                                <button type="submit" class="vendor-status-save">Cancel order</button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <script src="../../../bootstrap/js/bootstrap.bundle.min.js"></script>
-        <script src="../../../js/vendor.js"></script>
-        <script type="module" src="../../../js/centralized.js"></script>
-    </body>
-</html>
+        <p id="vendorPageFeedback" role="status" aria-live="polite"></p>
+        <div class="vendor-order-grid" id="vendorOrderGrid"></div>
+        <p class="vendor-orders-empty" id="vendorOrdersEmpty" hidden>No active orders match your search.</p>
+        <noscript>Enable JavaScript to view and manage your orders.</noscript>
+    </section>
+</main>
+<?php require __DIR__ . '/order-modal.php'; ?>
+<?php require __DIR__ . '/order-footer.php'; ?>

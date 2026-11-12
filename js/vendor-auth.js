@@ -11,6 +11,7 @@ const VENDOR_KEYS = {
 // Match the PHP application or the preserved HTML prototype being viewed.
 const VENDOR_PAGE_EXTENSION = window.location.pathname.endsWith('.html') ? '.html' : '.php';
 const VENDOR_LOGIN_URL = `login${VENDOR_PAGE_EXTENSION}`;
+const VENDOR_APPLICATION_URL = new URL('../', document.currentScript.src);
 
 // LOGIN PAGE: GOOGLE BUTTON
 
@@ -36,7 +37,7 @@ function initVendorGoogleLogin() {
 // Runs after a successful Google sign-in
 // Decodes the JWT and validate email domain
 // Store account in localStorage
-function handleVendorGoogleLogin(response) {
+async function handleVendorGoogleLogin(response) {
     let payload;
     try {
         payload = JSON.parse(atob(response.credential.split('.')[1]));
@@ -49,6 +50,34 @@ function handleVendorGoogleLogin(response) {
     if (!payload.email || !payload.email.endsWith('@dlsu.edu.ph')) {
         alert('Please sign in with your DLSU Google account (@dlsu.edu.ph).');
         return;
+    }
+
+    if (VENDOR_PAGE_EXTENSION === '.php') {
+        try {
+            const loginResponse = await fetch(new URL('controller-user/google-login.php', VENDOR_APPLICATION_URL), {
+                method: 'POST', credentials: 'same-origin',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({credential: response.credential})
+            });
+            let result;
+            try {
+                result = await loginResponse.json();
+            } catch {
+                throw new Error('The login server returned an unexpected response. Please try again.');
+            }
+            if (!loginResponse.ok || !result.success) {
+                throw new Error(result.message || 'Unable to sign in. Please try again.');
+            }
+            if (result.user_role !== 'vendor') {
+                clearVendorData();
+                alert('This account is not registered as a vendor. Ask your administrator to set up your vendor account and assign your stall.');
+                return;
+            }
+        } catch (error) {
+            console.error('Vendor login failed.', error);
+            alert(error.message || 'Unable to sign in. Please try again.');
+            return;
+        }
     }
 
     localStorage.setItem(VENDOR_KEYS.email, payload.email);
@@ -75,8 +104,17 @@ function getVendorRedirectTarget() {
         ?.dataset.loginRedirect || `profile${VENDOR_PAGE_EXTENSION}`;
 
     if (!fromQuery) return fallback;
-    if (fromQuery.startsWith('//') || fromQuery.includes('://')) return fallback;
-    return fromQuery;
+    try {
+        const target = new URL(fromQuery, window.location.href);
+        const vendorDirectories = ['controller-vendor/', 'app/views/vendor/', 'pages/vendor/'];
+        if (target.origin !== VENDOR_APPLICATION_URL.origin
+            || !vendorDirectories.some(directory => target.pathname.startsWith(new URL(directory, VENDOR_APPLICATION_URL).pathname))) {
+            return fallback;
+        }
+        return target.href;
+    } catch {
+        return fallback;
+    }
 }
 
 // DATA ACCESSORS
@@ -137,8 +175,24 @@ function initVendorLogout() {
     const button = document.getElementById('vendorLogoutBtn');
     if (!button) return;
 
-    button.addEventListener('click', () => {
+    button.addEventListener('click', async () => {
         if (!confirm('Sign out of GreenDash?')) return;
+        if (VENDOR_PAGE_EXTENSION === '.php') {
+            button.disabled = true;
+            try {
+                const endpoint = new URL('controller-vendor/logout.php', VENDOR_APPLICATION_URL);
+                const tokenResponse = await fetch(endpoint, {credentials: 'same-origin', cache: 'no-store'});
+                const result = await tokenResponse.json();
+                if (!tokenResponse.ok || !result.success) throw new Error('Unable to sign out. Please try again.');
+                const logoutResponse = await fetch(endpoint, {method: 'POST', credentials: 'same-origin',
+                    body: new URLSearchParams({csrfToken: result.csrfToken})});
+                if (!logoutResponse.ok) throw new Error('Unable to sign out. Please try again.');
+            } catch (error) {
+                alert(error.message);
+                button.disabled = false;
+                return;
+            }
+        }
         clearVendorData();
         window.location.href = VENDOR_LOGIN_URL;
     });

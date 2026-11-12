@@ -83,3 +83,76 @@ function cancelPendingUserOrder(PDO $pdo, int $userId, int $orderId): bool
     $stmt->execute([$orderId, $userId]);
     return $stmt->rowCount() === 1;
 }
+
+function getVendorOrderRecords(PDO $pdo, int $vendorId, array $statuses = [], ?int $orderId = null,
+    ?string $orderNumber = null): array
+{
+    $sql = "SELECT o.*, u.first_name, u.last_name, r.rating AS review_rating, r.`comment` AS review_comment
+            FROM orders o JOIN stalls s ON s.id = o.stall_id
+            JOIN users u ON u.user_id = o.user_id
+            LEFT JOIN reviews r ON r.order_id = o.order_id AND o.status = 'completed'
+            WHERE s.vendor_id = ?";
+    $values = [$vendorId];
+    if ($statuses) {
+        $sql .= ' AND o.status IN (' . implode(',', array_fill(0, count($statuses), '?')) . ')';
+        $values = array_merge($values, $statuses);
+    }
+    if ($orderId !== null) {
+        $sql .= ' AND o.order_id = ?';
+        $values[] = $orderId;
+    }
+    if ($orderNumber !== null) {
+        $sql .= ' AND o.order_number = ?';
+        $values[] = $orderNumber;
+    }
+    $stmt = $pdo->prepare($sql . ' ORDER BY o.created_at DESC, o.order_id DESC');
+    $stmt->execute($values);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function getVendorOrderItems(PDO $pdo, int $vendorId, array $orderIds): array
+{
+    if (!$orderIds) return [];
+    $placeholders = implode(',', array_fill(0, count($orderIds), '?'));
+    $stmt = $pdo->prepare(
+        "SELECT i.* FROM order_items i JOIN orders o ON o.order_id = i.order_id
+         JOIN stalls s ON s.id = o.stall_id WHERE s.vendor_id = ?
+         AND o.order_id IN ($placeholders) ORDER BY i.order_item_id"
+    );
+    $stmt->execute(array_merge([$vendorId], $orderIds));
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function getVendorOrderOptions(PDO $pdo, int $vendorId, array $orderIds): array
+{
+    if (!$orderIds) return [];
+    $placeholders = implode(',', array_fill(0, count($orderIds), '?'));
+    $stmt = $pdo->prepare(
+        "SELECT p.* FROM order_item_options p JOIN order_items i ON i.order_item_id = p.order_item_id
+         JOIN orders o ON o.order_id = i.order_id JOIN stalls s ON s.id = o.stall_id
+         WHERE s.vendor_id = ? AND o.order_id IN ($placeholders) ORDER BY p.order_item_option_id"
+    );
+    $stmt->execute(array_merge([$vendorId], $orderIds));
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function getVendorOrderForUpdate(PDO $pdo, int $vendorId, int $orderId): ?array
+{
+    $stmt = $pdo->prepare('SELECT o.* FROM orders o JOIN stalls s ON s.id = o.stall_id
+                          WHERE o.order_id = ? AND s.vendor_id = ? FOR UPDATE');
+    $stmt->execute([$orderId, $vendorId]);
+    return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+}
+
+function updateVendorOrderStatus(PDO $pdo, int $vendorId, int $orderId, string $expectedStatus, string $status): bool
+{
+    $stmt = $pdo->prepare(
+        "UPDATE orders SET status = ?, payment_status = CASE
+         WHEN ? = 'completed' THEN 'paid'
+         WHEN ? = 'cancelled' AND payment_status <> 'paid' THEN 'not_charged'
+         ELSE payment_status END
+         WHERE order_id = ? AND status = ? AND stall_id IN (SELECT id FROM stalls WHERE vendor_id = ?)"
+    );
+    $stmt->execute([$status, $status, $status, $orderId, $expectedStatus, $vendorId]);
+    return $stmt->rowCount() === 1;
+}
