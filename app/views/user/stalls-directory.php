@@ -108,7 +108,7 @@
                                     <p>Hours not available</p>
                                 <?php endif; ?>
                             </div>
-                            <a class="view-stall-button" href="../app/views/user/stall-info.php?stall=<?= (int) $stall['id'] ?>">
+                            <a class="view-stall-button" href="stall-info.php?stall=<?= (int) $stall['id'] ?>">
                             View Stall
                             </a>
                         </div>            

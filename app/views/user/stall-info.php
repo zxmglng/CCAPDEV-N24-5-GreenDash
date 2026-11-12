@@ -1,54 +1,16 @@
-<?php
-require __DIR__ . '/../../core/db.php';
-require_once __DIR__ . '/../../core/checkout.php';
-
-$stallId = filter_var($_GET['stall'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
-$stall = $stallId ? getCheckoutStall($pdo, $stallId) : null;
-if (!$stall) {
-    header('Location: stalls-directory.php');
-    exit;
-}
-$hours = getStallOperatingHours($pdo, $stallId);
-$products = array_values(array_filter(getStallProducts($pdo, $stallId),
-    static fn(array $product): bool => (bool) $product['is_available']));
-// Category labels can be added when the categories schema is integrated.
-$categories = [];
-$now = new DateTimeImmutable('now', new DateTimeZone('Asia/Manila'));
-$pickupTimes = [];
-$hoursLabel = 'Closed';
-foreach (checkoutOpeningIntervals($hours, $now) as [$opens, $closes]) {
-    if ($opens->format('Y-m-d') === $now->format('Y-m-d') || ($now >= $opens && $now < $closes)) {
-        $hoursLabel = $opens->format('g:i A') . ' - ' . $closes->format('g:i A');
-    }
-    for ($start = $opens; $start->modify('+15 minutes') <= $closes; $start = $start->modify('+15 minutes')) {
-        if ($start >= $now && $start->format('Y-m-d') === $now->format('Y-m-d')) {
-            $pickupTimes[] = $start->format('g:i A') . ' - ' . $start->modify('+15 minutes')->format('g:i A');
-        }
-    }
-}
-$stallData = [
-    'stall' => [
-        'id' => (int) $stall['id'], 'name' => $stall['name'], 'location' => $stall['location'],
-        'hours' => $hoursLabel, 'pickupTimes' => $pickupTimes,
-        'logo' => $stall['image_path'] ?? '', 'banner' => $stall['banner_path'] ?? '',
-    ],
-    'products' => $products,
-];
-?>
-
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <title>GreenDash - Stall</title>
-        <link rel="stylesheet" href="../../../bootstrap/css/bootstrap.min.css">
-        <link rel="stylesheet" href="../../../style/centralized.css">
-        <link rel="stylesheet" href="../../../style/user.css">
-        <link rel="stylesheet" href="../../../style/user-stalls.css">
+        <link rel="stylesheet" href="<?= $assetBase ?>bootstrap/css/bootstrap.min.css">
+        <link rel="stylesheet" href="<?= $assetBase ?>style/centralized.css">
+        <link rel="stylesheet" href="<?= $assetBase ?>style/user.css">
+        <link rel="stylesheet" href="<?= $assetBase ?>style/user-stalls.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-        <link rel="icon" type="image/png" href="../../../assets/main/GreenDash_CIRCLE.png">
+        <link rel="icon" type="image/png" href="<?= $assetBase ?>assets/main/GreenDash_CIRCLE.png">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
-    <body data-assets-path="../../../assets/">
+    <body data-assets-path="<?= htmlspecialchars($assetBase . 'assets/', ENT_QUOTES, 'UTF-8') ?>">
         <?php include(__DIR__ . "/../nav.php"); ?>
         <main class="stall-info-page">
             <div class="stall-content">
@@ -212,7 +174,7 @@ $stallData = [
                 <p class="review-eligibility-message" id="reviewEligibilityMessage" hidden>
                     You can read reviews, but you need a completed order from this stall to leave one.
                 </p>
-                <form class="review-form" id="stallReviewForm" method="post" action="../../../controller-user/reviews.php">
+                <form class="review-form" id="stallReviewForm" method="post" action="reviews.php">
                     <h3>Write a review</h3>
                     <label for="stallReviewOrder">Completed order</label>
                     <select id="stallReviewOrder" name="orderId" required></select>
@@ -246,8 +208,8 @@ $stallData = [
         </div>
         <script type="application/json" id="stallData"><?= json_encode($stallData,
             JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR) ?></script>
-        <script src="../../../js/reviews.js"></script>
-        <script src="../../../js/user-stalls.js"></script>
-        <script type="module" src="../../../js/centralized.js"></script>
+        <script src="<?= $assetBase ?>js/reviews.js"></script>
+        <script src="<?= $assetBase ?>js/user-stalls.js"></script>
+        <script type="module" src="<?= $assetBase ?>js/centralized.js"></script>
     </body>
 </html>
