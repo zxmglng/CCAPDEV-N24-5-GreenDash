@@ -165,3 +165,10 @@ function find_user_by_email($email)
 
     return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
 }
+
+function get_active_user_count(PDO $pdo): int
+{
+    return (int) $pdo->query(
+        "SELECT COUNT(*) FROM users WHERE acc_status = 'active'"
+    )->fetchColumn();
+}

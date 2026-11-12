@@ -4,11 +4,11 @@ requireAdminLogin();
 require_once __DIR__ . '/../app/core/db.php';
 require_once __DIR__ . '/../app/models/user-model.php';
 
-$csrfToken = adminCsrfToken();
 define('GREENDASH_ADMIN_VIEW', true);
 
 $error = '';
 $flashAction = '';
+$csrfToken = adminCsrfToken();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!isAdminCsrfTokenValid($_POST['csrfToken'] ?? null)) {

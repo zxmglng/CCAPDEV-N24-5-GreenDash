@@ -5,6 +5,7 @@ require_once __DIR__ . '/../app/core/db.php';
 require_once __DIR__ . '/../app/models/store-request-model.php';
 
 $error = '';
+$csrfToken = adminCsrfToken();
 
 $allowedStatuses = ['pending', 'approved', 'denied', ''];
 $statusFilter = $_GET['status'] ?? 'pending';
@@ -13,6 +14,11 @@ if (!in_array($statusFilter, $allowedStatuses, true)) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!isAdminCsrfTokenValid($_POST['csrfToken'] ?? null)) {
+        http_response_code(403);
+        exit('Your session expired. Please reload the page.');
+    }    
+
     $id = (int) ($_POST['request_id'] ?? 0);
     $act = $_POST['action'] ?? '';
     try {

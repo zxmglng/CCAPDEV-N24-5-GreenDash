@@ -114,6 +114,7 @@ $dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
             <button class="close-x" type="button" data-close aria-label="Close"><i class="bi bi-x-lg"></i></button>
             <h2 id="addStoreTitle">Add a stall</h2>
             <form id="addStoreForm" method="POST">
+                <input type="hidden" name="csrfToken" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
                 <input type="hidden" name="action" value="add">
                 <div class="modal-row">
                     <label class="modal-label" for="newStall">Stall name</label>
@@ -171,6 +172,7 @@ $dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
             <button class="close-x" type="button" data-close aria-label="Close"><i class="bi bi-x-lg"></i></button>
             <h2 id="editStoreTitle">Edit stall</h2>
             <form id="editStoreForm" method="POST">
+                <input type="hidden" name="csrfToken" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
                 <input type="hidden" name="action" value="edit">
                 <input type="hidden" name="id" id="editStoreId">
 
@@ -249,6 +251,7 @@ $dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     </div>
 
     <form method="POST" id="deleteStoreForm" style="display:none;">
+        <input type="hidden" name="csrfToken" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
         <input type="hidden" name="action" value="delete">
         <input type="hidden" name="id" id="deleteStoreId">
     </form>

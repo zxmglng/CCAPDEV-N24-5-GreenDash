@@ -8,6 +8,7 @@ require_once __DIR__ . '/../app/models/stall-hours-model.php';
 
 $error = '';
 $flashAction = '';
+$csrfToken = adminCsrfToken();
 
 function build_hours_rows($hours_input) {
     if (!is_array($hours_input) || empty($hours_input)) {
@@ -60,6 +61,11 @@ function validate_vendor_id($vendorId, array $vendors) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!isAdminCsrfTokenValid($_POST['csrfToken'] ?? null)) {
+        http_response_code(403);
+        exit('Your session expired. Please reload the page.');
+    }
+
     $action = $_POST['action'] ?? '';
     $vendors = get_vendors();
 

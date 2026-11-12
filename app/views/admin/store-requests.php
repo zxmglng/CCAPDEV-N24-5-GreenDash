@@ -116,6 +116,7 @@
     </div>
 
     <form method="POST" id="actionForm" style="display:none;">
+        <input type="hidden" name="csrfToken" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
         <input type="hidden" name="request_id" id="actionRequestId">
         <input type="hidden" name="action" id="actionAction">
     </form>
