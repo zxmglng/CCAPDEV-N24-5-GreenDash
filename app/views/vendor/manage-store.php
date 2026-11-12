@@ -10,8 +10,8 @@
         <link rel="stylesheet" href="../../../bootstrap-icons/bootstrap-icons.css">
         <link rel="stylesheet" href="../../../style/centralized.css">
         <link rel="stylesheet" href="../../../style/vendors-common.css">
-        <link rel="stylesheet" href="../../../style/vendors-manage-store.css">
         <link rel="stylesheet" href="../../../style/vendors-modal.css">
+        <link rel="stylesheet" href="../../../style/vendors-manage-store.css">
 
         <!-- website icon -->
         <link rel="icon" type="image/png" href="../../../assets/main/GreenDash_CIRCLE.png">
