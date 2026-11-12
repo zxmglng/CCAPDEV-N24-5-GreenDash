@@ -1,3 +1,7 @@
+<?php
+// 0 = Sunday ... 6 = Saturday,
+$dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+?>
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -11,15 +15,15 @@
         <link rel="stylesheet" href="style/admin-common.css">
         <link rel="stylesheet" href="style/admin-tables.css">
         <link rel="stylesheet" href="style/admin-modals.css">
-        <link rel="stylesheet" href="style/admin-stores.css">
         <link rel="icon" type="image/png" href="assets/main/GreenDash_CIRCLE.png">
+        
     </head>
     <body class="admin-page"
           data-page="<?= htmlspecialchars($page) ?>"
           data-flash="<?= htmlspecialchars($flashAction) ?>">
         <?php require __DIR__ . '/nav.php'; ?>
             <h1 class="page-title">Stalls Directory</h1>
-            
+
             <?php if ($error !== ''): ?>
                 <p class="admin-flash" role="alert"><?= htmlspecialchars($error) ?></p>
             <?php endif; ?>
@@ -68,7 +72,7 @@
                                 <tr class="stall-row"
                                     data-id="<?= (int)$s['id'] ?>"
                                     data-name="<?= htmlspecialchars($s['name']) ?>"
-                                    data-vendor-id="<?= (int)($s['vendor_id'] ?? 0) ?>"
+                                    data-vendor-id="<?= htmlspecialchars($s['vendor_id'] ?? '') ?>"
                                     data-vendor-name="<?= htmlspecialchars($s['vendor_name'] ?? '') ?>"
                                     data-hours="<?= htmlspecialchars($s['hours_text'] ?? 'Hours not set') ?>"
                                     data-hours-json="<?= htmlspecialchars(json_encode($allHours[(int)$s['id']] ?? [])) ?>">
@@ -131,26 +135,19 @@
                     <input class="form-control" id="newLocation" name="location" type="text" required>
                 </div>
                 <div class="modal-row">
-                    <label class="modal-label">Operating days</label>
-                    <div class="day-picker">
-                        <input class="day-input" type="checkbox" id="add-day-0" name="days[]" value="0"><label class="day-pill" for="add-day-0">Sun</label>
-                        <input class="day-input" type="checkbox" id="add-day-1" name="days[]" value="1"><label class="day-pill" for="add-day-1">Mon</label>
-                        <input class="day-input" type="checkbox" id="add-day-2" name="days[]" value="2"><label class="day-pill" for="add-day-2">Tue</label>
-                        <input class="day-input" type="checkbox" id="add-day-3" name="days[]" value="3"><label class="day-pill" for="add-day-3">Wed</label>
-                        <input class="day-input" type="checkbox" id="add-day-4" name="days[]" value="4"><label class="day-pill" for="add-day-4">Thu</label>
-                        <input class="day-input" type="checkbox" id="add-day-5" name="days[]" value="5"><label class="day-pill" for="add-day-5">Fri</label>
-                        <input class="day-input" type="checkbox" id="add-day-6" name="days[]" value="6"><label class="day-pill" for="add-day-6">Sat</label>
-                    </div>
-                </div>
-                <div class="d-flex gap-3 mt-2">
-                    <div>
-                        <label class="modal-label" for="addOpens">Opens</label>
-                        <input class="form-control" type="time" id="addOpens" name="opens_at" required>
-                    </div>
-                    <div>
-                        <label class="modal-label" for="addCloses">Closes</label>
-                        <input class="form-control" type="time" id="addCloses" name="closes_at" required>
-                    </div>
+                    <label class="modal-label">Operating hours</label>
+                    <?php foreach ($dayNames as $i => $dayName): ?>
+                        <div class="day-hours-row">
+                            <input type="checkbox" class="form-check-input mt-0"
+                                   name="hours[<?= $i ?>][enabled]" value="1" id="add-day-<?= $i ?>">
+                            <label for="add-day-<?= $i ?>"><?= $dayName ?></label>
+                            <input type="time" class="form-control form-control-sm"
+                                   name="hours[<?= $i ?>][opens]" id="add-opens-<?= $i ?>" disabled>
+                            <span>to</span>
+                            <input type="time" class="form-control form-control-sm"
+                                   name="hours[<?= $i ?>][closes]" id="add-closes-<?= $i ?>" disabled>
+                        </div>
+                    <?php endforeach; ?>
                 </div>
                 <div class="modal-row">
                     <label class="modal-label" for="newStatus">Status</label>
@@ -168,7 +165,7 @@
         </div>
     </div>
 
-    <!-- MODAL: Edit Stall -->
+    <!-- Edit modal -->
     <div class="admin-modal" id="editStoreModal" role="dialog" aria-modal="true" aria-labelledby="editStoreTitle">
         <div class="admin-modal-card">
             <button class="close-x" type="button" data-close aria-label="Close"><i class="bi bi-x-lg"></i></button>
@@ -176,7 +173,7 @@
             <form id="editStoreForm" method="POST">
                 <input type="hidden" name="action" value="edit">
                 <input type="hidden" name="id" id="editStoreId">
-                
+
                 <div class="modal-row">
                     <label class="modal-label" for="editStall">Stall name</label>
                     <input class="form-control" id="editStall" name="name" type="text" required>
@@ -197,33 +194,19 @@
                     <input class="form-control" id="editLocation" name="location" type="text" required>
                 </div>
                 <div class="modal-row">
-                    <label class="modal-label">Operating days</label>
-                    <div class="day-picker">
-                        <input class="day-input" type="checkbox" id="edit-day-0" name="days[]" value="0">
-                        <label class="day-pill" for="edit-day-0">Sun</label>
-                        <input class="day-input" type="checkbox" id="edit-day-1" name="days[]" value="1">
-                        <label class="day-pill" for="edit-day-1">Mon</label>
-                        <input class="day-input" type="checkbox" id="edit-day-2" name="days[]" value="2">
-                        <label class="day-pill" for="edit-day-2">Tue</label>
-                        <input class="day-input" type="checkbox" id="edit-day-3" name="days[]" value="3">
-                        <label class="day-pill" for="edit-day-3">Wed</label>
-                        <input class="day-input" type="checkbox" id="edit-day-4" name="days[]" value="4">
-                        <label class="day-pill" for="edit-day-4">Thu</label>
-                        <input class="day-input" type="checkbox" id="edit-day-5" name="days[]" value="5">
-                        <label class="day-pill" for="edit-day-5">Fri</label>
-                        <input class="day-input" type="checkbox" id="edit-day-6" name="days[]" value="6"
-                        ><label class="day-pill" for="edit-day-6">Sat</label>
-                    </div>
-                </div>
-                <div class="d-flex gap-3 mt-2">
-                    <div>
-                        <label class="modal-label" for="editOpens">Opens</label>
-                        <input class="form-control" type="time" id="editOpens" name="opens_at" required>
-                    </div>
-                    <div>
-                        <label class="modal-label" for="editCloses">Closes</label>
-                        <input class="form-control" type="time" id="editCloses" name="closes_at" required>
-                    </div>
+                    <label class="modal-label">Operating hours</label>
+                    <?php foreach ($dayNames as $i => $dayName): ?>
+                        <div class="day-hours-row">
+                            <input type="checkbox" class="form-check-input mt-0"
+                                   name="hours[<?= $i ?>][enabled]" value="1" id="edit-day-<?= $i ?>">
+                            <label for="edit-day-<?= $i ?>"><?= $dayName ?></label>
+                            <input type="time" class="form-control form-control-sm"
+                                   name="hours[<?= $i ?>][opens]" id="edit-opens-<?= $i ?>" disabled>
+                            <span>to</span>
+                            <input type="time" class="form-control form-control-sm"
+                                   name="hours[<?= $i ?>][closes]" id="edit-closes-<?= $i ?>" disabled>
+                        </div>
+                    <?php endforeach; ?>
                 </div>
                 <div class="modal-row">
                     <label class="modal-label" for="editStatus">Status</label>

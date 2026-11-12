@@ -529,3 +529,19 @@ body.admin-page {
     margin-bottom: -11px;
     padding-bottom: 11px;
 }
+
+.day-hours-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.day-hours-row label {
+    width: 40px;
+    margin: 0;
+}
+
+.day-hours-row input[type="time"] {
+    max-width: 120px;
+}
