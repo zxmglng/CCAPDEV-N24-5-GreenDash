@@ -2346,3 +2346,213 @@
         flex-direction: column;
     }
 }
+
+/* SELECT ROLE PAGE */
+
+.select-role-page {
+    min-height: 100vh;
+    background: #f4f7f1;
+}
+
+.select-role-wrapper {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+}
+
+.select-role-card {
+    width: 100%;
+    max-width: 760px;
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 42px 36px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    text-align: center;
+}
+
+.select-role-logo {
+    width: 220px;
+    max-width: 100%;
+    margin-bottom: 22px;
+}
+
+.select-role-card h1 {
+    font-family: 'League Spartan', 'Inter', sans-serif;
+    font-size: 36px;
+    font-weight: 700;
+    color: #006937;
+    margin-bottom: 8px;
+}
+
+.select-role-subtext {
+    color: #666666;
+    font-size: 16px;
+    margin-bottom: 30px;
+}
+
+.select-role-error {
+    margin-bottom: 20px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #fbe9e9;
+    color: #a00000;
+    font-size: 14px;
+}
+
+.select-role-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.role-card-group {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+}
+
+/* hide the actual radio buttons */
+.role-card-group input[type="radio"] {
+    display: none;
+}
+
+.role-option-card {
+    position: relative;
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+
+    padding: 24px 20px;
+
+    border: 2px solid #d9e6d8;
+    border-radius: 20px;
+
+    background: #f9fcf8;
+
+    text-align: left;
+    cursor: pointer;
+
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.role-option-card:hover {
+    border-color: #006937;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 18px rgba(0, 105, 55, 0.10);
+}
+
+.role-option-icon {
+    width: 52px;
+    height: 52px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: 16px;
+
+    border-radius: 14px;
+    background: #e8f5e9;
+
+    color: #006937;
+    font-size: 30px;
+}
+
+.role-option-title {
+    font-family: 'League Spartan', 'Inter', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: #111111;
+    margin-bottom: 8px;
+}
+
+.role-option-desc {
+    color: #5c5c5c;
+    font-size: 14px;
+    line-height: 1.5;
+    font-weight: 400;
+}
+
+/* selected role */
+.role-card-group input[type="radio"]:checked + .role-option-card {
+    border-color: #006937;
+    background: #eef8f0;
+    box-shadow: 0 0 0 3px rgba(0, 105, 55, 0.10);
+}
+
+/* selected checkmark */
+.role-card-group input[type="radio"]:checked + .role-option-card::after {
+    content: "✓";
+
+    position: absolute;
+    top: 14px;
+    right: 14px;
+
+    width: 30px;
+    height: 30px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #006937;
+    color: #ffffff;
+
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.select-role-button {
+    align-self: center;
+
+    min-width: 220px;
+    padding: 13px 30px;
+
+    border: none;
+    border-radius: 999px;
+
+    background: #006937;
+    color: #ffffff;
+
+    font-size: 16px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+.select-role-button:hover {
+    background: #00572e;
+    transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+    .select-role-card {
+        padding: 34px 24px;
+    }
+    .select-role-card h1 {
+        font-size: 30px;
+    }
+    .role-card-group {
+        grid-template-columns: 1fr;
+    }
+    .role-option-card {
+        min-height: 140px;
+    }
+    .select-role-button {
+        width: 100%;
+    }
+}
