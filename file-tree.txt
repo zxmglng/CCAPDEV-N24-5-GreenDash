@@ -1,0 +1,221 @@
+Folder PATH listing
+Volume serial number is 0C2A-50D6
+C:.
+|   file-tree.txt
+|   index.php
+|   logout.php
+|   README.md
+|   
++---app
+|   +---core
+|   |       admin-auth.php
+|   |       checkout.php
+|   |       db.php
+|   |       orders.php
+|   |       product-options.php
+|   |       reviews.php
+|   |       vendor-auth.php
+|   |       vendor-orders.php
+|   |       
+|   +---models
+|   |       category-model.php
+|   |       order-model.php
+|   |       product-model.php
+|   |       product-options-model.php
+|   |       README.md
+|   |       review-model.php
+|   |       stall-hours-model.php
+|   |       stall-model.php
+|   |       store-request-model.php
+|   |       user-model.php
+|   |       
+|   \---views
+|       |   nav.php
+|       |   
+|       +---admin
+|       |       home.php
+|       |       login.php
+|       |       logout.php
+|       |       manage-stores.php
+|       |       manage-users.php
+|       |       nav.php
+|       |       store-requests.php
+|       |       
+|       +---user
+|       |       checkout.php
+|       |       login.php
+|       |       orders.php
+|       |       profile.php
+|       |       select-role.php
+|       |       signup.php
+|       |       stall-info.php
+|       |       stalls-directory.php
+|       |       
+|       \---vendor
+|               home.php
+|               login.php
+|               manage-menu.php
+|               manage-store.php
+|               order-details.php
+|               order-footer.php
+|               order-header.php
+|               order-info.php
+|               order-modal.php
+|               orders.php
+|               pickup.php
+|               profile.php
+|               request-store.php
+|               signup.php
+|               transaction-history.php
+|               
++---assets
+|   +---main
+|   |       defaultAvatar.png
+|   |       google_LOGO.png
+|   |       GreenDash_CIRCLE.png
+|   |       GreenDash_LOGO.png
+|   |       GreenDash_LOGO_DARK.png
+|   |       
+|   +---payment-qr
+|   |       starbucks.png
+|   |       
+|   +---stalls
+|   |       belgian.png
+|   |       dq.png
+|   |       potcor.png
+|   |       starbucks-banner.png
+|   |       starbucks.png
+|   |       
+|   \---starbucksMenu
+|           americano.png
+|           caramel.png
+|           javachip.png
+|           matchalatte.png
+|           
++---bootstrap
+|   +---css
+|   |       bootstrap-5.3.3.min.css
+|   |       bootstrap.min.css
+|   |       
+|   \---js
+|           bootstrap.bundle.min.js
+|           
++---bootstrap-icons
+|   |   bootstrap-icons.css
+|   |   
+|   \---fonts
+|           bootstrap-icons.woff
+|           bootstrap-icons.woff2
+|           
++---controller-admin
+|       home.php
+|       login.php
+|       logout.php
+|       manage-stores.php
+|       manage-users.php
+|       README.md
+|       store-requests.php
+|       
++---controller-user
+|       cancel-order.php
+|       checkout.php
+|       google-login.php
+|       orders.php
+|       profile.php
+|       README.md
+|       reviews.php
+|       select-role.php
+|       stall-info.php
+|       stalls-directory.php
+|       submit-order.php
+|       
++---controller-vendor
+|       logout.php
+|       order.php
+|       orders.php
+|       pickup.php
+|       product-options.php
+|       README.md
+|       transaction-history.php
+|       update-order.php
+|       _bootstrap.php
+|       
++---database
+|       schema_and_data.sql
+|       
++---js
+|       admin-login.js
+|       admin-requests.js
+|       admin-stores.js
+|       admin-users.js
+|       admin.js
+|       centralized.js
+|       checkout.js
+|       jquery-4.0.0.min.js
+|       reviews.js
+|       user-orders.js
+|       user-stalls-directory.js
+|       user-stalls.js
+|       user.js
+|       vendor-auth.js
+|       vendor-orders.js
+|       vendor-storemgmt.js
+|       vendor.js
+|       
++---pages
+|   +---admin
+|   |       home.html
+|   |       login.html
+|   |       manage-stores.html
+|   |       manage-users.html
+|   |       request-details.html
+|   |       store-requests.html
+|   |       
+|   +---user
+|   |       .DS_Store
+|   |       checkout.html
+|   |       login.html
+|   |       orders.html
+|   |       profile.html
+|   |       signup.html
+|   |       stall-info.html
+|   |       stalls-directory.html
+|   |       
+|   \---vendor
+|           home.html
+|           login.html
+|           manage-menu.html
+|           manage-store.html
+|           order-info.html
+|           pickup.html
+|           profile.html
+|           request-store.html
+|           signup.html
+|           transaction-history.html
+|           
++---style
+|       admin-common.css
+|       admin-login.css
+|       admin-modals.css
+|       admin-requests.css
+|       admin-tables.css
+|       admin-users.css
+|       admin.css
+|       centralized.css
+|       checkout.css
+|       main.css
+|       user-stalls.css
+|       user.css
+|       vendor-orders.css
+|       vendor.css
+|       vendors-common.css
+|       vendors-login.css
+|       vendors-manage-menu.css
+|       vendors-manage-store.css
+|       vendors-modal.css
+|       vendors-profile.css
+|       vendors-request-store.css
+|       
+\---tests
+        test_admin_auth.py
+        
