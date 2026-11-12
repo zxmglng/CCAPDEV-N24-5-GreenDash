@@ -49,35 +49,35 @@ require_once __DIR__ . '/../app/core/checkout.php';
 startCheckoutSession();
 header('Content-Type: application/json; charset=utf-8');
 
-// the function for sending JSON responses and exiting the script
+// Send a consistent JSON response and stop processing the request.
 function checkoutResponse(int $status, array $result): void
 {
-    // set the HTTP response code and send the JSON response
     http_response_code($status);
     echo json_encode($result, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
     exit;
 }
 
-// if the request method is not POST, return a 405 Method Not Allowed response
+// Reject unsupported methods before reading form data.
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Allow: POST');
     checkoutResponse(405, ['success' => false, 'message' => 'Method not allowed.']);
 }
 
-// check if the user is logged in
+// Require an authenticated session for order placement.
 if (!isset($_SESSION['user_id'])) {
     checkoutResponse(401, ['success' => false, 'message' => 'Please sign in before placing an order.']);
 }
 
-// check if the CSRF token is valid
+// Reject submissions that did not originate from this user's checkout session.
 if (!is_string($_POST['csrfToken'] ?? null) || !isset($_SESSION['checkout_csrf_token'])
     || !hash_equals($_SESSION['checkout_csrf_token'], $_POST['csrfToken'])) {
     checkoutResponse(403, ['success' => false, 'message' => 'Your checkout session expired. Please reload the page.']);
 }
 
-// validate the checkout request and place the order
+// Validate the request, prevent duplicate submissions, and persist the order.
 try {
     $userId = checkoutPositiveInteger($_SESSION['user_id'], 'User ID');
+    // Decode the serialized cart with size/depth limits before validating its structure and contents.
     $orderItems = $_POST['orderItems'] ?? '';
     if (!is_string($orderItems) || strlen($orderItems) > 100000) {
         throw new CheckoutValidationException('Invalid order items.');
@@ -101,6 +101,7 @@ try {
     $fingerprint = hash('sha256', json_encode($request, JSON_THROW_ON_ERROR));
     $previousReceipt = $_SESSION['checkout_receipts'][$receiptKey] ?? null;
     if ($previousReceipt) {
+        // Return the prior receipt for an exact retry, but reject reusing an ID for changed order data.
         if (!hash_equals($previousReceipt['fingerprint'], $fingerprint)) {
             checkoutResponse(409, ['success' => false, 'message' => 'This checkout has already been submitted. Please start a new order.']);
         }
@@ -108,6 +109,7 @@ try {
     }
 
     require __DIR__ . '/../app/core/db.php';
+    // Persist the validated order and cache its receipt so a network retry cannot create a duplicate.
     $result = placeCheckoutOrder($pdo, $userId, $request);
     // Repeating the same submission in this session returns its saved receipt.
     $_SESSION['checkout_receipts'][$receiptKey] = ['fingerprint' => $fingerprint, 'result' => $result];

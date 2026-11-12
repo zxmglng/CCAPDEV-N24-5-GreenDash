@@ -3,12 +3,14 @@
 
 function getCheckoutUser(PDO $pdo, int $userId): ?array
 {
+    // Minimal account lookup used to confirm the user is still active.
     $stmt = $pdo->prepare('SELECT user_id, acc_status FROM users WHERE user_id = ?');
     $stmt->execute([$userId]);
     return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
 }
 
-function getUserById(PDO $pdo, int $userId): ?array  // get a user by their ID, returns null if not found
+// Return null when the user ID has no matching account.
+function getUserById(PDO $pdo, int $userId): ?array
 {
     $stmt = $pdo->prepare("
         SELECT *
@@ -22,7 +24,8 @@ function getUserById(PDO $pdo, int $userId): ?array  // get a user by their ID, 
     return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
 }
 
-function getUserByEmail(PDO $pdo, string $email): ?array // get a user by their email
+// Used by Google login to find an existing account before creating one.
+function getUserByEmail(PDO $pdo, string $email): ?array
 {
     $stmt = $pdo->prepare("
         SELECT *
@@ -36,7 +39,7 @@ function getUserByEmail(PDO $pdo, string $email): ?array // get a user by their 
     return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
 }
 
-// creates new user fron their google acc info
+// Create the local account record from verified Google profile details.
 function createGoogleUser(PDO $pdo, string $email, string $firstName, string $lastName, ?string $profileImage): int
 {
     $stmt = $pdo->prepare("
@@ -53,7 +56,7 @@ function createGoogleUser(PDO $pdo, string $email, string $firstName, string $la
     return (int) $pdo->lastInsertId();
 }
 
-// uppdates the login user profile information
+// Save profile fields edited by the authenticated user.
 function updateUserProfile(PDO $pdo, int $userId, string $firstName, string $lastName, ?string $contactNum, ?string $profileImage): bool
 {
     $stmt = $pdo->prepare("
@@ -74,7 +77,7 @@ function updateUserProfile(PDO $pdo, int $userId, string $firstName, string $las
     ]);
 }
 
-// updates the user's role
+// Persist the role selected after the user's first Google sign-in.
 function updateUserRole(PDO $pdo, int $userId, string $role): bool
 {
     $stmt = $pdo->prepare("
@@ -91,6 +94,7 @@ function get_users()
 {
     global $pdo;
 
+    // Admin list excludes inactive accounts, which are retained for order history.
     return $pdo->query(
         "SELECT user_id, email_add, first_name, last_name, user_role, acc_status
          FROM users
@@ -117,6 +121,7 @@ function add_user($first_name, $last_name, $email, $role, $password = null)
 {
     global $pdo;
 
+    // Hash optional passwords before storing them; never persist the raw value.
     $hash = $password ? password_hash($password, PASSWORD_DEFAULT) : null;
 
     $stmt = $pdo->prepare(

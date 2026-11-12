@@ -29,6 +29,7 @@
                         </div>
                     </section>
 
+                    <!-- user-stalls.js reads the selected stall's serialized menu and builds these cards. -->
                     <section class="stall-menu-section">
                         <div class="menu-search">
                             <i data-lucide="search"></i>
@@ -58,7 +59,7 @@
                             </div>
                         </div>
 
-                        <!-- foreach.. for each category... -->
+                        <!-- Categories come from this stall's database menu. -->
                         <div class="menu-categories">
                             <?php foreach ($categories as $index => $category): ?>
                                 <button
@@ -84,6 +85,7 @@
                         </div>
                     </section>
                 </div>
+                <!-- Cart and pickup controls stay on this page until checkout data is saved for the next page. -->
                 <aside class="order-summary" aria-label="Your order">
                     <div class="order-summary-header">
                         <h2>Your order</h2>

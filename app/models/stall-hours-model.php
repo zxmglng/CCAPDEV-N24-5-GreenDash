@@ -1,5 +1,6 @@
 <?php
 
+// Return the weekly schedule for a stall in display order.
 function getStallOperatingHours(PDO $pdo, int $stallId): array
 {
     $stmt = $pdo->prepare('SELECT day_of_week, opens_at, closes_at
@@ -61,6 +62,7 @@ function get_all_hours_grouped(PDO $pdo): array
  */
 function replace_stall_hours(PDO $pdo, int $stallId, array $rows): void
 {
+    // Validate the full replacement before deleting the currently saved schedule.
     $clean = [];
     foreach ($rows as $row) {
         $day    = $row['day_of_week'] ?? null;
@@ -88,6 +90,7 @@ function replace_stall_hours(PDO $pdo, int $stallId, array $rows): void
     if ($ownsTransaction) $pdo->beginTransaction();
 
     try {
+        // Replace the schedule as one unit so a failed insert cannot leave a partial week.
         $del = $pdo->prepare("DELETE FROM stall_operating_hours WHERE stall_id = :stall_id");
         $del->execute([':stall_id' => $stallId]);
 
@@ -130,6 +133,7 @@ function format_hours_text(array $rows): string
         return 'Hours not set';
     }
 
+    // Index times by weekday, then combine adjacent days that share the same schedule.
     $byDay = [];
     foreach ($rows as $row) {
         $byDay[(int) $row['day_of_week']] = substr($row['opens_at'], 0, 5) . '-' . substr($row['closes_at'], 0, 5);

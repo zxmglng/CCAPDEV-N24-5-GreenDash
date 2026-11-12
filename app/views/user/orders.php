@@ -19,7 +19,7 @@ if (!defined('GREENDASH_ORDERS_VIEW')) {
         <?php include __DIR__ . "/../nav.php"; ?>
 
         <main class="user-main orders-page">
-            <!-- Orders search and status sections -->
+            <!-- user-orders.js renders the controller-provided records into these sections. -->
             <div class="search-container">
                 <i data-lucide="search" aria-hidden="true"></i>
                 <input type="text" id="orderSearchInput" aria-label="Search orders"
@@ -38,7 +38,7 @@ if (!defined('GREENDASH_ORDERS_VIEW')) {
             <p class="orders-empty" id="noOrdersFound" hidden>No orders match your search.</p>
         </main>
 
-        <!-- Detailed order modal -->
+        <!-- user-orders.js fills this modal from the selected order and shows only status-appropriate actions. -->
         <div class="modal fade order-info-modal" id="orderInfoModal" tabindex="-1"
             aria-labelledby="orderInfoModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
@@ -124,7 +124,7 @@ if (!defined('GREENDASH_ORDERS_VIEW')) {
             </div>
         </div>
 
-        <!-- Comment form for reviewing a completed order -->
+        <!-- The review form is shown for completed orders and submitted through the shared review flow. -->
         <div class="modal fade order-review-modal" id="orderReviewModal" tabindex="-1"
             aria-labelledby="orderReviewModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">

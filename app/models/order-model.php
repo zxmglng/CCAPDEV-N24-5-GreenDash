@@ -1,7 +1,9 @@
 <?php
 
+// Order write helpers used by checkout; callers provide validated snapshot data.
 function insertCheckoutOrder(PDO $pdo, array $order): int
 {
+    // Save an order-level snapshot so later stall/menu edits do not rewrite the receipt.
     $stmt = $pdo->prepare(
         'INSERT INTO orders (order_number, user_id, stall_id, stall_name, stall_location,
          status, payment_method, payment_status, payment_reference, pickup_type, pickup_at, total_amount)
@@ -42,6 +44,7 @@ function insertCheckoutItemOption(PDO $pdo, int $orderItemId, array $option): vo
     ]);
 }
 
+// User order queries are scoped to the owner so one account cannot read another's history.
 function getUserOrderRecords(PDO $pdo, int $userId): array
 {
     $stmt = $pdo->prepare(
@@ -57,6 +60,7 @@ function getUserOrderRecords(PDO $pdo, int $userId): array
 
 function getUserOrderItems(PDO $pdo, int $userId): array
 {
+    // Load child rows separately so the order list can group each item's options in the core layer.
     $stmt = $pdo->prepare('SELECT i.* FROM order_items i JOIN orders o ON o.order_id = i.order_id
                           WHERE o.user_id = ? ORDER BY i.order_item_id');
     $stmt->execute([$userId]);
@@ -75,6 +79,7 @@ function getUserOrderOptions(PDO $pdo, int $userId): array
 
 function cancelPendingUserOrder(PDO $pdo, int $userId, int $orderId): bool
 {
+    // The status predicate makes cancellation atomic and rejects already-progressed orders.
     $stmt = $pdo->prepare(
         "UPDATE orders SET status = 'cancelled',
          payment_status = CASE WHEN payment_status = 'paid' THEN 'paid' ELSE 'not_charged' END
@@ -112,6 +117,7 @@ function getUserFavoriteStall(PDO $pdo, int $userId): ?string
 
 function getUserMonthlyOrderCounts(PDO $pdo, int $userId): array
 {
+    // Return a fixed 12-month array, including zeroes, for the profile chart.
     $stmt = $pdo->prepare(
         "SELECT MONTH(created_at) AS order_month, COUNT(*) AS total_orders
         FROM orders WHERE user_id = ? AND status = 'completed' AND YEAR(created_at) = YEAR(CURDATE())
@@ -132,6 +138,7 @@ function getUserMonthlyOrderCounts(PDO $pdo, int $userId): array
 function getVendorOrderRecords(PDO $pdo, int $vendorId, array $statuses = [], ?int $orderId = null,
     ?string $orderNumber = null): array
 {
+    // Restrict vendor results through owned stalls; optional filters are parameterized below.
     $sql = "SELECT o.*, u.first_name, u.last_name, r.rating AS review_rating, r.`comment` AS review_comment
             FROM orders o JOIN stalls s ON s.id = o.stall_id
             JOIN users u ON u.user_id = o.user_id
@@ -158,6 +165,7 @@ function getVendorOrderRecords(PDO $pdo, int $vendorId, array $statuses = [], ?i
 function getVendorOrderItems(PDO $pdo, int $vendorId, array $orderIds): array
 {
     if (!$orderIds) return [];
+    // Scope item details to stalls owned by this vendor as well as the requested order IDs.
     $placeholders = implode(',', array_fill(0, count($orderIds), '?'));
     $stmt = $pdo->prepare(
         "SELECT i.* FROM order_items i JOIN orders o ON o.order_id = i.order_id
@@ -191,6 +199,7 @@ function getVendorOrderForUpdate(PDO $pdo, int $vendorId, int $orderId): ?array
 
 function updateVendorOrderStatus(PDO $pdo, int $vendorId, int $orderId, string $expectedStatus, string $status): bool
 {
+    // Update only from the expected current state, and only for an order at this vendor's stall.
     $stmt = $pdo->prepare(
         "UPDATE orders SET status = ?, payment_status = CASE
          WHEN ? = 'completed' THEN 'paid'

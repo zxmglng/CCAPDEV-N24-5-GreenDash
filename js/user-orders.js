@@ -24,6 +24,7 @@ let selectedOrderId = null;
 let reviewBusy = false;
 let returnToDetails = false;
 
+// Utility functions to create elements and format order data for display in the order list and modals.
 function orderElement(tag, className, text) {
     const element = document.createElement(tag);
     if (className) element.className = className;
@@ -31,18 +32,21 @@ function orderElement(tag, className, text) {
     return element;
 }
 
+// Return the full URL of the order's logo image, or a default avatar if none is provided.
 function orderLogoUrl(path) {
     if (!path) return new URL('assets/main/defaultAvatar.png', orderApplicationUrl).href;
     const marker = path.indexOf('assets/');
     return new URL(marker === -1 ? path : path.slice(marker), orderApplicationUrl).href;
 }
 
+// Return the order's date in a human-readable format, e.g., "January 1, 2024".
 function orderDate(order) {
     return new Date(order.date.replace(' ', 'T')).toLocaleDateString('en-PH', {
         year: 'numeric', month: 'long', day: 'numeric',
     });
 }
 
+// Create a card element for the order list, including its logo, details, and action buttons.
 function createOrderCard(order) {
     const card = orderElement('article', 'order-card');
     const logo = orderElement('img', 'order-stall-logo');
@@ -100,6 +104,7 @@ function renderOrderList() {
     noOrdersFound.textContent = orders.length ? 'No orders match your search.' : "You haven't placed any orders yet.";
 }
 
+// Render the order rating stars in the details modal, highlighting the selected rating and allowing the user to preview a new rating before submitting.
 function renderRating(rating, preview = rating) {
     ratingControl.querySelectorAll('.order-rating-star').forEach(star => {
         const value = Number(star.dataset.rating);

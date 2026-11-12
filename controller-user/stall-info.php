@@ -13,7 +13,7 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-// get stall id from URL
+// Accept only a positive integer stall ID from the query string.
 $stallId = filter_var(
     $_GET['stall'] ?? null,
     FILTER_VALIDATE_INT,
@@ -27,9 +27,10 @@ if (!$stall) {
     exit;
 }
 
+// Load the selected stall's schedule and menu data for the page and cart script.
 $hours = getStallOperatingHours($pdo, $stallId);
 
-// get available products
+// Only available products are exposed to the ordering UI.
 $products = array_values(
     array_filter(
         getStallProducts($pdo, $stallId),
@@ -45,9 +46,9 @@ foreach ($products as &$product) {
 }
 unset($product);
 
-$categories = getCategoriesByStall($pdo, $stallId); // categories will be integrated later
+$categories = getCategoriesByStall($pdo, $stallId);
 
-// calculate today's operating hrs and avail pickup times
+// Build today's display hours and remaining pickup windows in local time.
 $now = new DateTimeImmutable(
     'now',
     new DateTimeZone('Asia/Manila')
@@ -56,6 +57,7 @@ $now = new DateTimeImmutable(
 $pickupTimes = [];
 $hoursLabel = 'Closed';
 
+// Convert today's opening intervals into a display label and future 15-minute pickup slots.
 foreach (checkoutOpeningIntervals($hours, $now) as [$opens, $closes]) {
     if ($opens->format('Y-m-d') === $now->format('Y-m-d') || ($now >= $opens && $now < $closes)) {
         $hoursLabel = $opens->format('g:i A')
@@ -79,7 +81,7 @@ foreach (checkoutOpeningIntervals($hours, $now) as [$opens, $closes]) {
     }
 }
 
-// data used by user-stalls.js
+// Embed a compact payload for user-stalls.js; checkout uses the same stall and cart details.
 $stallData = [
     'stall' => [
         'id' => (int) $stall['id'],
@@ -89,11 +91,12 @@ $stallData = [
         'pickupTimes' => $pickupTimes,
         'logo' => $stall['image_path'] ?? '',
         'banner' => $stall['banner_path'] ?? '',
+        'qrCodePath' => $stall['qr_code_path'] ?? '',
     ],
     'products' => $products,
 ];
 
-// paths used by the view and shared navigation
+// Set view-relative paths before rendering the stall page.
 $assetBase = '../';
 $userPageBase = '../app/views/user/';
 

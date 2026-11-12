@@ -1,6 +1,5 @@
-<!-- Home would immediately be the Stalls Directory section -->
 <?php
-// $stalls and $hoursByStall are provided by controller-user/stalls-directory.php
+// Stall cards, filter choices, hours, and rating summaries are prepared by the directory controller.
 ?>
 <head>
     <title>GreenDash - Stalls</title>
@@ -36,22 +35,25 @@
 
                 <div class="filter-section">
                     <p>Type</p>
-                    <input type="checkbox" class="stall-type-filter" id="foodFilter" value="food">
-                    <label for="foodFilter">Food</label>
-                    <input type="checkbox" class="stall-type-filter" id="drinksFilter" value="drinks">
-                    <label for="drinksFilter">Drinks</label>
-                    <input type="checkbox" class="stall-type-filter" id="dessertFilter" value="dessert">
-                    <label for="dessertFilter">Dessert</label>
+                    <?php foreach ($stallTypes as $type => $label): ?>
+                        <input type="checkbox" class="stall-type-filter"
+                            id="stallType-<?= htmlspecialchars($type, ENT_QUOTES, 'UTF-8') ?>"
+                            value="<?= htmlspecialchars($type, ENT_QUOTES, 'UTF-8') ?>">
+                        <label for="stallType-<?= htmlspecialchars($type, ENT_QUOTES, 'UTF-8') ?>">
+                            <?= htmlspecialchars($label, ENT_QUOTES, 'UTF-8') ?>
+                        </label>
+                    <?php endforeach; ?>
                 </div>
 
                 <div class="filter-section">
                     <label for="locationFilter">Location</label>
                     <select id="locationFilter">
                         <option value="all">All Locations</option>
-                        <option value="agno">Agno</option>
-                        <option value="bloemen">Bloemen</option>
-                        <option value="green court">Green Court</option>
-                        <option value="gokongwei hall">Gokongwei Hall</option>
+                        <?php foreach ($stallLocations as $value => $label): ?>
+                            <option value="<?= htmlspecialchars($value, ENT_QUOTES, 'UTF-8') ?>">
+                                <?= htmlspecialchars($label, ENT_QUOTES, 'UTF-8') ?>
+                            </option>
+                        <?php endforeach; ?>
                     </select>
                 </div>
                 <button type="button" id="resetStallFilters" class="reset-filter-button">
@@ -62,10 +64,11 @@
              <!-- PAGE TITLE -->
              <h2 class="section-headers"> Stalls Directory </h2>
 
-             <!-- LIST OF THE STALLS -->
+             <!-- Each card is rendered from the current database stall record. -->
             <div class="stall-list">
                 <?php foreach ($stalls as $stall): ?>
                     
+                    <!-- Derive today's hours/status from the schedule already grouped by the controller. -->
                     <?php $stallHours = $hoursByStall[(int) $stall['id']] ?? [];
                     $today = (int) date('w');
                     $todayHours = null;
@@ -119,13 +122,29 @@
                             </div>
                             <p class="stall-description"><?= htmlspecialchars($stall['description'] ?? '', ENT_QUOTES, 'UTF-8') ?></p>
                             <div class="stall-bottom">
-                                <div class="rating">
-                                    <i class="bi bi-star-fill"></i>
-                                    <i class="bi bi-star-fill"></i>
-                                    <i class="bi bi-star-fill"></i>
-                                    <i class="bi bi-star-fill"></i>
-                                    <i class="bi bi-star-fill"></i>
-                                </div>
+                                    <!-- Ratings are averaged from reviews on completed orders. -->
+                                    <?php if ($stall['average_rating'] !== null): ?>
+                                    <?php
+                                    $rating = round($stall['average_rating'] * 2) / 2;
+                                    $ratingLabel = number_format($stall['average_rating'], 1);
+                                    ?>
+                                    <div class="rating" role="img"
+                                        aria-label="Rated <?= $ratingLabel ?> out of 5 from <?= (int) $stall['review_count'] ?> reviews">
+                                        <?php for ($star = 1; $star <= 5; $star++): ?>
+                                            <?php
+                                            $starClass = $rating >= $star
+                                                ? 'bi-star-fill checked'
+                                                : ($rating >= $star - 0.5 ? 'bi-star-half checked' : 'bi-star');
+                                            ?>
+                                            <i class="bi <?= $starClass ?>" aria-hidden="true"></i>
+                                        <?php endfor; ?>
+                                        <span class="rating-value" aria-hidden="true">
+                                            <?= $ratingLabel ?> (<?= (int) $stall['review_count'] ?>)
+                                        </span>
+                                    </div>
+                                <?php else: ?>
+                                    <span class="rating rating-empty">No ratings yet</span>
+                                <?php endif; ?>
                                 <span class="status <?= $statusClass ?>"><?= $statusText ?></span>
                             </div>
 
@@ -139,7 +158,7 @@
             </div>
         </main>
 
-        <!-- SCRIPTS --> 
+        <!-- The directory script sorts the cards; user.js applies the search and filter controls. -->
         <div class="closed-stall-backdrop" id="closedStallMessage" hidden>
             <section class="closed-stall-modal" role="alertdialog" aria-modal="true"
                 aria-labelledby="closedStallTitle">

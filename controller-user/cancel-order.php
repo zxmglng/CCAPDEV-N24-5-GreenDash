@@ -3,6 +3,7 @@ require_once __DIR__ . '/../app/core/orders.php';
 startReviewSession();
 header('Content-Type: application/json; charset=utf-8');
 
+// Cancellation is restricted to the signed-in user and orders still pending.
 try {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         header('Allow: POST');
@@ -15,6 +16,7 @@ try {
         || !hash_equals($_SESSION['review_csrf_token'], $_POST['csrfToken'])) {
         throw new ReviewRequestException('Your session expired. Please reload the page.', 403);
     }
+    // Validate IDs before querying; the model also checks ownership and pending status.
     $userId = reviewPositiveId($_SESSION['user_id'], 'user');
     $orderId = reviewPositiveId($_POST['orderId'] ?? null, 'order');
     require __DIR__ . '/../app/core/db.php';
@@ -22,9 +24,11 @@ try {
     if (!$user || $user['acc_status'] !== 'active') {
         throw new ReviewRequestException('Your account cannot cancel orders.', 403);
     }
+    // The model performs an owner-and-status-scoped update so stale requests cannot cancel progressed orders.
     if (!cancelPendingUserOrder($pdo, $userId, $orderId)) {
         throw new ReviewRequestException('This order cannot be cancelled. Please refresh your orders.', 409);
     }
+    // Return JSON for the orders page to handle without a full-page form submission.
     echo json_encode(['success' => true]);
 } catch (ReviewRequestException $error) {
     http_response_code($error->getCode());
