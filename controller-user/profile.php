@@ -42,5 +42,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 
+// paths used by the shared navigation
+$assetBase = '../';
+$userPageBase = '../app/views/user/';
+
 require_once(__DIR__ . "/../app/views/user/profile.php");
 ?>

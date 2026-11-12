@@ -3,6 +3,11 @@
 $currentPage = basename($_SERVER['SCRIPT_NAME'] ?? '');
 $assetBase = $assetBase ?? '../../../';
 $userPageBase = $userPageBase ?? '';
+
+// profile already uses a controller, while other user pages are still views
+$profilePage = str_contains($_SERVER['SCRIPT_NAME'] ?? '', '/controller-user/')
+    ? 'profile.php'
+    : '../../../controller-user/profile.php';
 ?>
         <header>
             <div class="main-header">
@@ -28,7 +33,7 @@ $userPageBase = $userPageBase ?? '';
             <!-- CHANGE THE NAVIGATION LINKS IF NEEDED ACCDG TO USER ROLE HERE-->
             <nav>
                 <div class="nav-links">
-                    <a href="<?= htmlspecialchars($userPageBase . 'profile.php', ENT_QUOTES, 'UTF-8') ?>"<?= $currentPage === 'profile.php' ? ' aria-current="page"' : '' ?>>Profile</a>
+                    <a href="<?= htmlspecialchars($profilePage, ENT_QUOTES, 'UTF-8') ?>"<?= $currentPage === 'profile.php' ? ' aria-current="page"' : '' ?>>Profile</a>
                     <a href="<?= htmlspecialchars($userPageBase . 'stalls-directory.php', ENT_QUOTES, 'UTF-8') ?>">Stalls directory</a>
                     <a href="<?= htmlspecialchars($userPageBase . 'orders.php', ENT_QUOTES, 'UTF-8') ?>">Orders</a>
                 </div>
