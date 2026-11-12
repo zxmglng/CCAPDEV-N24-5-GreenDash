@@ -188,17 +188,13 @@
 
                     <section class="product-customizations" aria-labelledby="productCustomizationsTitle">
                         <div class="customization-editor-heading">
-
-                        <!-- i dont know if this should be before or after "shows up under"
-                        so just change the layout if ever -->
-                            <br>
                             <h3 id="productCustomizationsTitle">Item customizations</h3>
                             <button type="button" class="vendor-btn secondary small" id="addOptionGroupBtn">
                                 Add customization section
                             </button>
                         </div>
                         <p class="customization-editor-help">
-                            Each section is a single-choice group, such as Size or Milk. Save the item to publish changes.
+                            Add single-choice options such as size or milk. Changes are saved with this item.
                         </p>
                         <p class="field-error" id="customizationEditorStatus" role="status"></p>
                         <div id="productOptionGroups"></div>
