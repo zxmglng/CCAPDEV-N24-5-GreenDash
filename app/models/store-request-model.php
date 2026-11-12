@@ -8,7 +8,7 @@ function get_requests($status = 'pending')
     global $pdo;
 
     $sql = "SELECT r.id, r.vendor_id, r.type, r.status,
-                   r.proposed_name, r.proposed_location, r.proposed_description,
+                   r.proposed_name, r.proposed_location, r.proposed_hours, r.proposed_description,
                    r.stall_id, r.created_at,
                    CONCAT(COALESCE(u.first_name,''), ' ', COALESCE(u.last_name,'')) AS vendor_name,
                    u.email_add AS vendor_email,
@@ -30,6 +30,26 @@ function get_requests($status = 'pending')
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
+// Create a new "add store" request from the vendor submission form.
+// $meta is stored as JSON in proposed_description (store_type + logo_path).
+function create_store_request(PDO $pdo, int $vendorId, string $name, string $location,
+    string $hoursText, array $meta): int
+{
+    $stmt = $pdo->prepare(
+        "INSERT INTO store_requests (vendor_id, type, proposed_name, proposed_location,
+         proposed_hours, proposed_description)
+         VALUES (?, 'add', ?, ?, ?, ?)"
+    );
+    $stmt->execute([
+        $vendorId,
+        $name,
+        $location,
+        $hoursText,
+        json_encode($meta, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR),
+    ]);
+    return (int) $pdo->lastInsertId();
+}
+
 // Approve a request: apply its change to the stalls table and mark it approved.
 // Returns true on success, false if the request wasn't found or wasn't pending.
 function approve_request($request_id, ?int $admin_id)
@@ -47,17 +67,46 @@ function approve_request($request_id, ?int $admin_id)
         }
 
         if ($req['type'] === 'add') {
+            // Vendor submissions store extras (store_type, logo_path) as JSON in proposed_description.
+            $storeType = null;
+            $logoPath = null;
+            $description = $req['proposed_description'];
+
+            if (is_string($description) && $description !== '') {
+                $meta = json_decode($description, true);
+                if (is_array($meta)) {
+                    if (isset($meta['store_type']) && is_string($meta['store_type'])) {
+                        $storeType = $meta['store_type'];
+                    }
+                    $pendingLogo = $meta['logo_path'] ?? null;
+                    if (is_string($pendingLogo)
+                        && preg_match('#^assets/stalls/pending/[A-Za-z0-9._-]+$#', $pendingLogo)) {
+                        $src = __DIR__ . '/../../' . $pendingLogo;
+                        $dest = __DIR__ . '/../../assets/stalls/' . basename($pendingLogo);
+                        if (is_file($src) && @rename($src, $dest)) {
+                            $logoPath = 'assets/stalls/' . basename($pendingLogo);
+                        }
+                    }
+                    // JSON payload is not user-facing text; leave stalls.description NULL.
+                    $description = null;
+                }
+                // If decode failed, $description stays as the original plain string
+                // (backward compatibility with any pre-existing rows).
+            }
+
             $stmt = $pdo->prepare(
-                "INSERT INTO stalls (vendor_id, name, location, description, is_open)
-                 VALUES (?, ?, ?, ?, 1)"
+                "INSERT INTO stalls (vendor_id, name, location, description, image_path, stall_type, is_open)
+                 VALUES (?, ?, ?, ?, ?, ?, 1)"
             );
             $stmt->execute([
                 $req['vendor_id'],
                 $req['proposed_name'],
                 $req['proposed_location'],
-                $req['proposed_description'],
+                $description,
+                $logoPath,
+                $storeType,
             ]);
-            // Stall is created with no hours. Admin sets them via Manage Stores → Edit.
+
         } elseif ($req['type'] === 'remove' && $req['stall_id']) {
             // Ownership check: only remove if the stall still belongs to the requesting vendor.
             $stmt = $pdo->prepare("SELECT id FROM stalls WHERE id = ? AND vendor_id = ?");

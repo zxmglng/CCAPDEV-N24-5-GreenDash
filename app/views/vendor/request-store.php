@@ -58,7 +58,13 @@ if (!defined('GREENDASH_VENDOR_REQUEST_STORE_VIEW')) {
             <main class="vendor-content">
                 <h1 class="page-title">Request to add a new store</h1>
 
-                <form class="store-panel" action="request-store.php#request-sent" method="get">
+                <?php if ($error !== ''): ?>
+                    <p class="field-error" role="alert" style="margin-bottom: 12px;"><?= htmlspecialchars($error) ?></p>
+                <?php endif; ?>
+
+                <form class="store-panel" action="request-store.php" method="POST" enctype="multipart/form-data">
+                    <input type="hidden" name="csrfToken" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
+
                     <h2 class="form-section-title">Store details</h2>
 
                     <div class="request-grid">
@@ -102,7 +108,7 @@ if (!defined('GREENDASH_VENDOR_REQUEST_STORE_VIEW')) {
                             <div class="request-field">
                                 <label for="store-logo" class="form-label">Store logo</label>
                                 <input type="file" class="form-control" id="store-logo" name="storeLogo" accept="image/png" required>
-                                <p class="form-hint">PNG only.</p>
+                                <p class="form-hint">PNG only, up to 2 MB.</p>
                             </div>
                             <div class="request-field">
                                 <label for="store-location" class="form-label">Location</label>
@@ -221,12 +227,12 @@ if (!defined('GREENDASH_VENDOR_REQUEST_STORE_VIEW')) {
             </main>
         </div>
 
-        <div class="vmodal" id="request-sent" role="dialog" aria-modal="true" aria-labelledby="request-sent-title">
-            <a class="vmodal-backdrop" href="#_" aria-label="Close"></a>
+        <div class="vmodal<?= $submitted ? ' open' : '' ?>" id="request-sent" role="dialog" aria-modal="true" aria-labelledby="request-sent-title">
+            <a class="vmodal-backdrop" href="request-store.php" aria-label="Close"></a>
             <div class="vmodal-box">
                 <div class="vmodal-head">
                     <h2 class="vmodal-title" id="request-sent-title">Request submitted</h2>
-                    <a class="vmodal-close" href="#_" aria-label="Close"><i class="bi bi-x-lg" aria-hidden="true"></i></a>
+                    <a class="vmodal-close" href="request-store.php" aria-label="Close"><i class="bi bi-x-lg" aria-hidden="true"></i></a>
                 </div>
                 <div class="vmodal-body">
                     <p class="mb-0">Your request to add a new store was sent to the admin for review.</p>
