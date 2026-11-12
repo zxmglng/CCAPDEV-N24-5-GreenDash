@@ -1,7 +1,11 @@
+// compared to orders.php, this controller is for returning a single order in JSON format. 
+// it is used by the vendor's order details page to fetch the order data via AJAX.
+// it is not used for the main orders page, which is handled by orders.php and returns HTML.
+
 <?php
 $vendorJsonRequest = true;
 require __DIR__ . '/_bootstrap.php';
-header('Content-Type: application/json; charset=utf-8');
+
 try {
     vendorRequireMethod('GET');
     $orderId = isset($_GET['orderId']) ? vendorPositiveId($_GET['orderId']) : null;

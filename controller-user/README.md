@@ -42,7 +42,9 @@ single-choice; required groups default to their first available choice by
 that each selected choice belongs to the product, calculates its price from the
 database, and saves its ID plus name and price snapshots in `order_item_options`.
 Populate these tables for each product that needs customization. The current
-vendor Manage Store page is still demo-only and does not edit these rows.
+vendor Manage Store customization editor loads vendor-owned database products
+and reads/writes these rows. Other product edits in that page (such as product
+name, base price, and categories) still use the existing demo editor.
 Payment references do not mark an online payment as paid; new orders and payments
 both start pending.
 

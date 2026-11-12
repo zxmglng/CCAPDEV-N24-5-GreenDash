@@ -23,7 +23,10 @@ class Category {
 }
 
 class MenuItem {
-    constructor({ id, name, price, description = '', categoryIds = [], photo = null, available = true }) {
+    constructor({
+        id, name, price, description = '', categoryIds = [], photo = null, available = true,
+        databaseProductId = null, optionGroups = []
+    }) {
         this.id = id;
         this.name = name;
         this.price = price;
@@ -31,6 +34,8 @@ class MenuItem {
         this.categoryIds = categoryIds;
         this.photo = photo;           // image URL or data: URL, null = no photo
         this.available = available;
+        this.databaseProductId = databaseProductId;
+        this.optionGroups = optionGroups;
     }
 }
 
@@ -141,9 +146,68 @@ const Modal = {
     }
 };
 
-function initManageStorePage() {
+function normalizeProductName(name) {
+    return String(name).trim().toLocaleLowerCase();
+}
+
+function vendorProductImageUrl(path) {
+    if (!path) return null;
+    if (/^(https?:|data:|\/)/i.test(path)) return path;
+    return new URL(`../../../${path.replace(/^(\.\.\/)+/, '')}`, window.location.href).href;
+}
+
+async function loadStoreProductOptions(store) {
+    const endpoint = new URL('../../../controller-vendor/product-options.php', window.location.href);
+    endpoint.searchParams.set('store', store.name);
+    const response = await fetch(endpoint, {credentials: 'same-origin', cache: 'no-store'});
+    let result;
+    try {
+        result = await response.json();
+    } catch (error) {
+        throw new Error('The server returned an unexpected response while loading menu customizations.');
+    }
+    if (!response.ok || result.success !== true || !Array.isArray(result.products)) {
+        throw new Error(result.message || 'Unable to load menu customizations.');
+    }
+    store.name = result.stall.name;
+    store.location = result.stall.location;
+    store.address = result.stall.location;
+    store.categories = [];
+    store.items = [];
+    store._nextId = 1;
+    const categoriesByName = new Map();
+    result.products.forEach(product => {
+        const categoryName = product.category || 'Uncategorized';
+        let category = categoriesByName.get(normalizeProductName(categoryName));
+        if (!category) {
+            category = store.addCategory(categoryName);
+            categoriesByName.set(normalizeProductName(categoryName), category);
+        }
+        store.addItem({
+            databaseProductId: Number(product.id),
+            optionGroups: Array.isArray(product.optionGroups) ? product.optionGroups : [],
+            name: product.name,
+            price: Number(product.price),
+            description: product.description || '',
+            categoryIds: [category.id],
+            photo: vendorProductImageUrl(product.image_path),
+            available: Boolean(Number(product.is_available)),
+        });
+    });
+    return result.csrfToken;
+}
+
+async function initManageStorePage() {
     const params = new URLSearchParams(window.location.search);
     const store = STORES[params.get('store')] || STORES.starbucks;
+    let optionCsrfToken = null;
+    let optionLoadError = '';
+    try {
+        optionCsrfToken = await loadStoreProductOptions(store);
+    } catch (error) {
+        optionLoadError = error.message || 'Unable to load menu customizations.';
+        console.error('Unable to load product customizations.', error);
+    }
 
     // STATE
     let selectedCategoryId = store.categories.length ? store.categories[0].id : null;
@@ -353,11 +417,153 @@ function initManageStorePage() {
     const removePhotoBtn = byId('itemPhotoRemove');
     const deleteItemBtn = byId('deleteItemBtn');
     const availBtn = byId('toggleAvailableBtn');
+    const optionGroupsEditor = byId('productOptionGroups');
+    const optionGroupsStatus = byId('customizationEditorStatus');
+    const addOptionGroupBtn = byId('addOptionGroupBtn');
 
     const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
     let editingItem = null;
     let pendingPhoto = null;
     let pendingAvailable = true;
+    let editingOptionGroups = [];
+
+    function renderOptionGroups() {
+        optionGroupsEditor.replaceChildren();
+        if (optionLoadError) {
+            optionGroupsStatus.textContent = optionLoadError;
+            addOptionGroupBtn.disabled = true;
+            return;
+        }
+        if (!editingItem?.databaseProductId) {
+            optionGroupsStatus.textContent = editingItem
+                ? 'This demo item does not match a product in your database, so its customizations cannot be saved.'
+                : 'Save customizations for an existing database product by editing it.';
+            addOptionGroupBtn.disabled = true;
+            return;
+        }
+
+        optionGroupsStatus.textContent = '';
+        addOptionGroupBtn.disabled = false;
+        editingOptionGroups.forEach((group, groupIndex) => {
+            const groupCard = elem('section', 'option-group-editor');
+            const groupHead = elem('div', 'option-group-editor-head');
+            const nameInput = elem('input', 'form-control');
+            nameInput.type = 'text';
+            nameInput.maxLength = 100;
+            nameInput.placeholder = 'Section name (e.g. Size)';
+            nameInput.value = group.name;
+            nameInput.setAttribute('aria-label', 'Customization section name');
+            nameInput.addEventListener('input', () => { group.name = nameInput.value; });
+
+            const requiredLabel = elem('label', 'option-required-toggle');
+            const requiredInput = elem('input');
+            requiredInput.type = 'checkbox';
+            requiredInput.checked = group.required;
+            requiredInput.addEventListener('change', () => { group.required = requiredInput.checked; });
+            requiredLabel.append(requiredInput, document.createTextNode(' Required'));
+
+            const deleteGroupButton = elem('button', 'vendor-btn danger small', 'Remove section');
+            deleteGroupButton.type = 'button';
+            deleteGroupButton.addEventListener('click', () => {
+                editingOptionGroups.splice(groupIndex, 1);
+                renderOptionGroups();
+            });
+            groupHead.append(nameInput, requiredLabel, deleteGroupButton);
+            groupCard.appendChild(groupHead);
+
+            const choices = elem('div', 'option-choice-list');
+            group.choices.forEach((choice, choiceIndex) => {
+                const row = elem('div', 'option-choice-editor');
+                const choiceName = elem('input', 'form-control option-choice-name');
+                choiceName.type = 'text';
+                choiceName.maxLength = 100;
+                choiceName.placeholder = 'Choice name';
+                choiceName.value = choice.name;
+                choiceName.setAttribute('aria-label', 'Choice name');
+                choiceName.addEventListener('input', () => { choice.name = choiceName.value; });
+
+                const priceInput = elem('input', 'form-control option-choice-price');
+                priceInput.type = 'number';
+                priceInput.min = '0';
+                priceInput.max = '99999999.99';
+                priceInput.step = '0.01';
+                priceInput.inputMode = 'decimal';
+                priceInput.placeholder = 'Extra price';
+                priceInput.value = choice.extraPrice;
+                priceInput.setAttribute('aria-label', 'Extra price in pesos');
+                priceInput.addEventListener('input', () => { choice.extraPrice = priceInput.value; });
+
+                const availableLabel = elem('label', 'option-available-toggle');
+                const availableInput = elem('input');
+                availableInput.type = 'checkbox';
+                availableInput.checked = choice.available !== false;
+                availableInput.addEventListener('change', () => { choice.available = availableInput.checked; });
+                availableLabel.append(availableInput, document.createTextNode(' Available'));
+
+                const deleteChoiceButton = elem('button', 'vendor-btn danger small', 'Remove');
+                deleteChoiceButton.type = 'button';
+                deleteChoiceButton.addEventListener('click', () => {
+                    group.choices.splice(choiceIndex, 1);
+                    renderOptionGroups();
+                });
+                row.append(choiceName, priceInput, availableLabel, deleteChoiceButton);
+                choices.appendChild(row);
+            });
+            groupCard.appendChild(choices);
+
+            const addChoiceButton = elem('button', 'vendor-btn secondary small', 'Add choice');
+            addChoiceButton.type = 'button';
+            addChoiceButton.addEventListener('click', () => {
+                group.choices.push({
+                    optionId: null, name: '', extraPrice: '0.00', available: true,
+                });
+                renderOptionGroups();
+            });
+            groupCard.appendChild(addChoiceButton);
+            optionGroupsEditor.appendChild(groupCard);
+        });
+    }
+
+    addOptionGroupBtn.addEventListener('click', () => {
+        editingOptionGroups.push({
+            groupId: null,
+            name: '',
+            required: true,
+            choices: [{optionId: null, name: '', extraPrice: '0.00', available: true}],
+        });
+        renderOptionGroups();
+    });
+
+    async function saveOptionGroups(item) {
+        if (!item.databaseProductId) return;
+        const response = await fetch(
+            new URL('../../../controller-vendor/product-options.php', window.location.href),
+            {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    csrfToken: optionCsrfToken,
+                    productId: item.databaseProductId,
+                    groups: editingOptionGroups,
+                }),
+            }
+        );
+        let result;
+        try {
+            result = await response.json();
+        } catch (error) {
+            throw new Error('The server returned an unexpected response while saving customizations.');
+        }
+        if (!response.ok || result.success !== true || !Array.isArray(result.groups)) {
+            throw new Error(result.message || 'Unable to save product customizations.');
+        }
+        item.optionGroups = result.groups;
+        editingOptionGroups = result.groups.map(group => ({
+            ...group,
+            choices: group.choices.map(choice => ({...choice})),
+        }));
+    }
 
     function renderPhoto() {
         photoBox.replaceChildren();
@@ -389,6 +595,12 @@ function initManageStorePage() {
         itemNameInput.value = item ? item.name : '';
         itemPriceInput.value = item ? item.price : '';
         itemDescInput.value = item ? item.description : '';
+        editingOptionGroups = item
+            ? item.optionGroups.map(group => ({
+                ...group,
+                choices: group.choices.map(choice => ({...choice})),
+            }))
+            : [];
 
         itemCats.replaceChildren();
         store.categories.forEach(cat => {
@@ -408,6 +620,7 @@ function initManageStorePage() {
         availBtn.hidden = !item;
         renderAvailability();
         renderPhoto();
+        renderOptionGroups();
         Modal.open('item-modal');
     }
 
@@ -443,7 +656,7 @@ function initManageStorePage() {
         renderAvailability();
     });
 
-    itemForm.addEventListener('submit', e => {
+    itemForm.addEventListener('submit', async e => {
         e.preventDefault();
         const name = itemNameInput.value.trim();
         const price = parseFloat(itemPriceInput.value);
@@ -453,6 +666,17 @@ function initManageStorePage() {
         if (Number.isNaN(price) || price < 0) { itemError.textContent = 'Please enter a valid price (0 or more).'; return; }
         if (categoryIds.length === 0) { itemError.textContent = 'Pick at least one category for this item.'; return; }
 
+        const saveButton = itemForm.querySelector('button[type="submit"]');
+        saveButton.disabled = true;
+        try {
+            if (editingItem?.databaseProductId) {
+                await saveOptionGroups(editingItem);
+            }
+        } catch (error) {
+            itemError.textContent = error.message || 'Unable to save product customizations.';
+            saveButton.disabled = false;
+            return;
+        }
         const fields = {
             name, price, categoryIds,
             description: itemDescInput.value.trim(),
@@ -468,6 +692,7 @@ function initManageStorePage() {
         Modal.close('item-modal');
         renderCategories();
         renderItems();
+        saveButton.disabled = false;
     });
 
     deleteItemBtn.addEventListener('click', () => {

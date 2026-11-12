@@ -96,6 +96,93 @@
 	padding-right: 0;
 }
 
+.product-customizations {
+	margin-top: 20px;
+	padding-top: 16px;
+	border-top: 1px solid var(--v-border);
+}
+
+.customization-editor-heading {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.customization-editor-heading h3 {
+	margin: 0;
+	font-size: 1.1rem;
+	font-weight: 800;
+}
+
+.customization-editor-help {
+	margin: 6px 0 12px;
+	color: var(--v-text-muted);
+	font-size: .9rem;
+}
+
+.option-group-editor {
+	margin-top: 12px;
+	padding: 14px;
+	border: 1px solid var(--v-border);
+	border-radius: 12px;
+}
+
+.option-group-editor-head,
+.option-choice-editor {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.option-group-editor-head {
+	margin-bottom: 12px;
+}
+
+.option-group-editor-head .form-control {
+	flex: 1;
+}
+
+.option-required-toggle,
+.option-available-toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	white-space: nowrap;
+}
+
+.option-choice-list {
+	display: grid;
+	gap: 8px;
+	margin-bottom: 10px;
+}
+
+.option-choice-editor .option-choice-name {
+	flex: 1;
+	min-width: 90px;
+}
+
+.option-choice-editor .option-choice-price {
+	width: 130px;
+}
+
+.option-group-editor .vendor-btn.small {
+	min-height: 36px;
+}
+
+@media (max-width: 600px) {
+	.customization-editor-heading,
+	.option-group-editor-head,
+	.option-choice-editor {
+		align-items: stretch;
+		flex-direction: column;
+	}
+
+	.option-choice-editor .option-choice-price {
+		width: 100%;
+	}
+}
+
 /* =========================
    COLUMN HEADER
 ========================= */

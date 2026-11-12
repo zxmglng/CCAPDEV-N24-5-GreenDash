@@ -8,6 +8,7 @@ Browser entry points for Rinoa's vendor order workflow:
 - `order.php` (GET): retrieve one owned order using `orderId` (database ID) or `orderNumber` (customer-facing ID).
 - `update-order.php` (POST): CSRF-protected status changes with `orderId`, `expectedStatus`, `status`, and `csrfToken`. Collection additionally requires `paymentConfirmed=1`.
 - `logout.php`: GET returns a CSRF token for the existing profile logout button; POST ends the PHP session.
+- `product-options.php`: GET loads products and their customization groups for an owned store; CSRF-protected POST replaces a product's single-choice groups and choices.
 
 `_bootstrap.php` starts the session, checks the active database vendor account, and handles request errors. Controllers load database queries from `app/models/` and order workflow rules from `app/core/vendor-orders.php`, then render `app/views/vendor/`.
 

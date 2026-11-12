@@ -14,7 +14,7 @@ function getStallProducts(PDO $pdo, int $stallId): array
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-function getProductOptionGroups(PDO $pdo, array $productIds): array
+function getProductOptionGroups(PDO $pdo, array $productIds, bool $includeUnavailable = false): array
 {
     $productIds = array_values(array_unique(array_map('intval', $productIds)));
     if (!$productIds) {
@@ -22,12 +22,14 @@ function getProductOptionGroups(PDO $pdo, array $productIds): array
     }
 
     $placeholders = implode(',', array_fill(0, count($productIds), '?'));
+    $availabilityFilter = $includeUnavailable ? '' : 'AND c.is_available = 1';
     $stmt = $pdo->prepare(
         "SELECT g.group_id, g.product_id, g.group_name, g.is_required, g.display_order AS group_order,
-                c.option_id, c.option_name, c.extra_price, c.display_order AS choice_order
+                c.option_id, c.option_name, c.extra_price, c.is_available,
+                c.display_order AS choice_order
          FROM product_option_groups g
          LEFT JOIN product_option_choices c
-           ON c.group_id = g.group_id AND c.is_available = 1
+           ON c.group_id = g.group_id $availabilityFilter
          WHERE g.product_id IN ($placeholders)
          ORDER BY g.product_id, g.display_order, g.group_id, c.display_order, c.option_id"
     );
@@ -50,6 +52,7 @@ function getProductOptionGroups(PDO $pdo, array $productIds): array
                 'optionId' => (int) $row['option_id'],
                 'name' => $row['option_name'],
                 'extraPrice' => (string) $row['extra_price'],
+                'available' => (bool) $row['is_available'],
             ];
         }
     }
