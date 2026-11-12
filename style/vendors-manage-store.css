@@ -136,29 +136,27 @@
 
 .option-group-editor-head,
 .option-choice-editor {
-	display: grid;
+	display: flex;
 	align-items: center;
 	gap: 10px;
 }
 
 .option-group-editor-head {
-	grid-template-columns: auto minmax(0, 1fr) auto;
-	align-items: center;
 	margin-bottom: 14px;
 }
 
+.option-group-editor-head .vendor-btn {
+	flex: 0 0 auto;
+}
+
 .option-group-editor-head .form-control {
-	grid-column: 2;
+	flex: 1 1 auto;
+	min-width: 0;
 }
 
 .option-group-editor-head .option-required-toggle {
-	justify-self: end;
-	grid-column: 3;
-}
-
-.option-group-editor-head .vendor-btn {
-	justify-self: start;
-	grid-column: 1;
+	margin-left: auto;
+	flex: 0 0 auto;
 }
 
 .option-required-toggle,
@@ -183,19 +181,25 @@
 }
 
 .option-choice-editor {
-	grid-template-columns: auto minmax(0, 1fr) minmax(90px, 130px) auto;
-}
-
-.option-choice-editor .option-choice-name {
-	min-width: 0;
+	width: 100%;
 }
 
 .option-choice-editor > .vendor-btn {
-	justify-self: start;
+	flex: 0 0 auto;
+}
+
+.option-choice-editor .option-choice-name {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.option-choice-editor .option-choice-price {
+	flex: 0 0 120px;
 }
 
 .option-choice-editor .option-available-toggle {
-	justify-self: end;
+	margin-left: auto;
+	flex: 0 0 auto;
 }
 
 #item-modal .vmodal-box {

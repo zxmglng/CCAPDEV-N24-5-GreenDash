@@ -187,16 +187,16 @@
                     </fieldset>
 
                     <section class="product-customizations" aria-labelledby="productCustomizationsTitle">
+                        <hr>
                         <div class="customization-editor-heading">
-                            <hr>
-                            <h4 id="productCustomizationsTitle">Item customizations</h3>
-                            <button type="button" class="vendor-btn primary small" id="addOptionGroupBtn">
-                                Add customization section
-                            </button>
+                            <h4 id="productCustomizationsTitle">Item customizations</h4>
+                            <p class="customization-editor-help">
+                                Add single-choice options such as size or milk. Changes are saved with this item.
+                            </p>
                         </div>
-                        <p class="customization-editor-help">
-                            Add single-choice options such as size or milk. Changes are saved with this item.
-                        </p>
+                        <button type="button" class="vendor-btn primary small" id="addOptionGroupBtn">
+                            Add customization section
+                        </button>
                         <p class="field-error" id="customizationEditorStatus" role="status"></p>
                         <div id="productOptionGroups"></div>
                     </section>
