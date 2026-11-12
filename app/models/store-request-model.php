@@ -32,14 +32,12 @@ function get_requests($status = 'pending')
 
 // Approve a request: apply its change to the stalls table and mark it approved.
 // Returns true on success, false if the request wasn't found or wasn't pending.
-function approve_request($request_id, $admin_id)
+function approve_request($request_id, ?int $admin_id)
 {
     global $pdo;
-
     $pdo->beginTransaction();
-
     try {
-        $stmt = $pdo->prepare("SELECT * FROM store_requests WHERE id = ? LIMIT 1");
+        $stmt = $pdo->prepare("SELECT * FROM store_requests WHERE id = ? FOR UPDATE");
         $stmt->execute([$request_id]);
         $req = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -59,9 +57,32 @@ function approve_request($request_id, $admin_id)
                 $req['proposed_location'],
                 $req['proposed_description'],
             ]);
+            // Stall is created with no hours. Admin sets them via Manage Stores → Edit.
         } elseif ($req['type'] === 'remove' && $req['stall_id']) {
-            $stmt = $pdo->prepare("DELETE FROM stalls WHERE id = ?");
+            // Ownership check: only remove if the stall still belongs to the requesting vendor.
+            $stmt = $pdo->prepare("SELECT id FROM stalls WHERE id = ? AND vendor_id = ?");
+            $stmt->execute([$req['stall_id'], $req['vendor_id']]);
+            if (!$stmt->fetchColumn()) {
+                throw new RuntimeException(
+                    'This stall no longer belongs to the requesting vendor. Deny the request instead.'
+                );
+            }
+
+            // Safety checks: same as delete_stall().
+            $stmt = $pdo->prepare("SELECT COUNT(*) FROM products WHERE stall_id = ?");
             $stmt->execute([$req['stall_id']]);
+            if ((int) $stmt->fetchColumn() > 0) {
+                throw new RuntimeException('This stall has products. Remove them before approving.');
+            }
+            $stmt = $pdo->prepare("SELECT COUNT(*) FROM orders WHERE stall_id = ?");
+            $stmt->execute([$req['stall_id']]);
+            if ((int) $stmt->fetchColumn() > 0) {
+                throw new RuntimeException('This stall has order history. Deny the request and close the stall instead.');
+            }
+
+            $pdo->prepare("DELETE FROM stall_operating_hours WHERE stall_id = ?")->execute([$req['stall_id']]);
+            $pdo->prepare("DELETE FROM categories WHERE stall_id = ?")->execute([$req['stall_id']]);
+            $pdo->prepare("DELETE FROM stalls WHERE id = ?")->execute([$req['stall_id']]);
         }
 
         $stmt = $pdo->prepare(
@@ -73,23 +94,28 @@ function approve_request($request_id, $admin_id)
 
         $pdo->commit();
         return true;
-    } catch (Exception $e) {
-        $pdo->rollBack();
-        return false;
+    } catch (Throwable $e) {
+        if ($pdo->inTransaction()) $pdo->rollBack();
+        throw $e;
     }
 }
 
 // Deny a request. Just updates the status.
-function deny_request($request_id, $admin_id)
+function deny_request($request_id, ?int $admin_id)
 {
     global $pdo;
-
     $stmt = $pdo->prepare(
         "UPDATE store_requests
          SET status = 'denied', resolved_by = ?, resolved_at = NOW()
          WHERE id = ? AND status = 'pending'"
     );
     $stmt->execute([$admin_id, $request_id]);
-
     return $stmt->rowCount() > 0;
+}
+
+function get_pending_request_count(PDO $pdo): int
+{
+    return (int) $pdo->query(
+        "SELECT COUNT(*) FROM store_requests WHERE status = 'pending'"
+    )->fetchColumn();
 }

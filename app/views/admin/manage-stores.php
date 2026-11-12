@@ -19,6 +19,10 @@
           data-flash="<?= htmlspecialchars($flashAction) ?>">
         <?php require __DIR__ . '/nav.php'; ?>
             <h1 class="page-title">Stalls Directory</h1>
+            
+            <?php if ($error !== ''): ?>
+                <p class="admin-flash" role="alert"><?= htmlspecialchars($error) ?></p>
+            <?php endif; ?>
 
             <div class="admin-toolbar">
                 <div class="admin-search">

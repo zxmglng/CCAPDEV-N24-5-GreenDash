@@ -23,6 +23,7 @@ if ($requestMethod === 'POST') {
     } else {
         session_regenerate_id(true);
         $_SESSION['admin_authenticated'] = true;
+        $_SESSION['admin_name'] = getAdminDisplayName();
         unset($_SESSION['admin_csrf_token']);
         header('Location: home.php', true, 303);
         exit;

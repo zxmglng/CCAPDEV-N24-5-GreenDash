@@ -17,6 +17,13 @@
     <body class="admin-page" data-page="<?= htmlspecialchars($page) ?>">
         <?php require __DIR__ . '/nav.php'; ?>
             <h1 class="page-title">Requests</h1>
+            <?php if ($error !== ''): ?>
+                <p class="admin-flash" role="alert"><?= htmlspecialchars($error) ?></p>
+            <?php endif; ?>
+
+            <?php
+            $tabs = ['pending' => 'Pending', 'approved' => 'Approved', 'denied' => 'Denied', '' => 'All'];
+            ?>
 
             <div class="admin-toolbar">
                 <div class="admin-search">
@@ -52,7 +59,7 @@
                     </thead>
                     <tbody id="requestsBody">
                         <?php if (empty($requests)): ?>
-                            <tr><td colspan="5" style="text-align:center;">No requests found.</td></tr>
+                            <tr><td colspan="5" class="empty-row" style="text-align:center;">No requests found.</td></tr>
                         <?php else: ?>
                             <?php foreach ($requests as $r): ?>
                                 <tr class="request-row"

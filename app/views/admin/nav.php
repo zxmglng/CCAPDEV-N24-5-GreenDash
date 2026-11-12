@@ -21,7 +21,9 @@ $usersOpen  = $page === 'manage-users';
 
 <div class="admin-layout">
     <aside class="admin-sidebar" aria-label="Admin dashboard">
-        <span>Dashboard</span>
+        <a href="controller-admin/home.php" class="sidebar-link <?= $page === 'home' ? 'active' : '' ?>"
+            <?= $page === 'home' ? 'aria-current="page"' : '' ?>>Dashboard
+        </a>
 
         <button class="sidebar-link" type="button"
                 data-bs-toggle="collapse" data-bs-target="#stallsMenu"

@@ -55,3 +55,21 @@ function isAdminKeyValid(string $key): bool
 
     return hash_equals($configuredKey, $key);
 }
+
+function getAdminDisplayName(): string
+{
+    $name = getenv('GREENDASH_ADMIN_NAME');
+    if (is_string($name) && trim($name) !== '') {
+        return trim($name);
+    }
+    return 'Administrator';
+}
+
+function getAdminUserId(): ?int
+{
+    $id = getenv('GREENDASH_ADMIN_USER_ID');
+    if (!is_string($id) || !ctype_digit($id) || (int) $id <= 0) {
+        return null;
+    }
+    return (int) $id;
+}

@@ -28,12 +28,12 @@ const Modal = {
 };
 
 function initStoreRequestsPage() {
-    const listBody    = byId('requestsBody');
-    const searchEl    = byId('searchInput');
+    const listBody = byId('requestsBody');
+    const searchEl = byId('searchInput');
     const filterMonEl = byId('filterMonth');
     const filterTypEl = byId('filterType');
     const sortFieldEl = byId('sortField');
-    const sortBtn     = byId('sortBtn');
+    const sortBtn = byId('sortBtn');
 
     let sortAsc  = true;
     let activeId = null;
@@ -51,10 +51,10 @@ function initStoreRequestsPage() {
 
     // --- Filter + sort --------------------------------------------------
     function applyFilters() {
-        const q      = searchEl.value.trim().toLowerCase();
-        const month  = filterMonEl.value;    // "YYYY-MM" or ""
-        const type   = filterTypEl.value;    // "Add Stall" | "Remove Stall" | ""
-        const field  = sortFieldEl.value;    // "stall" | "vendor" | "date"
+        const q = searchEl.value.trim().toLowerCase();
+        const month = filterMonEl.value;    // "YYYY-MM" or ""
+        const type = filterTypEl.value;    // "Add Stall" | "Remove Stall" | ""
+        const field = sortFieldEl.value;    // "stall" | "vendor" | "date"
 
         const rows = [...listBody.querySelectorAll('tr.request-row')];
 
@@ -94,10 +94,10 @@ function initStoreRequestsPage() {
 
         activeId = tr.dataset.id;
         byId('requestModalTitle').textContent = tr.dataset.stall || '';
-        byId('mOwner').textContent            = tr.dataset.vendorName || '—';
-        byId('mContact').textContent          = tr.dataset.vendorEmail || '—';
-        byId('mLocation').textContent         = tr.dataset.location || '—';
-        byId('mHours').textContent            = '—';
+        byId('mOwner').textContent = tr.dataset.vendorName || '—';
+        byId('mContact').textContent = tr.dataset.vendorEmail || '—';
+        byId('mLocation').textContent = tr.dataset.location || '—';
+        byId('mHours').textContent = tr.dataset.hours || '—';
 
         Modal.open('requestModal');
     });

@@ -4,21 +4,35 @@ requireAdminLogin();
 require_once __DIR__ . '/../app/core/db.php';
 require_once __DIR__ . '/../app/models/store-request-model.php';
 
-$csrfToken = adminCsrfToken();
-define('GREENDASH_ADMIN_VIEW', true);
+$error = '';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $id = (int)($_POST['request_id'] ?? 0);
-    $act = $_POST['action'] ?? '';
-    if ($id > 0 && $act === 'approve') {
-        approve_request($id, 1); // Passing 1 since admin_id is no longer a DB row
-    } elseif ($id > 0 && $act === 'deny') {
-        deny_request($id, 1);
-    }
-    header('Location: store-requests.php');
-    exit;
+$allowedStatuses = ['pending', 'approved', 'denied', ''];
+$statusFilter = $_GET['status'] ?? 'pending';
+if (!in_array($statusFilter, $allowedStatuses, true)) {
+    $statusFilter = 'pending';
 }
 
-$requests = get_requests('pending');
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $id  = (int) ($_POST['request_id'] ?? 0);
+    $act = $_POST['action'] ?? '';
+    try {
+        if ($id > 0 && $act === 'approve') {
+            approve_request($id, getAdminUserId());
+        } elseif ($id > 0 && $act === 'deny') {
+            deny_request($id, getAdminUserId());
+        }
+        $qs = $statusFilter !== '' ? '?status=' . urlencode($statusFilter) : '';
+        header('Location: store-requests.php' . $qs);
+        exit;
+    } catch (Throwable $e) {
+        error_log('Request action failed: ' . $e->getMessage());
+        $error = $e instanceof RuntimeException
+            ? $e->getMessage()
+            : 'Unable to complete that action. Please try again.';
+    }
+}
+
+$requests = get_requests($statusFilter);
 $page = 'store-requests';
+define('GREENDASH_ADMIN_VIEW', true);
 require __DIR__ . '/../app/views/admin/store-requests.php';
