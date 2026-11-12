@@ -432,6 +432,7 @@ async function initManageStorePage() {
     let pendingAvailable = true;
     let editingOptionGroups = [];
 
+    // ITEM CUSTOMIZATIONS: build each section and choice row from the item's saved option data.
     function renderOptionGroups() {
         optionGroupsEditor.replaceChildren();
         if (optionLoadError) {
@@ -452,6 +453,12 @@ async function initManageStorePage() {
         editingOptionGroups.forEach((group, groupIndex) => {
             const groupCard = elem('section', 'option-group-editor');
             const groupHead = elem('div', 'option-group-editor-head');
+            // Keep Remove section, its name field, and Required together on one row.
+            groupHead.style.display = 'grid';
+            groupHead.style.gridTemplateColumns = 'auto minmax(0, 1fr) auto';
+            groupHead.style.alignItems = 'center';
+            groupHead.style.gap = '6px';
+
             const nameInput = elem('input', 'form-control');
             nameInput.type = 'text';
             nameInput.maxLength = 100;
@@ -480,6 +487,13 @@ async function initManageStorePage() {
             const choices = elem('div', 'option-choice-list');
             group.choices.forEach((choice, choiceIndex) => {
                 const row = elem('div', 'option-choice-editor');
+                // Put Remove beside the choice name, then stack price and availability below the name.
+                row.style.display = 'grid';
+                row.style.gridTemplateColumns = 'auto minmax(0, 1fr)';
+                row.style.gridTemplateRows = 'auto auto auto';
+                row.style.alignItems = 'center';
+                row.style.gap = '6px';
+
                 const deleteChoiceButton = elem('button', 'vendor-btn danger small', 'Remove');
                 deleteChoiceButton.type = 'button';
                 deleteChoiceButton.addEventListener('click', () => {
@@ -512,6 +526,15 @@ async function initManageStorePage() {
                 availableInput.checked = choice.available !== false;
                 availableInput.addEventListener('change', () => { choice.available = availableInput.checked; });
                 availableLabel.append(availableInput, document.createTextNode(' Available'));
+
+                deleteChoiceButton.style.gridColumn = '1';
+                deleteChoiceButton.style.gridRow = '1';
+                choiceName.style.gridColumn = '2';
+                choiceName.style.gridRow = '1';
+                priceInput.style.gridColumn = '2';
+                priceInput.style.gridRow = '2';
+                availableLabel.style.gridColumn = '2';
+                availableLabel.style.gridRow = '3';
 
                 row.append(deleteChoiceButton, choiceName, priceInput, availableLabel);
                 choices.appendChild(row);

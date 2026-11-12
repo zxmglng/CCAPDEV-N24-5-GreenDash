@@ -11,7 +11,12 @@
         <link rel="stylesheet" href="../../../style/centralized.css">
         <link rel="stylesheet" href="../../../style/vendors-common.css">
         <link rel="stylesheet" href="../../../style/vendors-modal.css">
-        <link rel="stylesheet" href="../../../style/vendors-manage-store.css">
+
+        // to check if the file has been updated, we use filemtime() to get the last 
+        // modified time of the CSS file and append it as a query parameter to the URL. 
+        // this way, if the file is updated, the browser will see a different 
+        // URL and fetch the new version instead of using a cached version.
+        <link rel="stylesheet" href="../../../style/vendors-manage-store.css?v=<?= filemtime(__DIR__ . '/../../../style/vendors-manage-store.css') ?>">
 
         <!-- website icon -->
         <link rel="icon" type="image/png" href="../../../assets/main/GreenDash_CIRCLE.png">
