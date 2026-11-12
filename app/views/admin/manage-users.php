@@ -27,9 +27,11 @@
                 </div>
                 <select class="admin-select" id="filterRole" aria-label="Filter by role">
                     <option value="">All roles</option>
-                    <option value="admin">Admin</option>
+                    <option value="student">Student</option>
+                    <option value="faculty">Faculty</option>
+                    <option value="staff">Staff</option>
                     <option value="vendor">Vendor</option>
-                    <option value="user">User</option>
+                    <option value="admin">Admin</option>
                 </select>
                 <select class="admin-select" id="sortField" aria-label="Sort by">
                     <option value="name">Name</option>
@@ -46,25 +48,23 @@
             <div class="admin-table-wrap">
                 <table class="admin-table users-table">
                     <thead>
-                        <tr><th>Name</th><th>Email</th><th>Role</th></tr>
+                        <tr><th>Name</th><th>Email</th><th>Contact</th><th>Role</th></tr>
                     </thead>
                     <tbody id="usersBody">
                         <?php if (empty($users)): ?>
                             <tr><td colspan="3" style="text-align:center;">No users found.</td></tr>
                         <?php else: ?>
-                            <?php foreach ($users as $u):
-                                $displayRole = 'User';
-                                if ($u['user_role'] === 'admin')  $displayRole = 'Admin';
-                                if ($u['user_role'] === 'vendor') $displayRole = 'Vendor';
-                            ?>
+                            <?php foreach ($users as $u): ?>
                                 <tr class="user-row"
                                     data-id="<?= (int)$u['user_id'] ?>"
                                     data-name="<?= htmlspecialchars($u['first_name'] . ' ' . $u['last_name']) ?>"
                                     data-email="<?= htmlspecialchars($u['email_add']) ?>"
+                                    data-contact="<?= htmlspecialchars($u['contact_num'] ?? '') ?>"
                                     data-role="<?= strtolower($displayRole) ?>">
                                     <td><?= htmlspecialchars($u['first_name'] . ' ' . $u['last_name']) ?></td>
                                     <td><?= htmlspecialchars($u['email_add']) ?></td>
-                                    <td><?= $displayRole ?></td>
+                                    <td><?= htmlspecialchars($u['contact_num'] ?? '—') ?></td>
+                                    <td><?= ucfirst($u['user_role']) ?></td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php endif; ?>
@@ -80,6 +80,7 @@
             <button class="close-x" type="button" data-close aria-label="Close"><i class="bi bi-x-lg"></i></button>
             <h2 id="userModalTitle">User</h2>
             <div class="modal-row"><span class="modal-label">Email:</span><span class="modal-value" id="mEmail"></span></div>
+            <div class="modal-row"><span class="modal-label">Contact:</span><span class="modal-value" id="mContact">—</span></div>
             <div class="modal-row"><span class="modal-label">Role:</span><span class="modal-value" id="mRole"></span></div>
             <div class="modal-row"><span class="modal-label">Status:</span><span class="modal-value" id="mStatus"></span></div>
             <div class="modal-actions">
@@ -108,11 +109,17 @@
                     <input class="form-control" id="newEmail" name="email" type="email" required>
                 </div>
                 <div class="modal-row">
+                    <label class="modal-label" for="newContact">Contact Number</label>
+                    <input class="form-control" id="newContact" name="contact_num" type="tel">
+                </div>
+                <div class="modal-row">
                     <label class="modal-label" for="newRole">Role</label>
                     <select class="form-select" id="newRole" name="role">
-                        <option value="admin">Admin</option>
+                        <option value="student">Student</option>
+                        <option value="faculty">Faculty</option>
+                        <option value="staff">Staff</option>
                         <option value="vendor">Vendor</option>
-                        <option value="student">User</option>
+                        <option value="admin">Admin</option>
                     </select>
                 </div>
                 <p class="field-error" id="addUserError" role="alert"><?= $flashAction === 'add' ? htmlspecialchars($error) : '' ?></p>

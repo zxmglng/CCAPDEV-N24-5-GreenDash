@@ -8,8 +8,8 @@ require_once __DIR__ . '/../app/models/store-request-model.php';
 
 $stats = [
     'pendingRequests' => get_pending_request_count($pdo),
-    'stalls'          => get_stall_counts($pdo),
-    'activeUsers'     => get_active_user_count($pdo),
+    'stalls' => get_stall_counts($pdo),
+    'activeUsers' => get_active_user_count($pdo),
 ];
 
 $page = 'home';

@@ -25,6 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $ln = trim($_POST['last_name'] ?? '');
             $email = trim($_POST['email'] ?? '');
             $role = $_POST['role'] ?? 'student';
+            $contact = trim($_POST['contact_num'] ?? '') ?: null;
 
             if ($fn === '' || $ln === '' || $email === '') {
                 throw new InvalidArgumentException('Please fill in all fields.');
@@ -32,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (find_user_by_email($email)) {
                 throw new InvalidArgumentException('A user with that email already exists.');
             }
-            add_user($fn, $ln, $email, $role);
+            add_user($fn, $ln, $email, $role, $contact);
             header('Location: manage-users.php');
             exit;
         } elseif ($action === 'edit') {
@@ -41,11 +42,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $ln = trim($_POST['last_name'] ?? '');
             $email = trim($_POST['email'] ?? '');
             $role = $_POST['role'] ?? 'student';
+            $contact = trim($_POST['contact_num'] ?? '') ?: null;
 
             if ($id <= 0 || $fn === '' || $ln === '' || $email === '') {
                 throw new InvalidArgumentException('Please fill in all required fields.');
             }
-            update_user($id, $fn, $ln, $email, $role);
+            update_user($id, $fn, $ln, $email, $role, $contact);
             header('Location: manage-users.php');
             exit;
 

@@ -43,7 +43,7 @@ function initManageUsersPage() {
         return {
             name:  tds[0] ? tds[0].textContent.trim() : '',
             email: tds[1] ? tds[1].textContent.trim() : '',
-            role:  tds[2] ? tds[2].textContent.trim() : ''
+            role:  tds[3] ? tds[3].textContent.trim() : ''
         };
     }
 
@@ -79,16 +79,18 @@ function initManageUsersPage() {
         if (!tr) return;
 
         activeUser = {
-            id:    tr.dataset.id,
-            name:  tr.dataset.name,
+            id: tr.dataset.id,
+            name: tr.dataset.name,
             email: tr.dataset.email,
-            role:  tr.dataset.role     // lowercase: "admin" | "vendor" | "user"
+            contact: tr.dataset.contact,
+            role: tr.dataset.role
         };
 
         byId('userModalTitle').textContent = activeUser.name;
-        byId('mEmail').textContent         = activeUser.email;
-        byId('mRole').textContent          = activeUser.role.charAt(0).toUpperCase() + activeUser.role.slice(1);
-        byId('mStatus').textContent        = 'Active';
+        byId('mEmail').textContent = activeUser.email;
+        byId('mContact').textContent = activeUser.contact || '—';
+        byId('mRole').textContent = activeUser.role.charAt(0).toUpperCase() + activeUser.role.slice(1);
+        byId('mStatus').textContent = 'Active';
 
         Modal.open('userModal');
     });
@@ -101,12 +103,12 @@ function initManageUsersPage() {
         const first = parts.shift() || '';
         const last  = parts.join(' ');
 
-        byId('editId').value        = activeUser.id;
+        byId('editId').value = activeUser.id;
         byId('editFirstName').value = first;
-        byId('editLastName').value  = last;
-        byId('editEmail').value     = activeUser.email;
-        // "user" in data-role maps back to the "student" enum value
-        byId('editRole').value      = activeUser.role === 'user' ? 'student' : activeUser.role;
+        byId('editLastName').value = last;
+        byId('editEmail').value = activeUser.email;
+        byId('editContact').value = activeUser.contact || '';
+        byId('editRole').value = activeUser.role;
 
         Modal.close('userModal');
         Modal.open('editUserModal');

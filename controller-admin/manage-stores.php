@@ -12,11 +12,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
     try {
         if ($action === 'add') {
-            $name     = trim($_POST['name'] ?? '');
+            $name = trim($_POST['name'] ?? '');
             $vendorId = ($_POST['vendor_id'] ?? '') !== '' ? (int) $_POST['vendor_id'] : null;
             $location = trim($_POST['location'] ?? '');
-            $hours    = trim($_POST['operating_hours'] ?? '');
-            $isOpen   = ($_POST['is_open'] ?? '1') === '1';
+            $hours = trim($_POST['operating_hours'] ?? '');
+            $isOpen = ($_POST['is_open'] ?? '1') === '1';
 
             if ($name === '' || $location === '' || $hours === '') {
                 throw new InvalidArgumentException('Please fill in all fields.');
@@ -27,12 +27,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
 
         } elseif ($action === 'edit') {
-            $id       = (int) ($_POST['id'] ?? 0);
-            $name     = trim($_POST['name'] ?? '');
+            $id = (int) ($_POST['id'] ?? 0);
+            $name = trim($_POST['name'] ?? '');
             $vendorId = ($_POST['vendor_id'] ?? '') !== '' ? (int) $_POST['vendor_id'] : null;
             $location = trim($_POST['location'] ?? '');
-            $hours    = trim($_POST['operating_hours'] ?? '');
-            $isOpen   = ($_POST['is_open'] ?? '1') === '1';
+            $hours = trim($_POST['operating_hours'] ?? '');
+            $isOpen = ($_POST['is_open'] ?? '1') === '1';
 
             if ($id <= 0 || $name === '' || $location === '') {
                 throw new InvalidArgumentException('Please fill in all required fields.');
@@ -56,8 +56,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$stalls  = get_stalls();
+$stalls = get_stalls();
 $vendors = get_vendors();
-$page    = 'manage-stores';
+$page = 'manage-stores';
 define('GREENDASH_ADMIN_VIEW', true);
 require __DIR__ . '/../app/views/admin/manage-stores.php';

@@ -13,7 +13,7 @@ if (!in_array($statusFilter, $allowedStatuses, true)) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $id  = (int) ($_POST['request_id'] ?? 0);
+    $id = (int) ($_POST['request_id'] ?? 0);
     $act = $_POST['action'] ?? '';
     try {
         if ($id > 0 && $act === 'approve') {

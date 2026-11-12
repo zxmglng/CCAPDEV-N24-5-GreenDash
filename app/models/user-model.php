@@ -96,7 +96,7 @@ function get_users()
 
     // Admin list excludes inactive accounts, which are retained for order history.
     return $pdo->query(
-        "SELECT user_id, email_add, first_name, last_name, user_role, acc_status
+        "SELECT user_id, email_add, first_name, last_name, contact_num, user_role, acc_status
          FROM users
          WHERE acc_status = 'active'
          ORDER BY last_name, first_name"
@@ -117,33 +117,29 @@ function get_vendors()
 }
 
 // Insert a new user. $password is optional — pass null to skip.
-function add_user($first_name, $last_name, $email, $role, $password = null)
+function add_user($first_name, $last_name, $email, $role, $contact_num = null, $password = null)
 {
     global $pdo;
 
     // Hash optional passwords before storing them; never persist the raw value.
     $hash = $password ? password_hash($password, PASSWORD_DEFAULT) : null;
-
     $stmt = $pdo->prepare(
-        "INSERT INTO users (first_name, last_name, email_add, user_role, password_hash)
-         VALUES (?, ?, ?, ?, ?)"
+        "INSERT INTO users (first_name, last_name, email_add, user_role, contact_num, password_hash)
+         VALUES (?, ?, ?, ?, ?, ?)"
     );
-    $stmt->execute([$first_name, $last_name, $email, $role, $hash]);
-
+    $stmt->execute([$first_name, $last_name, $email, $role, $contact_num, $hash]);
     return $pdo->lastInsertId();
 }
 
-function update_user($id, $first_name, $last_name, $email, $role)
+function update_user($id, $first_name, $last_name, $email, $role, $contact_num = null)
 {
     global $pdo;
-
     $stmt = $pdo->prepare(
         "UPDATE users
-         SET first_name = ?, last_name = ?, email_add = ?, user_role = ?
+         SET first_name = ?, last_name = ?, email_add = ?, user_role = ?, contact_num = ?
          WHERE user_id = ?"
     );
-    $stmt->execute([$first_name, $last_name, $email, $role, $id]);
-
+    $stmt->execute([$first_name, $last_name, $email, $role, $contact_num, $id]);
     return true;
 }
 
@@ -168,11 +164,4 @@ function find_user_by_email($email)
     $stmt->execute([$email]);
 
     return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
-}
-
-function get_active_user_count(PDO $pdo): int
-{
-    return (int) $pdo->query(
-        "SELECT COUNT(*) FROM users WHERE acc_status = 'active'"
-    )->fetchColumn();
 }
