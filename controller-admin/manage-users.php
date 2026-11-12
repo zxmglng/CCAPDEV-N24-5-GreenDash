@@ -9,8 +9,6 @@ define('GREENDASH_ADMIN_VIEW', true);
 
 $error = '';
 $flashAction = '';
-$error = '';
-$flashAction = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!isAdminCsrfTokenValid($_POST['csrfToken'] ?? null)) {
@@ -33,9 +31,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (find_user_by_email($email)) {
                 throw new InvalidArgumentException('A user with that email already exists.');
             }
+
             add_user($fn, $ln, $email, $role, $contact);
             header('Location: manage-users.php');
             exit;
+
         } elseif ($action === 'edit') {
             $id = (int) ($_POST['id'] ?? 0);
             $fn = trim($_POST['first_name'] ?? '');
@@ -47,6 +47,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($id <= 0 || $fn === '' || $ln === '' || $email === '') {
                 throw new InvalidArgumentException('Please fill in all required fields.');
             }
+
+            $existing = find_user_by_email($email);
+            if ($existing && (int) $existing['user_id'] !== $id) {
+                throw new InvalidArgumentException('A user with that email already exists.');
+            }
+
             update_user($id, $fn, $ln, $email, $role, $contact);
             header('Location: manage-users.php');
             exit;
@@ -57,7 +63,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!$user) {
                 throw new InvalidArgumentException('That user no longer exists.');
             }
-            // Refuse to deactivate the last active admin.
             if ($user['user_role'] === 'admin' && $user['acc_status'] === 'active') {
                 $countStmt = $pdo->prepare(
                     "SELECT COUNT(*) FROM users WHERE user_role = 'admin' AND acc_status = 'active' AND user_id <> ?"

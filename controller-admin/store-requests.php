@@ -17,9 +17,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $act = $_POST['action'] ?? '';
     try {
         if ($id > 0 && $act === 'approve') {
-            approve_request($id, getAdminUserId());
+            $ok = approve_request($id, getAdminUserId());
+            if (!$ok) {
+                throw new RuntimeException('That request could not be approved. It may have already been resolved.');
+            }
         } elseif ($id > 0 && $act === 'deny') {
-            deny_request($id, getAdminUserId());
+            $ok = deny_request($id, getAdminUserId());
+            if (!$ok) {
+                throw new RuntimeException('That request could not be denied. It may have already been resolved.');
+            }
         }
         header('Location: store-requests.php?status=' . urlencode($statusFilter));
         exit;

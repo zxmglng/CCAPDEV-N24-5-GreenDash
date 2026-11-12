@@ -20,6 +20,10 @@
         <?php require __DIR__ . '/nav.php'; ?>
             <h1 class="page-title">Users Directory</h1>
 
+            <?php if ($error !== ''): ?>
+                <p class="admin-flash" role="alert"><?= htmlspecialchars($error) ?></p>
+            <?php endif; ?>
+
             <div class="admin-toolbar">
                 <div class="admin-search">
                     <i class="bi bi-search"></i>
@@ -60,7 +64,7 @@
                                     data-name="<?= htmlspecialchars($u['first_name'] . ' ' . $u['last_name']) ?>"
                                     data-email="<?= htmlspecialchars($u['email_add']) ?>"
                                     data-contact="<?= htmlspecialchars($u['contact_num'] ?? '') ?>"
-                                    data-role="<?= strtolower($displayRole) ?>">
+                                    data-role="<?= strtolower($u['user_role']) ?>">
                                     <td><?= htmlspecialchars($u['first_name'] . ' ' . $u['last_name']) ?></td>
                                     <td><?= htmlspecialchars($u['email_add']) ?></td>
                                     <td><?= htmlspecialchars($u['contact_num'] ?? '—') ?></td>

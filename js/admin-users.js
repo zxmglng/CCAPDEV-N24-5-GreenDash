@@ -17,6 +17,10 @@ const Modal = {
     },
     close(id) {
         byId(id).classList.remove('open');
+
+        const userError = byId('addUserError');
+        if (userError) userError.textContent = '';
+
         if (this._returnFocus && document.contains(this._returnFocus)) {
             this._returnFocus.focus();
         }
@@ -35,7 +39,7 @@ function initManageUsersPage() {
     const sortBtn     = byId('sortBtn');
 
     let sortAsc    = true;
-    let activeUser = null;   // { id, name, email, role }
+    let activeUser = null;
 
     // --- Row accessors --------------------------------------------------
     function rowData(tr) {
@@ -50,8 +54,8 @@ function initManageUsersPage() {
     // --- Filter + sort --------------------------------------------------
     function applyFilters() {
         const q     = searchEl.value.trim().toLowerCase();
-        const role  = filterRolEl.value;    // "" | "admin" | "vendor" | "user"
-        const field = sortFieldEl.value;    // "name" | "email" | "role"
+        const role  = filterRolEl.value;
+        const field = sortFieldEl.value;
 
         const rows = [...listBody.querySelectorAll('tr.user-row')];
 
@@ -169,7 +173,10 @@ function initManageUsersPage() {
 
     // --- Boot -----------------------------------------------------------
     applyFilters();
-    if (document.body.dataset.flash === 'add') Modal.open('addUserModal');
+
+    if (document.body.dataset.flash === 'add') {
+        Modal.open('addUserModal');
+    }
 }
 
 if (document.body.dataset.page === 'manage-users') initManageUsersPage();
