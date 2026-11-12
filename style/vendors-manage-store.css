@@ -136,27 +136,25 @@
 
 .option-group-editor-head,
 .option-choice-editor {
-	display: flex;
+	display: grid;
 	align-items: center;
-	gap: 10px;
+	gap: 8px;
 }
 
 .option-group-editor-head {
+	grid-template-columns: auto minmax(0, 1fr) auto;
 	margin-bottom: 14px;
 }
 
-.option-group-editor-head .vendor-btn {
-	flex: 0 0 auto;
+.option-choice-editor {
+	grid-template-columns: auto minmax(0, 1fr) minmax(90px, 120px) auto;
+	width: 100%;
 }
 
-.option-group-editor-head .form-control {
-	flex: 1 1 auto;
+.option-group-editor-head .form-control,
+.option-choice-editor .form-control {
+	width: 100%;
 	min-width: 0;
-}
-
-.option-group-editor-head .option-required-toggle {
-	margin-left: auto;
-	flex: 0 0 auto;
 }
 
 .option-required-toggle,
@@ -167,6 +165,11 @@
 	white-space: nowrap;
 	font-size: .9rem;
 	margin: 0;
+}
+
+.option-group-editor-head .vendor-btn,
+.option-choice-editor .vendor-btn {
+	justify-self: start;
 }
 
 .option-group-editor .vendor-btn.small {
@@ -180,63 +183,19 @@
 	margin: 0 0 12px;
 }
 
-.option-choice-editor {
-	width: 100%;
-}
-
-.option-choice-editor > .vendor-btn {
-	flex: 0 0 auto;
-}
-
-.option-choice-editor .option-choice-name {
-	flex: 1 1 auto;
-	min-width: 0;
-}
-
-.option-choice-editor .option-choice-price {
-	flex: 0 0 120px;
-}
-
-.option-choice-editor .option-available-toggle {
-	margin-left: auto;
-	flex: 0 0 auto;
-}
-
 #item-modal .vmodal-box {
 	max-width: 760px;
 }
 
 @media (max-width: 700px) {
 	.option-group-editor-head {
-		grid-template-columns: auto minmax(0, 1fr);
-	}
-
-	.option-group-editor-head .form-control {
-		grid-column: 2;
-	}
-
-	.option-group-editor-head .option-required-toggle {
-		grid-column: 2;
-		justify-self: end;
-	}
-
-	.option-group-editor-head .vendor-btn {
-		grid-column: 1;
+		grid-template-columns: auto minmax(0, 1fr) auto;
+		gap: 6px;
 	}
 
 	.option-choice-editor {
-		grid-template-columns: auto minmax(0, 1fr);
-	}
-
-	.option-choice-editor > .vendor-btn {
-		grid-column: 1;
-		justify-self: start;
-	}
-
-	.option-choice-editor .option-choice-name,
-	.option-choice-editor .option-choice-price,
-	.option-choice-editor .option-available-toggle {
-		grid-column: 2;
+		grid-template-columns: auto minmax(0, 1fr) minmax(70px, 90px) auto;
+		gap: 6px;
 	}
 }
 
@@ -247,22 +206,6 @@
 
 	.option-group-editor {
 		padding: 12px;
-	}
-
-	.option-group-editor-head,
-	.option-choice-editor {
-		grid-template-columns: minmax(0, 1fr);
-	}
-
-	.option-group-editor-head > *,
-	.option-choice-editor > * {
-		grid-column: 1;
-	}
-
-	.option-choice-editor .option-choice-price,
-	.option-group-editor-head .vendor-btn,
-	.option-choice-editor > .vendor-btn {
-		width: 100%;
 	}
 }
 
