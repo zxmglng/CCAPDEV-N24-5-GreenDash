@@ -432,7 +432,7 @@ async function initManageStorePage() {
     let pendingAvailable = true;
     let editingOptionGroups = [];
 
-    // ITEM CUSTOMIZATIONS: build each section and choice row from the item's saved option data.
+    // ITEM CUSTOMIZATIONS (PLEASE DONT DELETE): build each section and choice row from the item's saved option data.
     function renderOptionGroups() {
         optionGroupsEditor.replaceChildren();
         if (optionLoadError) {
@@ -453,13 +453,14 @@ async function initManageStorePage() {
         editingOptionGroups.forEach((group, groupIndex) => {
             const groupCard = elem('section', 'option-group-editor');
             const groupHead = elem('div', 'option-group-editor-head');
-            // Keep Remove section, its name field, and Required together on one row.
+            // remove section uses the left 1/4; the name uses the remaining 3/4s.
             groupHead.style.display = 'grid';
-            groupHead.style.gridTemplateColumns = 'auto minmax(0, 1fr) auto';
+            groupHead.style.gridTemplateColumns = 'minmax(0, 1fr) minmax(0, 3fr)';
             groupHead.style.alignItems = 'center';
             groupHead.style.gap = '6px';
 
             const nameInput = elem('input', 'form-control');
+            nameInput.style.width = '100%';
             nameInput.type = 'text';
             nameInput.maxLength = 100;
             nameInput.placeholder = 'Section name (e.g. Size)';
@@ -469,6 +470,7 @@ async function initManageStorePage() {
 
             const deleteGroupButton = elem('button', 'vendor-btn danger small', 'Remove section');
             deleteGroupButton.type = 'button';
+            deleteGroupButton.style.width = '100%';
             deleteGroupButton.addEventListener('click', () => {
                 editingOptionGroups.splice(groupIndex, 1);
                 renderOptionGroups();
@@ -481,27 +483,29 @@ async function initManageStorePage() {
             requiredInput.addEventListener('change', () => { group.required = requiredInput.checked; });
             requiredLabel.append(requiredInput, document.createTextNode(' Required'));
 
-            groupHead.append(deleteGroupButton, nameInput, requiredLabel);
-            groupCard.appendChild(groupHead);
+            groupHead.append(deleteGroupButton, nameInput);
+            groupCard.append(groupHead, requiredLabel);
 
             const choices = elem('div', 'option-choice-list');
             group.choices.forEach((choice, choiceIndex) => {
                 const row = elem('div', 'option-choice-editor');
-                // Put Remove beside the choice name, then stack price and availability below the name.
+                // choice name: full modal
+                // remove and extra price share the second row equally.
                 row.style.display = 'grid';
-                row.style.gridTemplateColumns = 'auto minmax(0, 1fr)';
-                row.style.gridTemplateRows = 'auto auto auto';
+                row.style.gridTemplateColumns = 'minmax(0, 1fr)';
                 row.style.alignItems = 'center';
                 row.style.gap = '6px';
 
-                const deleteChoiceButton = elem('button', 'vendor-btn danger small', 'Remove');
+                const deleteChoiceButton = elem('button', 'vendor-btn danger small', 'Remove choice');
                 deleteChoiceButton.type = 'button';
+                deleteChoiceButton.style.width = '100%';
                 deleteChoiceButton.addEventListener('click', () => {
                     group.choices.splice(choiceIndex, 1);
                     renderOptionGroups();
                 });
 
                 const choiceName = elem('input', 'form-control option-choice-name');
+                choiceName.style.width = '100%';
                 choiceName.type = 'text';
                 choiceName.maxLength = 100;
                 choiceName.placeholder = 'Choice name';
@@ -510,6 +514,7 @@ async function initManageStorePage() {
                 choiceName.addEventListener('input', () => { choice.name = choiceName.value; });
 
                 const priceInput = elem('input', 'form-control option-choice-price');
+                priceInput.style.width = '100%';
                 priceInput.type = 'number';
                 priceInput.min = '0';
                 priceInput.max = '99999999.99';
@@ -527,16 +532,14 @@ async function initManageStorePage() {
                 availableInput.addEventListener('change', () => { choice.available = availableInput.checked; });
                 availableLabel.append(availableInput, document.createTextNode(' Available'));
 
-                deleteChoiceButton.style.gridColumn = '1';
-                deleteChoiceButton.style.gridRow = '1';
-                choiceName.style.gridColumn = '2';
-                choiceName.style.gridRow = '1';
-                priceInput.style.gridColumn = '2';
-                priceInput.style.gridRow = '2';
-                availableLabel.style.gridColumn = '2';
-                availableLabel.style.gridRow = '3';
+                const priceRemoveRow = elem('div', 'option-choice-price-remove');
+                priceRemoveRow.style.display = 'grid';
+                priceRemoveRow.style.gridTemplateColumns = 'minmax(0, 1fr) minmax(0, 1fr)';
+                priceRemoveRow.style.alignItems = 'center';
+                priceRemoveRow.style.gap = '6px';
+                priceRemoveRow.append(deleteChoiceButton, priceInput);
 
-                row.append(deleteChoiceButton, choiceName, priceInput, availableLabel);
+                row.append(choiceName, priceRemoveRow, availableLabel);
                 choices.appendChild(row);
             });
             groupCard.appendChild(choices);

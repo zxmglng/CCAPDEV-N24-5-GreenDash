@@ -193,7 +193,6 @@
 
                     <!-- ITEM CUSTOMIZATIONS: section and choice editor templates are below. -->
                     <section class="product-customizations" aria-labelledby="productCustomizationsTitle">
-                        <hr>
                         <div class="customization-editor-heading">
                             <h4 id="productCustomizationsTitle">Item customizations</h4>
                             <p class="customization-editor-help">
