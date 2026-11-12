@@ -1,4 +1,5 @@
 <?php
+// models/user_model.php - simple user/admin functions.
 
 function getCheckoutUser(PDO $pdo, int $userId): ?array
 {
@@ -6,7 +7,55 @@ function getCheckoutUser(PDO $pdo, int $userId): ?array
     $stmt->execute([$userId]);
     return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
 }
-// models/user_model.php - simple user/admin functions.
+
+function getUserById(PDO $pdo, int $userId): ?array  // get a user by their ID, returns null if not found
+{
+    $stmt = $pdo->prepare("
+        SELECT *
+        FROM users
+        WHERE user_id = ?
+        LIMIT 1
+    ");
+
+    $stmt->execute([$userId]);
+
+    return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+}
+
+function getUserByEmail(PDO $pdo, string $email): ?array // get a user by their email
+{
+    $stmt = $pdo->prepare("
+        SELECT *
+        FROM users
+        WHERE email_add = ?
+        LIMIT 1
+    ");
+
+    $stmt->execute([$email]);
+
+    return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+}
+
+// uppdates the login user profile information
+function updateUserProfile(PDO $pdo, int $userId, string $firstName, string $lastName, ?string $contactNum, ?string $profileImage): bool
+{
+    $stmt = $pdo->prepare("
+        UPDATE users
+        SET first_name = ?,
+            last_name = ?,
+            contact_num = ?,
+            profile_image = ?
+        WHERE user_id = ?
+    ");
+
+    return $stmt->execute([
+        $firstName,
+        $lastName,
+        $contactNum,
+        $profileImage,
+        $userId
+    ]);
+}
 
 // All active users, for the manage-users.php table.
 function get_users()
