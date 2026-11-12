@@ -83,30 +83,44 @@ if ($email === '' || $firstName === '' || $lastName === '') {
 
 try {
     $user = getUserByEmail($pdo, $email); // already an existing user?
-    if (!$user) { // first timer -> auto create user
+    if (!$user) {
         $userId = createGoogleUser($pdo, $email, $firstName, $lastName, $profileImage !== '' ? $profileImage : null);
-        $userRole = 'student';
+        // get the newly created user including user_role
+        $user = getUserById($pdo, $userId);
     }
-    else {
-        // stop inactive users from logging in
-        if ($user['acc_status'] === 'inactive') {
-            http_response_code(403);
-            echo json_encode([
-                'success' => false,
-                'message' => 'This account is inactive.'
-            ]);
-            exit;
-        }
-        $userId = $user['user_id'];
-        $userRole = $user['user_role'];
+
+    // stop inactive users from logging in
+    if ($user['acc_status'] === 'inactive') {
+        http_response_code(403);
+        echo json_encode([
+            'success' => false,
+            'message' => 'This account is inactive.'
+        ]);
+        exit;
     }
+
+    $userId = $user['user_id'];
+    $userRole = $user['user_role'];
+
     // identify the logged in user using PHP session
     $_SESSION['user_id'] = $userId;
     $_SESSION['user_email'] = $email;
     $_SESSION['user_role'] = $userRole;
 
+    // user still needs to choose student, faculty, or staff
+    if ($userRole === null) {
+        echo json_encode([
+            'success' => true,
+            'needs_role' => true,
+            'user_id' => $userId,
+            'user_role' => null
+        ]);
+        exit;
+    }
+
     echo json_encode([
         'success' => true,
+        'needs_role' => false,
         'user_id' => $userId,
         'user_role' => $userRole
     ]);
@@ -114,7 +128,7 @@ try {
     http_response_code(500);
     echo json_encode([
         'success' => false,
-        'message' => 'Database error: '
+        'message' => 'Database error. '
     ]);
 }
 ?>

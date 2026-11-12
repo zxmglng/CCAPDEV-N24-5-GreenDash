@@ -74,6 +74,18 @@ function updateUserProfile(PDO $pdo, int $userId, string $firstName, string $las
     ]);
 }
 
+// updates the user's role
+function updateUserRole(PDO $pdo, int $userId, string $role): bool
+{
+    $stmt = $pdo->prepare("
+        UPDATE users
+        SET user_role = ?
+        WHERE user_id = ?
+    ");
+
+    return $stmt->execute([$role, $userId]);
+}
+
 // All active users, for the manage-users.php table.
 function get_users()
 {

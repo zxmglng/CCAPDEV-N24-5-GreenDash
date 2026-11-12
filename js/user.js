@@ -747,6 +747,10 @@ async function handleGoogleLogin(response) {
             alert(result.message || 'Login failed. Please try again.');
             return;
         }
+        if (result.needs_role) {
+            window.location.href = 'controller-user/select-role.php';
+            return;
+        }
 
         // keeping this temporarily (for debugging etc), but the backend should handle validation now :)
         var payload = JSON.parse(
