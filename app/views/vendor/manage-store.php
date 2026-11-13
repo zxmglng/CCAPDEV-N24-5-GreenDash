@@ -24,6 +24,7 @@ $vendorHeaderLocation = count($vendorStalls) === 1
     </head>
     <body class="vendor-page"
           data-page="manage-store"
+          data-assets-path="../assets/"
           data-stall-id="<?= (int) $stall['id'] ?>"
           data-stall-name="<?= htmlspecialchars($stall['name']) ?>"
           data-stall-location="<?= htmlspecialchars($stall['location'] ?? '') ?>"

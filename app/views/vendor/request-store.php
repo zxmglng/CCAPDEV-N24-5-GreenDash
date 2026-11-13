@@ -18,7 +18,7 @@ if (!defined('GREENDASH_VENDOR_REQUEST_STORE_VIEW')) {
         <link rel="stylesheet" href="../style/vendors-modal.css">
         <link rel="icon" type="image/png" href="../assets/main/GreenDash_CIRCLE.png">
     </head>
-    <body class="vendor-page" data-page="request-store">
+    <body class="vendor-page" data-page="request-store" data-assets-path="../assets/">
         <header>
             <div class="main-header">
                 <img id="logo" src="../assets/main/GreenDash_LOGO.png" alt="GreenDash Logo">
