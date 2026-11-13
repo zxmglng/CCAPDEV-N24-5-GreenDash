@@ -141,7 +141,8 @@ C:.
 |       _bootstrap.php
 |       
 +---database
-|       schema_and_data.sql
+|       CCAPDEV-N24-5-GreenDash.sql
+|       additional_sample_data.sql
 |       
 +---js
 |       admin-login.js
