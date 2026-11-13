@@ -1,3 +1,4 @@
+<?php
 /*
 db: order_item_options -- customization options for each order item
 +----------------------+------------------+------+-----+---------+----------------+
@@ -44,7 +45,6 @@ db: products -- menu items available for ordering
 +--------------+---------------+------+-----+---------+----------------+
 */ 
 
-<?php
 require_once __DIR__ . '/../app/core/checkout.php';
 startCheckoutSession();
 header('Content-Type: application/json; charset=utf-8');
