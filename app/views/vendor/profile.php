@@ -26,8 +26,8 @@ $vendorHeaderLocation = count($vendorStalls) === 1
             <div class="main-header">
                 <img id="logo" src="../assets/main/GreenDash_LOGO.png" alt="GreenDash Logo">
                 <div class="location">
-                    <strong><?= htmlspecialchars($vendorHeaderName) ?></strong>
-                    <span><?= htmlspecialchars($vendorHeaderLocation) ?></span>
+                    <strong><?= htmlspecialchars($vendorHeaderName, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></strong>
+                    <span><?= htmlspecialchars($vendorHeaderLocation, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></span>
                 </div>
                 <button class="icon-button" id="eclipse" type="button" aria-label="Toggle dark mode">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
@@ -50,7 +50,7 @@ $vendorHeaderLocation = count($vendorStalls) === 1
         <div class="vendor-layout">
             <aside class="vendor-sidebar" aria-label="Profile sections">
                 <h2>Profile</h2>
-                <p class="vendor-greeting">Hello, <?= htmlspecialchars($vendor['first_name']) ?>!</p>
+                <p class="vendor-greeting">Hello, <?= htmlspecialchars($vendor['first_name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>!</p>
                 <ul class="sidebar-links">
                     <li><a href="profile.php" class="active" aria-current="page">Your account</a></li>
                     <li><a href="manage-menu.php">Manage store</a></li>
@@ -64,20 +64,22 @@ $vendorHeaderLocation = count($vendorStalls) === 1
                 <dl class="account-details">
                     <div class="account-row">
                         <dt>Name:</dt>
-                        <dd><?= htmlspecialchars(trim($vendor['first_name'] . ' ' . $vendor['last_name'])) ?></dd>
+                        <dd><?= htmlspecialchars(trim($vendor['first_name'] . ' ' . $vendor['last_name']),
+                            ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></dd>
                     </div>
                     <div class="account-row">
                         <dt>Registered email:</dt>
-                        <dd><?= htmlspecialchars($vendor['email_add']) ?></dd>
+                        <dd><?= htmlspecialchars($vendor['email_add'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></dd>
                     </div>
                     <div class="account-row">
                         <dt>Account type:</dt>
-                        <dd><?= ucfirst($vendor['user_role']) ?></dd>
+                        <dd><?= htmlspecialchars(ucfirst($vendor['user_role']), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></dd>
                     </div>
                 </dl>
 
                 <form method="post" action="logout.php">
-                    <input type="hidden" name="csrfToken" value="<?= htmlspecialchars(vendorCsrfToken(), ENT_QUOTES, 'UTF-8') ?>">
+                    <input type="hidden" name="csrfToken"
+                        value="<?= htmlspecialchars(vendorCsrfToken(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
                     <button class="vendor-btn danger" type="submit">Sign out</button>
                 </form>
             </main>

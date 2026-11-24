@@ -1,27 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
+        <meta charset="UTF-8">
         <title>GreenDash - Stall</title>
-        <link rel="stylesheet" href="<?= $assetBase ?>bootstrap/css/bootstrap.min.css">
-        <link rel="stylesheet" href="<?= $assetBase ?>style/centralized.css">
-        <link rel="stylesheet" href="<?= $assetBase ?>style/user.css">
-        <link rel="stylesheet" href="<?= $assetBase ?>style/user-stalls.css">
+        <link rel="stylesheet" href="<?= htmlspecialchars($assetBase . 'bootstrap/css/bootstrap.min.css', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
+        <link rel="stylesheet" href="<?= htmlspecialchars($assetBase . 'style/centralized.css', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
+        <link rel="stylesheet" href="<?= htmlspecialchars($assetBase . 'style/user.css', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
+        <link rel="stylesheet" href="<?= htmlspecialchars($assetBase . 'style/user-stalls.css', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-        <link rel="icon" type="image/png" href="<?= $assetBase ?>assets/main/GreenDash_CIRCLE.png">
+        <link rel="icon" type="image/png" href="<?= htmlspecialchars($assetBase . 'assets/main/GreenDash_CIRCLE.png', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
-    <body data-assets-path="<?= htmlspecialchars($assetBase . 'assets/', ENT_QUOTES, 'UTF-8') ?>">
+    <body data-assets-path="<?= htmlspecialchars($assetBase . 'assets/', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
         <?php include(__DIR__ . "/../nav.php"); ?>
         <main class="stall-info-page">
             <div class="stall-content">
                 <div class="stall-main-content">
                     <section class="stall-header">
-                        <img class="stall-banner" id="stallBanner" src="<?= htmlspecialchars($stall['banner_path'] ?? '', ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($stall['name']) ?> banner">
-                        <img class="stall-info-logo" id="stallLogo" src="<?= htmlspecialchars($stall['image_path'] ?? '', ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($stall['name']) ?>">
+                        <img class="stall-banner" id="stallBanner" src="<?= htmlspecialchars($stall['banner_path'] ?? '', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" alt="<?= htmlspecialchars($stall['name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?> banner">
+                        <img class="stall-info-logo" id="stallLogo" src="<?= htmlspecialchars($stall['image_path'] ?? '', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" alt="<?= htmlspecialchars($stall['name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
                         <div class="stall-header-info">
-                            <h1 id="stallName"><?= htmlspecialchars($stall['name']) ?></h1>
-                            <p id="stallLocation"><?= htmlspecialchars($stall['location']) ?></p>
-                            <p id="stallHours"><?= htmlspecialchars($stallDetails['hours'], ENT_QUOTES, 'UTF-8') ?></p>
+                            <h1 id="stallName"><?= htmlspecialchars($stall['name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></h1>
+                            <p id="stallLocation"><?= htmlspecialchars($stall['location'] ?? '', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
+                            <p id="stallHours"><?= htmlspecialchars($stallDetails['hours'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
                             <button type="button" class="stall-review-button" id="openReviewsButton">
                                 <span class="review-stars" aria-hidden="true">★★★★★</span>
                                 Reviews
@@ -64,8 +65,8 @@
                             <?php foreach ($categories as $index => $category): ?>
                                 <button
                                     class="<?= $index === 0 ? 'category-button-active' : 'category-button' ?>"
-                                    data-category="<?= htmlspecialchars(strtolower($category), ENT_QUOTES, 'UTF-8') ?>">
-                                    <?= htmlspecialchars($category, ENT_QUOTES, 'UTF-8') ?>
+                                    data-category="<?= htmlspecialchars(strtolower($category), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
+                                    <?= htmlspecialchars($category, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
                                 </button>
                             <?php endforeach; ?>
                         </div>
@@ -192,8 +193,8 @@
         </div>
         <script type="application/json" id="stallData"><?= json_encode($stallData,
             JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR) ?></script>
-        <script src="<?= $assetBase ?>js/reviews.js"></script>
-        <script src="<?= $assetBase ?>js/user-stalls.js"></script>
-        <script type="module" src="<?= $assetBase ?>js/centralized.js"></script>
+        <script src="<?= htmlspecialchars($assetBase . 'js/reviews.js', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"></script>
+        <script src="<?= htmlspecialchars($assetBase . 'js/user-stalls.js', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"></script>
+        <script type="module" src="<?= htmlspecialchars($assetBase . 'js/centralized.js', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"></script>
     </body>
 </html>

@@ -26,8 +26,8 @@ $vendorHeaderLocation = count($vendorStalls) === 1
             <div class="main-header">
                 <img id="logo" src="../assets/main/GreenDash_LOGO.png" alt="GreenDash Logo">
                 <div class="location">
-                    <strong><?= htmlspecialchars($vendorHeaderName) ?></strong>
-                    <span><?= htmlspecialchars($vendorHeaderLocation) ?></span>
+                    <strong><?= htmlspecialchars($vendorHeaderName, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></strong>
+                    <span><?= htmlspecialchars($vendorHeaderLocation, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></span>
                 </div>
                 <button class="icon-button" id="eclipse" type="button" aria-label="Toggle dark mode">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
@@ -50,7 +50,7 @@ $vendorHeaderLocation = count($vendorStalls) === 1
         <div class="vendor-layout">
             <aside class="vendor-sidebar" aria-label="Profile sections">
                 <h2>Profile</h2>
-                <p class="vendor-greeting">Hello, <?= htmlspecialchars($vendor['first_name']) ?>!</p>
+                <p class="vendor-greeting">Hello, <?= htmlspecialchars($vendor['first_name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>!</p>
                 <ul class="sidebar-links">
                     <li><a href="profile.php">Your account</a></li>
                     <li><a href="manage-menu.php" class="active" aria-current="page">Manage store</a></li>
@@ -71,12 +71,13 @@ $vendorHeaderLocation = count($vendorStalls) === 1
                         <?php foreach ($vendorStalls as $s): ?>
                             <a class="store-card" href="manage-store.php?stall=<?= (int) $s['id'] ?>">
                                 <?php if (!empty($s['image_path'])): ?>
-                                    <img class="store-card-logo" src="<?= htmlspecialchars($s['image_path']) ?>" alt="">
+                                    <img class="store-card-logo"
+                                        src="<?= htmlspecialchars($s['image_path'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" alt="">
                                 <?php else: ?>
                                     <img class="store-card-logo" src="../assets/main/defaultAvatar.png" alt="">
                                 <?php endif; ?>
-                                <span class="store-card-name"><?= htmlspecialchars($s['name']) ?></span>
-                                <span class="store-card-location"><?= htmlspecialchars($s['location'] ?? '') ?></span>
+                                <span class="store-card-name"><?= htmlspecialchars($s['name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></span>
+                                <span class="store-card-location"><?= htmlspecialchars($s['location'] ?? '', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></span>
                                 <span class="status <?= $s['is_open'] ? 'open' : 'closed' ?>">
                                     <?= $s['is_open'] ? 'OPEN' : 'CLOSED' ?>
                                 </span>

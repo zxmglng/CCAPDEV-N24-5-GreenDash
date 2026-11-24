@@ -28,6 +28,16 @@ A request normally reaches a controller, which checks the request/session, calls
 
 Use the controller routes for application features. The current vendor sign-in page is a public template at `app/views/vendor/login.php`, linked from the homepage; protected vendor pages use their controllers.
 
+### Escape values when rendering HTML
+
+Use `htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')` for dynamic text and quoted HTML attributes in PHP templates. Keep the original values in the database so each output can encode them for its own context.
+
+```php
+<h2><?= htmlspecialchars($stall['name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></h2>
+```
+
+Cast numeric IDs to integers. Validate dynamic URL destinations before escaping them as HTML attributes. Use `json_encode()` for API responses and the `JSON_HEX_*` flags when embedding JSON in an HTML script element. Use `textContent` to display API text in the browser.
+
 ## Set up and run on the CCS Cloud server
 
 These instructions use the existing project layout: a source checkout at `~/GreenDash-src` and an Apache site at `/var/www/html/GreenDash`. Run Bash commands in the Linux terminal and SQL commands inside MariaDB. Replace example database credentials with the account configured on your server. Use the server address and port assigned to your group when opening the site.

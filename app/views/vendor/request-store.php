@@ -23,8 +23,11 @@ if (!defined('GREENDASH_VENDOR_REQUEST_STORE_VIEW')) {
             <div class="main-header">
                 <img id="logo" src="../assets/main/GreenDash_LOGO.png" alt="GreenDash Logo">
                 <div class="location">
-                    <strong><?= count($vendorStalls) === 1 ? htmlspecialchars($vendorStalls[0]['name']) : 'Your stores' ?></strong>
-                    <span><?= count($vendorStalls) === 1 ? htmlspecialchars($vendorStalls[0]['location'] ?? '') : count($vendorStalls) . ' assigned stalls' ?></span>
+                    <strong><?= count($vendorStalls) === 1
+                        ? htmlspecialchars($vendorStalls[0]['name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') : 'Your stores' ?></strong>
+                    <span><?= count($vendorStalls) === 1
+                        ? htmlspecialchars($vendorStalls[0]['location'] ?? '', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
+                        : count($vendorStalls) . ' assigned stalls' ?></span>
                 </div>
                 <button class="icon-button" id="eclipse" type="button" aria-label="Toggle dark mode">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
@@ -47,7 +50,7 @@ if (!defined('GREENDASH_VENDOR_REQUEST_STORE_VIEW')) {
         <div class="vendor-layout">
             <aside class="vendor-sidebar" aria-label="Profile sections">
                 <h2>Profile</h2>
-                <p class="vendor-greeting">Hello, <?= htmlspecialchars($vendor['first_name']) ?>!</p>
+                <p class="vendor-greeting">Hello, <?= htmlspecialchars($vendor['first_name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>!</p>
                 <ul class="sidebar-links">
                     <li><a href="profile.php">Your account</a></li>
                     <li><a href="manage-menu.php">Manage store</a></li>
@@ -59,11 +62,12 @@ if (!defined('GREENDASH_VENDOR_REQUEST_STORE_VIEW')) {
                 <h1 class="page-title">Request to add a new store</h1>
 
                 <?php if ($error !== ''): ?>
-                    <p class="field-error" role="alert" style="margin-bottom: 12px;"><?= htmlspecialchars($error) ?></p>
+                    <p class="field-error" role="alert" style="margin-bottom: 12px;"><?= htmlspecialchars($error, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
                 <?php endif; ?>
 
                 <form class="store-panel" action="request-store.php" method="POST" enctype="multipart/form-data">
-                    <input type="hidden" name="csrfToken" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
+                    <input type="hidden" name="csrfToken"
+                        value="<?= htmlspecialchars($csrfToken, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
 
                     <h2 class="form-section-title">Store details</h2>
 

@@ -15,7 +15,7 @@
     <body class="admin-page">
         <main class="admin-login-wrap">
             <form class="admin-login-card" id="adminLoginForm" method="POST">
-                <input type="hidden" name="csrfToken" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
+                <input type="hidden" name="csrfToken" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
                 
                 <img src="assets/main/GreenDash_LOGO.png" alt="GreenDash Logo">
 
@@ -23,7 +23,7 @@
                 <p>Enter your admin key.</p>
 
                 <?php if ($loginError !== ''): ?>
-                    <p class="admin-login-error" role="alert"><?= htmlspecialchars($loginError) ?></p>
+                    <p class="admin-login-error" role="alert"><?= htmlspecialchars($loginError, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
                 <?php endif; ?>
 
                 <div class="admin-login-field">

@@ -58,7 +58,7 @@ $usersOpen  = $page === 'manage-users';
 
         <hr>
         <form action="controller-admin/logout.php" method="POST" style="margin: 0;">
-            <input type="hidden" name="csrfToken" value="<?= htmlspecialchars(adminCsrfToken(), ENT_QUOTES, 'UTF-8') ?>">
+            <input type="hidden" name="csrfToken" value="<?= htmlspecialchars(adminCsrfToken(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
             <button class="sidebar-signout" type="submit" style="width: 100%; border: none; background: transparent; cursor: pointer; text-align: left;">
                 <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
                 <span>Sign out</span>

@@ -10,20 +10,23 @@ $vendorPageTitle = ['orders' => 'Order Requests', 'history' => 'Transaction Hist
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GreenDash - <?= htmlspecialchars($vendorPageTitle) ?></title>
+    <title>GreenDash - <?= htmlspecialchars($vendorPageTitle, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></title>
     <link rel="stylesheet" href="../bootstrap/css/bootstrap-5.3.3.min.css">
     <link rel="stylesheet" href="../style/centralized.css">
     <link rel="stylesheet" href="../style/vendor.css">
     <link rel="stylesheet" href="../style/vendor-orders.css">
     <link rel="icon" type="image/png" href="../assets/main/GreenDash_CIRCLE.png">
 </head>
-<body class="vendor-page vendor-orders-page" data-assets-path="../assets/" data-vendor-page="<?= $vendorPage ?>">
+<body class="vendor-page vendor-orders-page" data-assets-path="../assets/"
+    data-vendor-page="<?= htmlspecialchars($vendorPage, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
     <header>
         <div class="main-header">
             <img id="logo" src="../assets/main/GreenDash_LOGO.png" alt="GreenDash Logo">
             <div class="location">
-                <strong><?= count($vendorStalls) === 1 ? htmlspecialchars($vendorStalls[0]['name']) : 'Your stores' ?></strong>
-                <span><?= count($vendorStalls) === 1 ? htmlspecialchars($vendorStalls[0]['location'] ?? '')
+                <strong><?= count($vendorStalls) === 1
+                    ? htmlspecialchars($vendorStalls[0]['name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') : 'Your stores' ?></strong>
+                <span><?= count($vendorStalls) === 1
+                    ? htmlspecialchars($vendorStalls[0]['location'] ?? '', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
                     : count($vendorStalls) . ' assigned stalls' ?></span>
             </div>
             <button class="icon-button" id="eclipse" type="button" aria-label="Toggle dark mode">
@@ -43,9 +46,11 @@ $vendorPageTitle = ['orders' => 'Order Requests', 'history' => 'Transaction Hist
         </nav>
     </header>
     <div class="vendor-account-bar">
-        <span>Signed in as <?= htmlspecialchars(trim($vendor['first_name'] . ' ' . $vendor['last_name'])) ?></span>
+        <span>Signed in as <?= htmlspecialchars(trim($vendor['first_name'] . ' ' . $vendor['last_name']),
+            ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></span>
         <form method="post" action="logout.php" id="vendorSessionLogoutForm">
-            <input type="hidden" name="csrfToken" value="<?= htmlspecialchars($vendorOrdersData['csrfToken']) ?>">
+            <input type="hidden" name="csrfToken"
+                value="<?= htmlspecialchars($vendorOrdersData['csrfToken'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
             <button type="submit" class="vendor-action secondary">Sign out</button>
         </form>
     </div>

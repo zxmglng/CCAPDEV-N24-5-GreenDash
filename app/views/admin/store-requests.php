@@ -14,12 +14,12 @@
         <link rel="stylesheet" href="style/admin-requests.css">
         <link rel="icon" type="image/png" href="assets/main/GreenDash_CIRCLE.png">
     </head>
-    <body class="admin-page" data-page="<?= htmlspecialchars($page) ?>">
+    <body class="admin-page" data-page="<?= htmlspecialchars($page, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
         <?php require __DIR__ . '/nav.php'; ?>
             <h1 class="page-title">Requests</h1>
 
             <?php if ($error !== ''): ?>
-                <p class="admin-flash" role="alert"><?= htmlspecialchars($error) ?></p>
+                <p class="admin-flash" role="alert"><?= htmlspecialchars($error, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
             <?php endif; ?>
 
             <?php
@@ -30,7 +30,7 @@
                     <a href="controller-admin/store-requests.php?status=<?= urlencode($value) ?>"
                        class="admin-tab <?= $statusFilter === $value ? 'active' : '' ?>"
                        <?= $statusFilter === $value ? 'aria-current="page"' : '' ?>>
-                        <?= htmlspecialchars($label) ?>
+                        <?= htmlspecialchars($label, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
                     </a>
                 <?php endforeach; ?>
             </div>
@@ -74,21 +74,21 @@
                             <?php foreach ($requests as $r): ?>
                                 <tr class="request-row"
                                     data-id="<?= (int)$r['id'] ?>"
-                                    data-stall="<?= htmlspecialchars($r['proposed_name'] ?? $r['stall_name'] ?? '—') ?>"
-                                    data-vendor-name="<?= htmlspecialchars($r['vendor_name']) ?>"
-                                    data-vendor-email="<?= htmlspecialchars($r['vendor_email']) ?>"
-                                    data-location="<?= htmlspecialchars($r['proposed_location'] ?? $r['stall_location'] ?? '—') ?>"
-                                    data-hours="<?= htmlspecialchars($r['proposed_hours'] ?? '—') ?>"
-                                    data-date="<?= htmlspecialchars(substr($r['created_at'], 0, 10)) ?>"
+                                    data-stall="<?= htmlspecialchars($r['proposed_name'] ?? $r['stall_name'] ?? '—', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
+                                    data-vendor-name="<?= htmlspecialchars($r['vendor_name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
+                                    data-vendor-email="<?= htmlspecialchars($r['vendor_email'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
+                                    data-location="<?= htmlspecialchars($r['proposed_location'] ?? $r['stall_location'] ?? '—', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
+                                    data-hours="<?= htmlspecialchars($r['proposed_hours'] ?? '—', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
+                                    data-date="<?= htmlspecialchars(substr($r['created_at'], 0, 10), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
                                     data-type="<?= $r['type'] === 'add' ? 'Add Stall' : 'Remove Stall' ?>"
-                                    data-status="<?= htmlspecialchars($r['status']) ?>">
-                                    <td><?= htmlspecialchars($r['proposed_name'] ?? $r['stall_name'] ?? '—') ?></td>
-                                    <td><?= htmlspecialchars($r['vendor_name']) ?></td>
+                                    data-status="<?= htmlspecialchars($r['status'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
+                                    <td><?= htmlspecialchars($r['proposed_name'] ?? $r['stall_name'] ?? '—', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></td>
+                                    <td><?= htmlspecialchars($r['vendor_name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></td>
                                     <td><?= date('M j, Y', strtotime($r['created_at'])) ?></td>
                                     <td><?= $r['type'] === 'add' ? 'Add Stall' : 'Remove Stall' ?></td>
                                     <td>
-                                        <span class="status <?= $r['status'] ?>">
-                                            <?= strtoupper($r['status']) ?>
+                                        <span class="status <?= htmlspecialchars($r['status'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
+                                            <?= htmlspecialchars(strtoupper($r['status']), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
                                         </span>
                                     </td>
                                 </tr>
@@ -116,7 +116,7 @@
     </div>
 
     <form method="POST" id="actionForm" style="display:none;">
-        <input type="hidden" name="csrfToken" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
+        <input type="hidden" name="csrfToken" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
         <input type="hidden" name="request_id" id="actionRequestId">
         <input type="hidden" name="action" id="actionAction">
     </form>

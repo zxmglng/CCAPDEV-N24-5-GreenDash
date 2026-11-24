@@ -2,6 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
+        <meta charset="UTF-8">
         <title>GreenDash - Profile</title>
         <link rel="stylesheet" href="../bootstrap/css/bootstrap.min.css">
         <link rel="stylesheet" href="../bootstrap-icons/bootstrap-icons.css">
@@ -14,7 +15,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     </head>
-    <body class="profile-list-page" data-assets-path="<?= htmlspecialchars($assetBase . 'assets/', ENT_QUOTES, 'UTF-8') ?>">
+    <body class="profile-list-page" data-assets-path="<?= htmlspecialchars($assetBase . 'assets/', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
         <!-- INCLUDE EVERYTHING FOR THE MAIN HEADER FOR ALL PAGES FROM HERE-->
         <?php include __DIR__ . "/../nav.php"; ?>
         <!-- TO HERE!-->
@@ -30,7 +31,7 @@
                         <section class="profile-card">
                             <div class="profile-top">
                                 <img 
-                                    src="<?= htmlspecialchars($user['profile_image'] ?: '../assets/main/defaultAvatar.png') ?>"
+                                    src="<?= htmlspecialchars($user['profile_image'] ?: '../assets/main/defaultAvatar.png', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
                                     alt="User Avatar"
                                     id="profileAvatar"
                                     class="profile-avatar"
@@ -38,13 +39,13 @@
                                 <input type="file" id="profilePictureInput" accept="image/*" hidden>
                                 <!-- REPLACED THE HARDCODED VALUE WITH DB VALS!! -->
                                 <h2 id="profileName">
-                                    <?= htmlspecialchars($user['first_name'] . ' ' . $user['last_name']) ?>
+                                    <?= htmlspecialchars($user['first_name'] . ' ' . $user['last_name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
                                 </h2>
                                 <p id="profileEmail" class="profile-email">
-                                    <?= htmlspecialchars($user['email_add']) ?>
+                                    <?= htmlspecialchars($user['email_add'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
                                 </p>
                                 <span class="profile-role-badge">
-                                    <?= htmlspecialchars(ucfirst($user['user_role'])) ?>
+                                    <?= htmlspecialchars(ucfirst($user['user_role'] ?? ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
                                 </span>
                             </div>
 
@@ -55,22 +56,22 @@
                                 <div class="row g-3">
                                     <div class="col-md-6">
                                         <label for="firstName" class="profile-label">First Name</label>
-                                        <input type="text" id="firstName" class="profile-input" value="<?= htmlspecialchars($user['first_name']) ?>" readonly>
+                                        <input type="text" id="firstName" class="profile-input" value="<?= htmlspecialchars($user['first_name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" readonly>
                                     </div>
 
                                     <div class="col-md-6">
                                         <label for="lastName" class="profile-label">Last Name</label>
-                                        <input type="text" id="lastName" class="profile-input" value="<?= htmlspecialchars($user['last_name']) ?>" readonly>
+                                        <input type="text" id="lastName" class="profile-input" value="<?= htmlspecialchars($user['last_name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" readonly>
                                     </div>
 
                                     <div class="col-md-6">
                                         <label for="emailAddress" class="profile-label">Email Address</label>
-                                        <input type="email" id="emailAddress" class="profile-input" value="<?= htmlspecialchars($user['email_add']) ?>" readonly>
+                                        <input type="email" id="emailAddress" class="profile-input" value="<?= htmlspecialchars($user['email_add'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" readonly>
                                     </div>
 
                                     <div class="col-md-6">
                                         <label for="contactNumber" class="profile-label">Contact Number</label>
-                                        <input type="tel" id="contactNumber" class="profile-input" value="<?= htmlspecialchars($user['contact_num'] ?? '') ?>" readonly>
+                                        <input type="tel" id="contactNumber" class="profile-input" value="<?= htmlspecialchars($user['contact_num'] ?? '', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" readonly>
                                     </div>
                                 </div>
 
@@ -105,7 +106,7 @@
                                     </div>
                                     <div class="stat-text">
                                         <p class="stat-label">Favorite Stall</p>
-                                        <h3><?= htmlspecialchars($favoriteStall ?? 'No orders yet', ENT_QUOTES, 'UTF-8') ?></h3>
+                                        <h3><?= htmlspecialchars($favoriteStall ?? 'No orders yet', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></h3>
                                     </div>
                                 </div>
 
@@ -138,7 +139,8 @@
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
         <script src="../js/jquery-4.0.0.min.js"></script>
-        <script type="application/json" id="profileChartData"><?= json_encode($monthlyOrders) ?></script>
+        <script type="application/json" id="profileChartData"><?= json_encode($monthlyOrders,
+            JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR) ?></script>
         <script src="../js/user.js"></script>
         <script type="module" src="../js/centralized.js"></script>
 

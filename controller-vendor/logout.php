@@ -18,5 +18,6 @@ try {
     header('Location: ../app/views/vendor/login.php', true, 303);
 } catch (VendorRequestException $error) {
     http_response_code($error->getCode());
+    header('Content-Type: text/plain; charset=utf-8');
     echo $error->getMessage();
 }

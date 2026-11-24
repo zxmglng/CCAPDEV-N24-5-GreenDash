@@ -15,13 +15,13 @@
         <link rel="icon" type="image/png" href="assets/main/GreenDash_CIRCLE.png">
     </head>
     <body class="admin-page"
-          data-page="<?= htmlspecialchars($page) ?>"
-          data-flash="<?= htmlspecialchars($flashAction) ?>">
+          data-page="<?= htmlspecialchars($page, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
+          data-flash="<?= htmlspecialchars($flashAction, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
         <?php require __DIR__ . '/nav.php'; ?>
             <h1 class="page-title">Users Directory</h1>
 
             <?php if ($error !== ''): ?>
-                <p class="admin-flash" role="alert"><?= htmlspecialchars($error) ?></p>
+                <p class="admin-flash" role="alert"><?= htmlspecialchars($error, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
             <?php endif; ?>
 
             <div class="admin-toolbar">
@@ -59,16 +59,17 @@
                             <tr><td colspan="4" style="text-align:center;">No users found.</td></tr>
                         <?php else: ?>
                             <?php foreach ($users as $u): ?>
+                                <?php $role = $u['user_role'] ?? ''; ?>
                                 <tr class="user-row"
                                     data-id="<?= (int)$u['user_id'] ?>"
-                                    data-name="<?= htmlspecialchars($u['first_name'] . ' ' . $u['last_name']) ?>"
-                                    data-email="<?= htmlspecialchars($u['email_add']) ?>"
-                                    data-contact="<?= htmlspecialchars($u['contact_num'] ?? '') ?>"
-                                    data-role="<?= strtolower($u['user_role']) ?>">
-                                    <td><?= htmlspecialchars($u['first_name'] . ' ' . $u['last_name']) ?></td>
-                                    <td><?= htmlspecialchars($u['email_add']) ?></td>
-                                    <td><?= htmlspecialchars($u['contact_num'] ?? '—') ?></td>
-                                    <td><?= ucfirst($u['user_role']) ?></td>
+                                    data-name="<?= htmlspecialchars($u['first_name'] . ' ' . $u['last_name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
+                                    data-email="<?= htmlspecialchars($u['email_add'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
+                                    data-contact="<?= htmlspecialchars($u['contact_num'] ?? '', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
+                                    data-role="<?= htmlspecialchars(strtolower($role), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
+                                    <td><?= htmlspecialchars($u['first_name'] . ' ' . $u['last_name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></td>
+                                    <td><?= htmlspecialchars($u['email_add'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></td>
+                                    <td><?= htmlspecialchars($u['contact_num'] ?? '—', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></td>
+                                    <td><?= htmlspecialchars(ucfirst($role), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php endif; ?>
@@ -99,7 +100,7 @@
             <button class="close-x" type="button" data-close aria-label="Close"><i class="bi bi-x-lg"></i></button>
             <h2 id="addUserTitle">Add a user</h2>
             <form id="addUserForm" method="POST">
-                <input type="hidden" name="csrfToken" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
+                <input type="hidden" name="csrfToken" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
                 <input type="hidden" name="action" value="add">
                 <div class="modal-row">
                     <label class="modal-label" for="newName">First Name</label>
@@ -127,7 +128,7 @@
                         <option value="admin">Admin</option>
                     </select>
                 </div>
-                <p class="field-error" id="addUserError" role="alert"><?= $flashAction === 'add' ? htmlspecialchars($error) : '' ?></p>
+                <p class="field-error" id="addUserError" role="alert"><?= $flashAction === 'add' ? htmlspecialchars($error, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') : '' ?></p>
                 <div class="modal-actions">
                     <button type="button" class="admin-btn ghost" data-close>Cancel</button>
                     <button type="submit" class="admin-btn primary">Add user</button>
@@ -142,7 +143,7 @@
             <button class="close-x" type="button" data-close aria-label="Close"><i class="bi bi-x-lg"></i></button>
             <h2 id="editUserTitle">Edit user</h2>
             <form id="editUserForm" method="POST">
-                <input type="hidden" name="csrfToken" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
+                <input type="hidden" name="csrfToken" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
                 <input type="hidden" name="action" value="edit">
                 <input type="hidden" name="id" id="editId">
                 <div class="modal-row"><label class="modal-label" for="editFirstName">First Name</label>
@@ -183,7 +184,7 @@
                     <?php foreach ($users as $u): ?>
                         <label class="picker-item">
                             <input type="radio" name="removeUserPick" value="<?= (int)$u['user_id'] ?>">
-                            <span><?= htmlspecialchars($u['first_name'] . ' ' . $u['last_name']) ?> — <?= htmlspecialchars($u['email_add']) ?></span>
+                            <span><?= htmlspecialchars($u['first_name'] . ' ' . $u['last_name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?> — <?= htmlspecialchars($u['email_add'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></span>
                         </label>
                     <?php endforeach; ?>
                 <?php endif; ?>
@@ -196,7 +197,7 @@
     </div>
 
     <form method="POST" id="deleteForm" style="display:none;">
-        <input type="hidden" name="csrfToken" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
+        <input type="hidden" name="csrfToken" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
         <input type="hidden" name="action" value="delete">
         <input type="hidden" name="id" id="deleteId">
     </form>

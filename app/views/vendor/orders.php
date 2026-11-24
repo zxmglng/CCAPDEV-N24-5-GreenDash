@@ -34,7 +34,7 @@ require __DIR__ . '/order-header.php';
                     <select id="vendorStallFilter">
                         <option value="all">All your stalls</option>
                         <?php foreach ($vendorStalls as $stall): ?>
-                            <option value="<?= (int) $stall['id'] ?>"><?= htmlspecialchars($stall['name']) ?></option>
+                            <option value="<?= (int) $stall['id'] ?>"><?= htmlspecialchars($stall['name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></option>
                         <?php endforeach; ?>
                     </select>
                 </label>

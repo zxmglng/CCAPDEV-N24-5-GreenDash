@@ -11,9 +11,9 @@
         <link rel="stylesheet" href="style/admin-common.css">
         <link rel="icon" type="image/png" href="assets/main/GreenDash_CIRCLE.png">
     </head>
-    <body class="admin-page" data-page="<?= htmlspecialchars($page) ?>">
+    <body class="admin-page" data-page="<?= htmlspecialchars($page, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
         <?php require __DIR__ . '/nav.php'; ?>
-            <h1 class="page-title">Hello, <?= htmlspecialchars($_SESSION['admin_name'] ?? 'Administrator') ?></h1>
+            <h1 class="page-title">Hello, <?= htmlspecialchars($_SESSION['admin_name'] ?? 'Administrator', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></h1>
 
             <div class="admin-dashboard">
                 <div class="admin-stat-card">

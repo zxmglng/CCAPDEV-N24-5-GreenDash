@@ -2,19 +2,20 @@
 // Stall cards, filter choices, hours, and rating summaries are prepared by the directory controller.
 ?>
 <head>
+    <meta charset="UTF-8">
     <title>GreenDash - Stalls</title>
-        <link rel="stylesheet" href="<?= $assetBase ?>bootstrap/css/bootstrap.min.css">
-        <link rel="stylesheet" href="<?= $assetBase ?>bootstrap-icons/bootstrap-icons.css">
-        <link rel="stylesheet" href="<?= $assetBase ?>style/centralized.css">
-        <link rel="stylesheet" href="<?= $assetBase ?>style/user.css">
+        <link rel="stylesheet" href="<?= htmlspecialchars($assetBase . 'bootstrap/css/bootstrap.min.css', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
+        <link rel="stylesheet" href="<?= htmlspecialchars($assetBase . 'bootstrap-icons/bootstrap-icons.css', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
+        <link rel="stylesheet" href="<?= htmlspecialchars($assetBase . 'style/centralized.css', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
+        <link rel="stylesheet" href="<?= htmlspecialchars($assetBase . 'style/user.css', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
 
         <!-- website icon -->
-        <link rel="icon" type="image/png" href="<?= $assetBase ?>assets/main/GreenDash_CIRCLE.png">
+        <link rel="icon" type="image/png" href="<?= htmlspecialchars($assetBase . 'assets/main/GreenDash_CIRCLE.png', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
 
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 </head>
-<body data-assets-path="<?= htmlspecialchars($assetBase . 'assets/', ENT_QUOTES, 'UTF-8') ?>">
+<body data-assets-path="<?= htmlspecialchars($assetBase . 'assets/', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
     <?php include(__DIR__ . '/../nav.php'); ?>
         <main class="stalls-directory-page">
             <!-- SEARCH BAR -->
@@ -37,10 +38,10 @@
                     <p>Type</p>
                     <?php foreach ($stallTypes as $type => $label): ?>
                         <input type="checkbox" class="stall-type-filter"
-                            id="stallType-<?= htmlspecialchars($type, ENT_QUOTES, 'UTF-8') ?>"
-                            value="<?= htmlspecialchars($type, ENT_QUOTES, 'UTF-8') ?>">
-                        <label for="stallType-<?= htmlspecialchars($type, ENT_QUOTES, 'UTF-8') ?>">
-                            <?= htmlspecialchars($label, ENT_QUOTES, 'UTF-8') ?>
+                            id="stallType-<?= htmlspecialchars($type, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
+                            value="<?= htmlspecialchars($type, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
+                        <label for="stallType-<?= htmlspecialchars($type, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
+                            <?= htmlspecialchars($label, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
                         </label>
                     <?php endforeach; ?>
                 </div>
@@ -50,8 +51,8 @@
                     <select id="locationFilter">
                         <option value="all">All Locations</option>
                         <?php foreach ($stallLocations as $value => $label): ?>
-                            <option value="<?= htmlspecialchars($value, ENT_QUOTES, 'UTF-8') ?>">
-                                <?= htmlspecialchars($label, ENT_QUOTES, 'UTF-8') ?>
+                            <option value="<?= htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
+                                <?= htmlspecialchars($label, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -94,34 +95,34 @@
 
                     <div class="stall-card"
                         data-stall-id="<?= (int) $stall['id'] ?>"
-                        data-name="<?= htmlspecialchars(strtolower($stall['name']), ENT_QUOTES, 'UTF-8') ?>"
-                        data-tags="<?= htmlspecialchars(strtolower($stall['tags'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
-                        data-location="<?= htmlspecialchars(strtolower($stall['location'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
-                        data-type="<?= htmlspecialchars(strtolower($stall['stall_type'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
+                        data-name="<?= htmlspecialchars(strtolower($stall['name']), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
+                        data-tags="<?= htmlspecialchars(strtolower($stall['tags'] ?? ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
+                        data-location="<?= htmlspecialchars(strtolower($stall['location'] ?? ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
+                        data-type="<?= htmlspecialchars(strtolower($stall['stall_type'] ?? ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
                         data-status="<?= $statusClass ?>">
 
                         <img
                             class="stall-logo"
-                            src="<?= htmlspecialchars($stall['image_path'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
-                            alt="<?= htmlspecialchars($stall['name'], ENT_QUOTES, 'UTF-8') ?> Logo">
+                            src="<?= htmlspecialchars($stall['image_path'] ?? '', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
+                            alt="<?= htmlspecialchars($stall['name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?> Logo">
 
                         <div class="stall-info">
                             <div class="stall-title-row">
-                                <h3><?= htmlspecialchars($stall['name'], ENT_QUOTES, 'UTF-8') ?></h3>
+                                <h3><?= htmlspecialchars($stall['name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></h3>
                                 <?php if (!empty($stall['tags'])): ?>
                                     <div class="stall-tags">
                                         <?php foreach (explode(' ', $stall['tags']) as $tag): ?>
-                                            <span>#<?= htmlspecialchars($tag, ENT_QUOTES, 'UTF-8') ?></span>
+                                            <span>#<?= htmlspecialchars($tag, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></span>
                                         <?php endforeach; ?>
                                     </div>
                                 <?php endif; ?>
                             </div>
 
                             <div class="stall-details">
-                                <p>Location: <?= htmlspecialchars($stall['location'] ?? 'Not available', ENT_QUOTES, 'UTF-8') ?></p>
-                                <p><?= htmlspecialchars($hoursText, ENT_QUOTES, 'UTF-8') ?></p>
+                                <p>Location: <?= htmlspecialchars($stall['location'] ?? 'Not available', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
+                                <p><?= htmlspecialchars($hoursText, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
                             </div>
-                            <p class="stall-description"><?= htmlspecialchars($stall['description'] ?? '', ENT_QUOTES, 'UTF-8') ?></p>
+                            <p class="stall-description"><?= htmlspecialchars($stall['description'] ?? '', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
                             <div class="stall-bottom">
                                     <!-- Ratings are averaged from reviews on completed orders. -->
                                     <?php if ($stall['average_rating'] !== null): ?>
@@ -169,9 +170,9 @@
                 <button type="button" class="view-stall-button" id="closeClosedStallMessage">Okay</button>
             </section>
         </div>
-        <script src="<?= $assetBase ?>js/jquery-4.0.0.min.js"></script>
-        <script src="<?= $assetBase ?>js/user.js"></script>
-        <script src="<?= $assetBase ?>js/user-stalls-directory.js"></script>
-        <script type="module" src="<?= $assetBase ?>js/centralized.js"></script>
+        <script src="<?= htmlspecialchars($assetBase . 'js/jquery-4.0.0.min.js', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"></script>
+        <script src="<?= htmlspecialchars($assetBase . 'js/user.js', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"></script>
+        <script src="<?= htmlspecialchars($assetBase . 'js/user-stalls-directory.js', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"></script>
+        <script type="module" src="<?= htmlspecialchars($assetBase . 'js/centralized.js', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"></script>
     </body>
 </html>

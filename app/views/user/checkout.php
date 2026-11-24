@@ -8,6 +8,7 @@ if (!defined('GREENDASH_CHECKOUT_VIEW')) {
 <!DOCTYPE html>
 <html lang="en">
     <head>
+        <meta charset="UTF-8">
         <title>GreenDash - Checkout</title>
         <link rel="stylesheet" href="../style/centralized.css">
         <link rel="stylesheet" href="../style/user.css">
@@ -22,13 +23,13 @@ if (!defined('GREENDASH_CHECKOUT_VIEW')) {
             <?php if ($checkoutError !== null): ?>
             <section class="checkout-main">
                 <h1>Checkout</h1>
-                <p><?= htmlspecialchars($checkoutError, ENT_QUOTES, 'UTF-8') ?></p>
-                <a href="stall-info.php?stall=<?= $stallId ?>">Back to your cart</a>
+                <p><?= htmlspecialchars($checkoutError, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
+                <a href="stall-info.php?stall=<?= (int) $stallId ?>">Back to your cart</a>
             </section>
             <?php else: ?>
             <section class="checkout-main">
                 <h1>Checkout</h1>
-                <a href="stall-info.php?stall=<?= $stallId ?>">Back to your cart</a>
+                <a href="stall-info.php?stall=<?= (int) $stallId ?>">Back to your cart</a>
                 <div class="checkout-stall">
                     <img id="checkoutStallLogo" alt="">
                     <div>
@@ -42,10 +43,10 @@ if (!defined('GREENDASH_CHECKOUT_VIEW')) {
                 </div>
                 <form id="checkoutForm" class="payment-form" method="post" action="submit-order.php"
                     data-orders-url="orders.php" novalidate>
-                    <input type="hidden" name="csrfToken" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
-                    <input type="hidden" name="stallId" value="<?= $stallId ?>">
-                    <input type="hidden" name="cartVersion" value="<?= $cart['version'] ?>">
-                    <input type="hidden" name="requestId" value="<?= $requestId ?>">
+                    <input type="hidden" name="csrfToken" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
+                    <input type="hidden" name="stallId" value="<?= (int) $stallId ?>">
+                    <input type="hidden" name="cartVersion" value="<?= (int) $cart['version'] ?>">
+                    <input type="hidden" name="requestId" value="<?= htmlspecialchars($requestId, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
                     <h2>Mode of payment</h2>
                     <label><input type="radio" name="paymentMethod" value="cash" checked> Cash</label>
                     <label class="online-payment-option">

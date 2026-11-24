@@ -19,13 +19,13 @@ $dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
         
     </head>
     <body class="admin-page"
-          data-page="<?= htmlspecialchars($page) ?>"
-          data-flash="<?= htmlspecialchars($flashAction) ?>">
+          data-page="<?= htmlspecialchars($page, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
+          data-flash="<?= htmlspecialchars($flashAction, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
         <?php require __DIR__ . '/nav.php'; ?>
             <h1 class="page-title">Stalls Directory</h1>
 
             <?php if ($error !== ''): ?>
-                <p class="admin-flash" role="alert"><?= htmlspecialchars($error) ?></p>
+                <p class="admin-flash" role="alert"><?= htmlspecialchars($error, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
             <?php endif; ?>
 
             <div class="admin-toolbar">
@@ -71,15 +71,15 @@ $dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
                             <?php foreach ($stalls as $s): ?>
                                 <tr class="stall-row"
                                     data-id="<?= (int)$s['id'] ?>"
-                                    data-name="<?= htmlspecialchars($s['name']) ?>"
-                                    data-vendor-id="<?= htmlspecialchars($s['vendor_id'] ?? '') ?>"
-                                    data-vendor-name="<?= htmlspecialchars($s['vendor_name'] ?? '') ?>"
-                                    data-hours="<?= htmlspecialchars($s['hours_text'] ?? 'Hours not set') ?>"
-                                    data-hours-json="<?= htmlspecialchars(json_encode($allHours[(int)$s['id']] ?? [])) ?>">
-                                    <td><?= htmlspecialchars($s['name']) ?></td>
-                                    <td><?= htmlspecialchars($s['vendor_name'] ?: '—') ?></td>
-                                    <td><?= htmlspecialchars($s['location']) ?></td>
-                                    <td class="hours-cell"><?= htmlspecialchars($s['hours_text']) ?></td>
+                                    data-name="<?= htmlspecialchars($s['name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
+                                    data-vendor-id="<?= htmlspecialchars($s['vendor_id'] ?? '', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
+                                    data-vendor-name="<?= htmlspecialchars($s['vendor_name'] ?? '', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
+                                    data-hours="<?= htmlspecialchars($s['hours_text'] ?? 'Hours not set', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
+                                    data-hours-json="<?= htmlspecialchars(json_encode($allHours[(int)$s['id']] ?? []), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
+                                    <td><?= htmlspecialchars($s['name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></td>
+                                    <td><?= htmlspecialchars($s['vendor_name'] ?: '—', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></td>
+                                    <td><?= htmlspecialchars($s['location'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></td>
+                                    <td class="hours-cell"><?= htmlspecialchars($s['hours_text'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></td>
                                     <td>
                                         <span class="status <?= $s['is_open'] ? 'open' : 'closed' ?>">
                                             <?= $s['is_open'] ? 'OPEN' : 'CLOSED' ?>
@@ -114,7 +114,7 @@ $dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
             <button class="close-x" type="button" data-close aria-label="Close"><i class="bi bi-x-lg"></i></button>
             <h2 id="addStoreTitle">Add a stall</h2>
             <form id="addStoreForm" method="POST">
-                <input type="hidden" name="csrfToken" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
+                <input type="hidden" name="csrfToken" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
                 <input type="hidden" name="action" value="add">
                 <div class="modal-row">
                     <label class="modal-label" for="newStall">Stall name</label>
@@ -126,7 +126,7 @@ $dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
                         <option value=""> None </option>
                         <?php foreach ($vendors as $v): ?>
                             <option value="<?= (int)$v['user_id'] ?>">
-                                <?= htmlspecialchars($v['first_name'] . ' ' . $v['last_name']) ?>
+                                <?= htmlspecialchars($v['first_name'] . ' ' . $v['last_name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -157,7 +157,7 @@ $dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
                         <option value="0">Closed</option>
                     </select>
                 </div>
-                <p class="field-error" id="addStoreError" role="alert"><?= htmlspecialchars($error) ?></p>
+                <p class="field-error" id="addStoreError" role="alert"><?= htmlspecialchars($error, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
                 <div class="modal-actions">
                     <button type="button" class="admin-btn ghost" data-close>Cancel</button>
                     <button type="submit" class="admin-btn primary">Add stall</button>
@@ -172,7 +172,7 @@ $dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
             <button class="close-x" type="button" data-close aria-label="Close"><i class="bi bi-x-lg"></i></button>
             <h2 id="editStoreTitle">Edit stall</h2>
             <form id="editStoreForm" method="POST">
-                <input type="hidden" name="csrfToken" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
+                <input type="hidden" name="csrfToken" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
                 <input type="hidden" name="action" value="edit">
                 <input type="hidden" name="id" id="editStoreId">
 
@@ -186,7 +186,7 @@ $dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
                         <option value=""> None </option>
                         <?php foreach ($vendors as $v): ?>
                             <option value="<?= (int)$v['user_id'] ?>">
-                                <?= htmlspecialchars($v['first_name'] . ' ' . $v['last_name']) ?>
+                                <?= htmlspecialchars($v['first_name'] . ' ' . $v['last_name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -238,7 +238,7 @@ $dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
                     <?php foreach ($stalls as $s): ?>
                         <label class="picker-item">
                             <input type="radio" name="removeStorePick" value="<?= (int)$s['id'] ?>">
-                            <span><?= htmlspecialchars($s['name']) ?> — <?= htmlspecialchars($s['location']) ?></span>
+                            <span><?= htmlspecialchars($s['name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?> — <?= htmlspecialchars($s['location'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></span>
                         </label>
                     <?php endforeach; ?>
                 <?php endif; ?>
@@ -251,7 +251,7 @@ $dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     </div>
 
     <form method="POST" id="deleteStoreForm" style="display:none;">
-        <input type="hidden" name="csrfToken" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
+        <input type="hidden" name="csrfToken" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
         <input type="hidden" name="action" value="delete">
         <input type="hidden" name="id" id="deleteStoreId">
     </form>

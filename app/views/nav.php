@@ -15,8 +15,8 @@ $stallsDirectoryPage = $isUserController
 ?>
         <header>
             <div class="main-header">
-                <a href="<?= htmlspecialchars($stallsDirectoryPage, ENT_QUOTES, 'UTF-8') ?>" aria-label="Go to stalls directory">
-                    <img id="logo" src="<?= htmlspecialchars($assetBase . 'assets/main/GreenDash_LOGO.png', ENT_QUOTES, 'UTF-8') ?>" alt="GreenDash Logo">
+                <a href="<?= htmlspecialchars($stallsDirectoryPage, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" aria-label="Go to stalls directory">
+                    <img id="logo" src="<?= htmlspecialchars($assetBase . 'assets/main/GreenDash_LOGO.png', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" alt="GreenDash Logo">
                 </a>
                 <div class="location">
                     <span>Your Location:</span>
@@ -37,9 +37,9 @@ $stallsDirectoryPage = $isUserController
             <!-- CHANGE THE NAVIGATION LINKS IF NEEDED ACCDG TO USER ROLE HERE-->
             <nav>
                 <div class="nav-links">
-                    <a href="<?= htmlspecialchars($profilePage, ENT_QUOTES, 'UTF-8') ?>"<?= $currentPage === 'profile.php' ? ' aria-current="page"' : '' ?>>Profile</a>
-                    <a href="<?= htmlspecialchars($stallsDirectoryPage, ENT_QUOTES, 'UTF-8') ?>"<?= $currentPage === 'stalls-directory.php' ? ' aria-current="page"' : '' ?>>Stalls Directory</a>
-                    <a href="<?= htmlspecialchars($userPageBase . 'orders.php', ENT_QUOTES, 'UTF-8') ?>">Orders</a>
+                    <a href="<?= htmlspecialchars($profilePage, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"<?= $currentPage === 'profile.php' ? ' aria-current="page"' : '' ?>>Profile</a>
+                    <a href="<?= htmlspecialchars($stallsDirectoryPage, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"<?= $currentPage === 'stalls-directory.php' ? ' aria-current="page"' : '' ?>>Stalls Directory</a>
+                    <a href="<?= htmlspecialchars($userPageBase . 'orders.php', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">Orders</a>
                 </div>
 
                 <button class="icon-button" id="cart" aria-label="View cart">

@@ -13,7 +13,7 @@ $vendorHeaderLocation = count($vendorStalls) === 1
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>GreenDash - <?= htmlspecialchars($stall['name']) ?></title>
+        <title>GreenDash - <?= htmlspecialchars($stall['name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></title>
         <link rel="stylesheet" href="../bootstrap/css/bootstrap-5.3.3.min.css">
         <link rel="stylesheet" href="../bootstrap-icons/bootstrap-icons.css">
         <link rel="stylesheet" href="../style/centralized.css">
@@ -26,17 +26,17 @@ $vendorHeaderLocation = count($vendorStalls) === 1
           data-page="manage-store"
           data-assets-path="../assets/"
           data-stall-id="<?= (int) $stall['id'] ?>"
-          data-stall-name="<?= htmlspecialchars($stall['name']) ?>"
-          data-stall-location="<?= htmlspecialchars($stall['location'] ?? '') ?>"
-          data-stall-image="<?= htmlspecialchars($stall['image_path'] ?? '') ?>"
-          data-stall-hours="<?= htmlspecialchars($stallHoursText) ?>"
+          data-stall-name="<?= htmlspecialchars($stall['name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
+          data-stall-location="<?= htmlspecialchars($stall['location'] ?? '', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
+          data-stall-image="<?= htmlspecialchars($stall['image_path'] ?? '', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
+          data-stall-hours="<?= htmlspecialchars($stallHoursText, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
           data-stall-open="<?= $stall['is_open'] ? '1' : '0' ?>">
         <header>
             <div class="main-header">
                 <img id="logo" src="../assets/main/GreenDash_LOGO.png" alt="GreenDash Logo">
                 <div class="location">
-                    <strong><?= htmlspecialchars($vendorHeaderName) ?></strong>
-                    <span><?= htmlspecialchars($vendorHeaderLocation) ?></span>
+                    <strong><?= htmlspecialchars($vendorHeaderName, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></strong>
+                    <span><?= htmlspecialchars($vendorHeaderLocation, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></span>
                 </div>
                 <button class="icon-button" id="eclipse" type="button" aria-label="Toggle dark mode">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
@@ -59,7 +59,7 @@ $vendorHeaderLocation = count($vendorStalls) === 1
         <div class="vendor-layout">
             <aside class="vendor-sidebar" aria-label="Profile sections">
                 <h2>Profile</h2>
-                <p class="vendor-greeting">Hello, <?= htmlspecialchars($vendor['first_name']) ?>!</p>
+                <p class="vendor-greeting">Hello, <?= htmlspecialchars($vendor['first_name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>!</p>
                 <ul class="sidebar-links">
                     <li><a href="profile.php">Your account</a></li>
                     <li><a href="manage-menu.php" class="active" aria-current="page">Manage store</a></li>
