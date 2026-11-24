@@ -21,7 +21,7 @@
                         <div class="stall-header-info">
                             <h1 id="stallName"><?= htmlspecialchars($stall['name']) ?></h1>
                             <p id="stallLocation"><?= htmlspecialchars($stall['location']) ?></p>
-                            <p id="stallHours"><?= htmlspecialchars($hoursLabel, ENT_QUOTES, 'UTF-8') ?></p>
+                            <p id="stallHours"><?= htmlspecialchars($stallDetails['hours'], ENT_QUOTES, 'UTF-8') ?></p>
                             <button type="button" class="stall-review-button" id="openReviewsButton">
                                 <span class="review-stars" aria-hidden="true">★★★★★</span>
                                 Reviews
@@ -85,7 +85,6 @@
                         </div>
                     </section>
                 </div>
-                <!-- Cart and pickup controls stay on this page until checkout data is saved for the next page. -->
                 <aside class="order-summary" aria-label="Your order">
                     <div class="order-summary-header">
                         <h2>Your order</h2>
@@ -99,9 +98,9 @@
                             <button type="button" class="close-order-button" id="closeOrderButton" aria-label="Close your order">&times;</button>
                         </div>
                     </div>
-                    <div class="order-items" id="orderItems">
-                        <p class="empty-order-message">Your cart is empty!</p>
-                    </div>
+                    <p class="small mb-1 mt-2" id="cartFeedback" role="status">Loading your cart…</p>
+                    <button type="button" class="btn btn-sm btn-outline-secondary align-self-start" id="retryCartButton" hidden>Retry loading cart</button>
+                    <div class="order-items" id="orderItems"></div>
                     <div class="order-summary-footer">
                         <div class="pickup-time-control">
                             <label for="pickupTime">Pick-up time</label>
@@ -109,7 +108,7 @@
                                 <option value="">Select time</option>
                             </select>
                         </div>
-                        <button type="button" class="checkout-button" id="checkoutButton">Checkout - &#8369; 0</button>
+                        <button type="button" class="checkout-button" id="checkoutButton" disabled>Checkout - &#8369; 0.00</button>
                     </div>
                 </aside>
             </div>
@@ -126,13 +125,14 @@
                     </div>
                 </div>
                 <div id="customizationGroups"></div>
+                <p class="small text-danger mb-2" id="cartItemFeedback" role="alert" hidden></p>
                 <div class="modal-actions">
                     <div class="quantity-control">
                         <button type="button" id="decreaseQuantity" aria-label="Decrease quantity">−</button>
                         <output id="itemQuantity">1</output>
                         <button type="button" id="increaseQuantity" aria-label="Increase quantity">+</button>
                     </div>
-                    <button type="button" class="add-to-cart-button" id="addToCartButton">Add to cart - &#8369; 0</button>
+                    <button type="button" class="add-to-cart-button" id="addToCartButton" disabled>Add to cart - &#8369; 0.00</button>
                 </div>
             </section>
         </div>
@@ -188,13 +188,6 @@
                 <h2 id="reviewMessageTitle">A completed order is required</h2>
                 <p>You can leave a review after completing an order from this stall.</p>
                 <button type="button" class="submit-review-button" id="closeReviewMessage">Okay</button>
-            </section>
-        </div>
-        <div class="empty-cart-backdrop" id="emptyCartMessage" hidden>
-            <section class="empty-cart-modal" role="alertdialog" aria-modal="true"
-                aria-labelledby="emptyCartTitle">
-                <h2 id="emptyCartTitle">Please add items to your cart!</h2>
-                <button type="button" class="submit-review-button" id="closeEmptyCartMessage">Okay</button>
             </section>
         </div>
         <script type="application/json" id="stallData"><?= json_encode($stallData,

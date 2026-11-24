@@ -1,6 +1,6 @@
 # CCAPDEV-N24-5-GreenDash
 
-GreenDash is a campus food ordering application for DLSU customers, food vendors, and administrators. Customers browse stalls, customize items, place pickup orders, and review completed orders. Vendors manage their menus and fulfill orders; administrators manage users, stalls, and store requests.
+GreenDash is a campus food ordering application for DLSU customers, food vendors, and administrators. Customers browse stalls, customize items, save carts, place pickup orders, and review completed orders. Vendors manage their menus and fulfill orders. Administrators manage users, stalls, and store requests.
 
 - **Repository:** [CCAPDEV-N24-5-GreenDash](https://github.com/zxmglng/CCAPDEV-N24-5-GreenDash)
 - **Phase 2 branch:** `backend`
@@ -14,17 +14,17 @@ Phase 1's GitHub Pages deployment must be preserved for comparison. Deploy Phase
 | Location | Responsibility |
 | --- | --- |
 | `index.php` | Landing page with customer, vendor, and admin sign-in links. |
-| `controller-user/` | Customer requests, Google login, role selection, checkout, orders, profiles, and reviews. |
+| `controller-user/` | Customer requests, Google login, role selection, carts, checkout, orders, profiles, and reviews. |
 | `controller-vendor/` | Vendor requests, store/menu management, uploads, order progression, pickup, and history. |
 | `controller-admin/` | Admin login, dashboard, user/stall management, and request decisions. |
-| `app/models/` | SQL queries and database persistence for accounts, stalls, menus, orders, reviews, and requests. |
+| `app/models/` | SQL queries and database persistence for accounts, stalls, menus, carts, orders, reviews, and requests. |
 | `app/views/` | PHP templates and shared navigation that render the page data. |
 | `app/core/` | PDO connection, session/authorization helpers, and validation/workflow rules. |
 | `js/`, `style/`, `assets/`, `bootstrap/`, `bootstrap-icons/` | Browser behavior, presentation, and static assets. |
-| `database/` | Schema snapshots and sample-data scripts. |
+| `database/` | Schema snapshots, migrations, and sample-data scripts. |
 | `pages/` | Phase 1 HTML prototypes. |
 
-A request normally reaches a controller, which checks the request/session, calls core helpers and models, and renders a view or returns JSON. For example, checkout posts to `controller-user/submit-order.php`; `app/core/checkout.php` validates and prices the cart using models, and the models save the order, items, and options in a database transaction. The browser displays the saved receipt after a successful response.
+A request normally reaches a controller, which checks the request/session, calls core helpers and models, and renders a view or returns JSON. At checkout, `controller-user/submit-order.php` calls `app/core/checkout.php` to validate and price the saved cart. The order, items, options, and cart reset are committed together before the browser displays the receipt.
 
 Use the controller routes for application features. The current vendor sign-in page is a public template at `app/views/vendor/login.php`, linked from the homepage; protected vendor pages use their controllers.
 
@@ -131,7 +131,15 @@ mariadb -u greendash_app -p greenDash < ~/GreenDash-src/database/CCAPDEV-N24-5-G
 mariadb -u YOUR_DATABASE_USER -p greenDash < ~/GreenDash-src/database/additional_sample_data.sql
 ```
 
-The incremental script requires existing active customer, vendor, and admin rows. It preserves existing rows and prints counts for all twelve tables. The full snapshot is for an empty database; use only the incremental script when adding samples to an existing populated database. More details and expected snapshot counts appear below.
+The incremental script requires existing active customer, vendor, and admin rows. It preserves existing rows and prints counts for the twelve sample tables. More details and expected snapshot counts appear below.
+
+For either setup, apply the cart migration after the `users` and `stalls` tables exist. Use a database account with permission to create tables. [Cart migration](database/add_user_carts.sql)
+
+```bash
+mariadb -u YOUR_DATABASE_USER -p greenDash < ~/GreenDash-src/database/add_user_carts.sql
+```
+
+The app creates cart rows as customers shop. A fresh cart table starts empty.
 
 ### 5. Install and configure Google sign-in
 
@@ -209,7 +217,7 @@ Begin at the homepage and use links and buttons for every feature. The route pat
 
 | Workflow | Navigation from the homepage | Main controller routes |
 | --- | --- | --- |
-| Browse and order | Customer Google sign-in → Stalls Directory → stall card → menu/cart → checkout | `controller-user/stalls-directory.php`, `stall-info.php`, `checkout.php`, `submit-order.php` |
+| Browse and order | Customer Google sign-in → Stalls Directory → stall card → menu/cart → checkout | `controller-user/stalls-directory.php`, `stall-info.php`, `cart.php`, `checkout.php`, `submit-order.php` |
 | Customer orders and reviews | Customer navigation → Orders → ongoing/past order → available cancellation/review actions; stall pages also show reviews | `controller-user/orders.php`, `cancel-order.php`, `reviews.php` |
 | Customer profile | Customer navigation → Profile → edit account details | `controller-user/profile.php` |
 | Vendor menus | Vendor sign-in → Profile → Manage store → assigned stall → menu/category/customization controls | `controller-vendor/profile.php`, `manage-menu.php`, `manage-store.php`, `menu.php`, `product-options.php`, `upload-image.php` |
@@ -217,7 +225,9 @@ Begin at the homepage and use links and buttons for every feature. The route pat
 | Fulfill and collect | Vendor navigation → Order Requests → progress order → Pickup → verify order number/payment → collect → Transaction History | `controller-vendor/orders.php`, `order.php`, `update-order.php`, `pickup.php`, `transaction-history.php` |
 | Admin management | Admin sign-in → Dashboard; sidebar → Stalls → Manage/Requests or Users → Manage | `controller-admin/home.php`, `manage-stores.php`, `store-requests.php`, `manage-users.php` |
 
-Page/data reads use GET. Google sign-in posts JSON to PHP; checkout, profile edits, role selection, reviews, menu edits, request decisions, and order status changes use POST. Directory filtering also runs in the browser without changing database data.
+Page/data reads use GET. Google sign-in posts JSON to PHP. Cart saves, checkout, profile edits, role selection, reviews, menu edits, request decisions, and order status changes use POST. Directory filtering also runs in the browser without changing database data.
+
+Each signed-in customer has a saved cart per stall. After signing back in, choose **Resume cart** on the stall card to reopen its items. Successfully placing an order empties that stall's cart.
 
 For the demonstration, create a new order with a valid pickup time, progress it through `pending` → `preparing` → `ready` → `completed`, and leave a review from the purchasing account. Refresh customer and vendor pages to show the saved changes. Vendors see only their assigned stalls' orders, and customers can review only their own completed orders.
 
@@ -226,7 +236,8 @@ Cash/online choices and payment references are recorded in the database. The ven
 ## Verify the deployment
 
 - Open the root homepage and complete customer, vendor, and admin navigation using buttons. Check that pages, images, styles, and scripts load.
-- Confirm the database import completed without SQL errors and every table has at least five records. The incremental script prints exact counts; the full snapshot's counts are listed below.
+- Confirm the database import and cart migration completed without SQL errors. The incremental sample script prints record counts for the tables listed below.
+- Save an item with a customization, reload the stall, and confirm it persists after signing out and back in. Sign into a second account in the same browser and confirm it sees only its own cart.
 - Place an order, reload the customer's Orders page, and verify its items, options, and total. Confirm the assigned vendor can find the same order.
 - Complete collection with payment confirmation, then create, edit, and delete a review. Refresh the stall review list and transaction history to verify persistence.
 - Save a menu change, upload an image, and submit a store request. Check its appearance in the admin request list and approve or deny it through the UI.
@@ -240,7 +251,7 @@ The populated schema and sample-data export is [database/CCAPDEV-N24-5-GreenDash
 
 The script targets an **empty database**. It creates the tables without dropping existing ones, keeps foreign-key checks enabled, and inserts the sample records in dependency order within one transaction. It is a full submission dataset, not an incremental update for a database already in use.
 
-The full snapshot contains the following sample counts. Counts in an existing database can differ after incremental additions or application use; every entity must still have at least five distinct records:
+The full snapshot contains the following sample counts. Counts in an existing database can differ after incremental additions or application use. Each table listed here must still have at least five distinct records.
 
 | Table | Sample rows |
 | --- | ---: |

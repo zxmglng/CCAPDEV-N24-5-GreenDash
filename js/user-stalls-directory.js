@@ -50,8 +50,7 @@ document.querySelectorAll('.view-stall-button').forEach((viewStallButton) => {
         const stallCard = viewStallButton.closest('.stall-card');
         const closedStatus = stallCard.querySelector('.status.closed');
 
-        if (closedStatus) {
-            // Prevent browsing a closed stall even if its card link is clicked directly.
+        if (closedStatus && !viewStallButton.hasAttribute('data-resume-cart')) {
             event.preventDefault();
             closedStallMessage.hidden = false;
         }

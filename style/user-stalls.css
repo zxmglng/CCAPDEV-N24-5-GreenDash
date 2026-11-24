@@ -416,8 +416,14 @@ body.cart-open .order-summary {
     cursor: pointer;
 }
 
-.checkout-button:hover,
-.add-to-cart-button:hover { background-color: #00652f; }
+.checkout-button:hover:not(:disabled),
+.add-to-cart-button:hover:not(:disabled) { background-color: #00652f; }
+
+.checkout-button:disabled,
+.add-to-cart-button:disabled {
+    cursor: default;
+    opacity: 0.65;
+}
 
 .stall-modal-backdrop {
     position: fixed;

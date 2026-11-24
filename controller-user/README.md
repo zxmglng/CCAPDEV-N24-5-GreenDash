@@ -12,26 +12,42 @@ Should contain:
 
 ## Files
 
-- `checkout.php` requires a signed-in user, creates the checkout CSRF token, and renders `app/views/user/checkout.php`.
-- `submit-order.php` accepts checkout POST requests and returns JSON. It uses the user session for `user_id`, validates the cart, and saves through the models in one transaction.
+- `cart.php` loads and updates a signed-in customer's saved cart for a stall.
+- `checkout.php` loads the signed-in customer's saved cart for the selected stall, creates the checkout CSRF token, and renders `app/views/user/checkout.php`.
+- `submit-order.php` accepts checkout POST requests and returns JSON. It validates the saved cart, saves the order, and empties the purchased cart in one transaction.
 - `orders.php` requires a signed-in active user and renders only that user's saved orders, items, options, and reviews.
 - `reviews.php` provides public stall review lists on GET and owner-authorized review saves/deletes on POST.
 - `cancel-order.php` handles the existing Orders page cancellation action for the owner's pending orders.
 
+## Saved carts
+
+Apply the cart migration before using the PHP stall directory, menu, and checkout
+pages. [Cart migration](../database/add_user_carts.sql)
+
+The `user_carts` table stores one cart per account and stall. After signing back
+in, choose **Resume cart** on the stall card to reopen it.
+
+`GET cart.php?stallId=<id>` returns the current cart's `version` and `items`.
+A cart that has never been saved starts at version `0` with no items.
+POST to the same URL with `csrfToken`, `version`, and `items` (a JSON array)
+to save additions, edits, or removals. Each item carries `productId`, `quantity`,
+`options` (a list of `groupId` and `optionId` pairs), and optional
+`specialInstructions`. The PHP session supplies the user ID for both methods.
+HTTP 409 signals that the cart changed and the browser should reload it.
+
 ## Checkout request and persistence
 
-The form submits `stallId`, `orderItems` (a JSON array), `pickupTime`,
-`paymentMethod`, `referenceNumber`, `csrfToken`, and `requestId`. Each item carries
-`productId`, `quantity`, `options` (a list of `groupId` and `optionId` pairs),
-and optional `specialInstructions`.
-Client-supplied prices, totals, names, and user IDs are not used to save the order.
+`checkout.php?stallId=<id>` loads the saved cart and current menu details. The
+form submits `stallId`, `cartVersion`, `pickupTime`, `paymentMethod`,
+`referenceNumber`, `csrfToken`, and `requestId`. The server checks the cart version,
+uses the saved item IDs and quantities, and calculates prices from the current menu.
 
 `app/core/checkout.php` coordinates validation and pricing. The model files contain
 the SQL for the supplied `orders`, `order_items`, `order_item_options`, `products`,
 `product_option_groups`, `product_option_choices`, `users`, `stalls`, and
 `stall_operating_hours` tables. The option group/choice tables must exist and
-contain choices for products that require customization. Use transactional
-tables (InnoDB) so orders, items, and options can all roll back on failure.
+contain choices for products that require customization. Use transactional tables
+(InnoDB) so order inserts and the cart reset can roll back together.
 
 Product IDs are saved as `order_items.menu_item_id`; database names/prices and
 stall name/location are snapshotted. Category names remain NULL until the category
@@ -87,11 +103,15 @@ pending orders. A paid payment stays paid; cancelling does not claim a refund.
 
 ## Local verification
 
-Run `php tests/test_checkout_model.php`, `python3 tests/test_checkout_http.py`,
-and `node tests/test_checkout_browser.js` from the repository root. The PHP tests
-need PDO SQLite and mbstring. HTTP tests start a temporary PHP server and use an
-isolated SQLite fixture mirroring the provided columns; they do not access the
-VM database. MariaDB deployment testing is still required.
+Run `python3 tests/test_user_cart.py` from the repository root with PHP CLI,
+PDO SQLite, and mbstring installed. The test starts a temporary PHP server with
+an isolated SQLite fixture and checks ownership, session changes, cart conflicts,
+and checkout transactions.
+
+On MariaDB, add a customized item to a stall cart, sign out and back in, and
+choose **Resume cart**. Edit its quantity and reload the stall. Place an order
+and reopen the stall to confirm its cart is empty. Use a second account in the
+same browser to verify that the cart follows the account.
 
 When deploying, retain the VM's connection credentials in `app/core/db.php`.
 Merge its exception-based failure handling rather than replacing those settings;

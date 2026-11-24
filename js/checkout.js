@@ -1,13 +1,15 @@
-const checkoutStorageKey = 'greendash-checkout';        // key used to store checkout data in sessionStorage
+const checkoutStorageKey = 'greendash-checkout';
 const checkoutApplicationUrl = new URL('../', document.currentScript.src);  // base URL of the application, used to resolve relative paths for images
 const checkoutForm = document.querySelector('#checkoutForm');   // form element for submitting the checkout data
 const pageExtension = window.location.pathname.endsWith('.html') ? '.html' : '.php';  // file extension used for page URLs, based on the current page's URL
-let checkoutData = null;    // object containing the checkout data, including stall info, items, and pickup time
+const checkoutPayload = document.querySelector('#checkoutData');
+let checkoutData = null;
 
-// Attempt to read the checkout data from sessionStorage and parse it as JSON.
-// if parsing fails, log an error and set checkoutData to null.
+// The PHP checkout reads its cart from the server. Browser storage is used by the HTML prototype.
 try {
-    checkoutData = JSON.parse(sessionStorage.getItem(checkoutStorageKey) || 'null');
+    const data = checkoutPayload?.textContent
+        ?? (pageExtension === '.html' ? sessionStorage.getItem(checkoutStorageKey) : null);
+    checkoutData = JSON.parse(data || 'null');
 } catch (error) {
     console.error('Unable to read your cart.', error);
 }
@@ -93,16 +95,11 @@ if (!checkoutData?.stall || !Array.isArray(checkoutData.items) || checkoutData.i
     if ([...pickupSelect.options].some(option => option.value === savedPickupTime)) {
         pickupSelect.value = savedPickupTime;
     }
-    pickupSelect.addEventListener('change', () => {
-        checkoutData.pickupTime = pickupSelect.value;
-        sessionStorage.setItem(checkoutStorageKey, JSON.stringify(checkoutData));
-    });
-
-    if (!/^[a-f0-9]{32}$/.test(checkoutData.requestId || '')) {
-        // Reuse this ID on retries so the server can recognize duplicate submissions.
-        checkoutData.requestId = Array.from(crypto.getRandomValues(new Uint8Array(16)),
-            byte => byte.toString(16).padStart(2, '0')).join('');
-        sessionStorage.setItem(checkoutStorageKey, JSON.stringify(checkoutData));
+    if (pageExtension === '.html') {
+        pickupSelect.addEventListener('change', () => {
+            checkoutData.pickupTime = pickupSelect.value;
+            sessionStorage.setItem(checkoutStorageKey, JSON.stringify(checkoutData));
+        });
     }
     // Build the order summary from cart data; the server will independently verify its prices.
     const itemsContainer = document.querySelector('#checkoutItems');
@@ -167,25 +164,10 @@ if (!checkoutData?.stall || !Array.isArray(checkoutData.items) || checkoutData.i
             document.querySelector('#referenceNumber').focus();
             return;
         }
-        if (!Number.isSafeInteger(Number(checkoutData.stall.id)) || Number(checkoutData.stall.id) <= 0
-            || checkoutData.items.some(item => !Number.isSafeInteger(Number(item.productId)) || Number(item.productId) <= 0)) {
-            showCheckoutMessage('Your cart is out of date. Please reopen the stall menu and add your items again.');
+        if (!checkoutPayload) {
+            showCheckoutMessage('Open the live stalls directory to place an order.');
             return;
         }
-        if (!checkoutForm.querySelector('input[name="csrfToken"]')) {
-            window.location.href = new URL('controller-user/checkout.php', checkoutApplicationUrl).href;
-            return;
-        }
-        const orderItems = checkoutData.items.map(item => ({
-            productId: item.productId, quantity: item.quantity,
-            options: (item.options || []).map(option => ({
-                groupId: option.groupId, optionId: option.optionId,
-            })),
-            specialInstructions: item.specialInstructions || '',
-        }));
-        document.querySelector('#checkoutStallId').value = checkoutData.stall.id;
-        document.querySelector('#checkoutOrderItems').value = JSON.stringify(orderItems);
-        document.querySelector('#checkoutRequestId').value = checkoutData.requestId;
         const fields = new FormData(checkoutForm);
         fields.set('paymentMethod', paymentMethod || '');
         fields.set('referenceNumber', referenceNumber);
@@ -195,7 +177,6 @@ if (!checkoutData?.stall || !Array.isArray(checkoutData.items) || checkoutData.i
         submitButton.disabled = true;
         submitButton.textContent = 'Submitting…';
         try {
-            // The server recalculates prices and validates the submitted IDs before saving.
             const response = await fetch(checkoutForm.action, {method: 'POST', body: fields});
             const result = await response.json();
             if (!response.ok || result.success !== true) {
@@ -207,13 +188,12 @@ if (!checkoutData?.stall || !Array.isArray(checkoutData.items) || checkoutData.i
                 throw new Error('Invalid order receipt.');
             }
             isSubmitted = true;
-            sessionStorage.removeItem(checkoutStorageKey);
             document.querySelector('#checkoutTotal').textContent = `₱${Number(result.totalAmount).toFixed(2)}`;
             document.querySelector('#checkoutOrderNumber').textContent = `ORDER ID: ${result.orderNumber}`;
             showCheckoutMessage(`Order submitted! Your order ID is ${result.orderNumber}. Total: ₱${Number(result.totalAmount).toFixed(2)}.`, true);
         } catch (error) {
             console.error('Checkout submission failed.', error);
-            showCheckoutMessage('Unable to confirm your order. Your cart has been kept; please try again.');
+            showCheckoutMessage('Unable to confirm your order. Retry to check whether it was saved.');
         } finally {
             isSubmitting = false;
             submitButton.disabled = isSubmitted;

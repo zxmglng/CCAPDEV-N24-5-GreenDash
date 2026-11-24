@@ -11,6 +11,8 @@ if (!serverStallData?.stall) {
 const stall = serverStallData.stall;
 const stallId = String(stall.id);
 const stallApplicationUrl = new URL('../', document.currentScript.src);
+const cartUrl = new URL('controller-user/cart.php', stallApplicationUrl);
+cartUrl.searchParams.set('stallId', stallId);
 
 function stallImageUrl(path) {
     if (!path) return '';
@@ -344,7 +346,15 @@ logo.hidden = !stall.logo;
 logo.alt = `Logo of ${stall.name}`;
 
 const menuItems = document.querySelector('#menuItems');
-const cart = [];
+const orderItems = document.querySelector('#orderItems');
+const checkoutButton = document.querySelector('#checkoutButton');
+const cartFeedback = document.querySelector('#cartFeedback');
+const cartItemFeedback = document.querySelector('#cartItemFeedback');
+const retryCartButton = document.querySelector('#retryCartButton');
+let cart = [];
+let cartVersion = null;
+let cartBusy = false;
+let editingCartIndex = null;
 let selectedItem = null;
 let selectedQuantity = 1;
 let activeCategory = 'all';
@@ -364,6 +374,7 @@ const menuProducts = serverStallData.products.map(product => ({
     category: product.category ? product.category.toLowerCase() : 'all',
     optionGroups: Array.isArray(product.optionGroups) ? product.optionGroups : []
 }));
+const menuProductsById = new Map(menuProducts.map(product => [product.productId, product]));
 
 // Turn controller-provided product records into cards that can be filtered and opened.
 menuProducts.forEach(({productId, name, price, image, category}, index) => {
@@ -447,24 +458,12 @@ function getCustomizationPrice() {
 }
 
 function selectedCustomizations() {
-    // Omit empty optional choices; keep selected option IDs for server-side validation.
-    return [...document.querySelectorAll('#customizationGroups fieldset')]
-        .map(fieldset => {
-            const input = fieldset.querySelector('input[type="radio"]:checked');
-            if (!input || !input.value) return null;
-            return {
-                groupId: Number(input.dataset.groupId),
-                optionId: Number(input.value),
-                groupName: input.dataset.groupName,
-                optionName: input.dataset.optionName,
-                extraPrice: Number(input.dataset.price || 0),
-            };
-        })
-        .filter(Boolean);
+    return [...document.querySelectorAll('#customizationGroups input[type="radio"]:checked')]
+        .filter(input => input.value)
+        .map(input => ({groupId: Number(input.dataset.groupId), optionId: Number(input.value)}));
 }
 
-function renderCustomizationGroups(item) {
-    // Build one set of choices per product option group and mark required groups.
+function renderCustomizationGroups(item, savedOptions) {
     const container = document.querySelector('#customizationGroups');
     container.replaceChildren();
     for (const group of item.optionGroups || []) {
@@ -483,17 +482,19 @@ function renderCustomizationGroups(item) {
         const choices = group.required
             ? group.choices
             : [{optionId: '', name: 'No selection', extraPrice: '0.00'}, ...group.choices];
-        choices.forEach((choice, index) => {
+        const selectedChoice = savedOptions
+            ? choices.find(choice => choice.optionId === savedOptions.get(group.groupId))
+                ?? (group.required ? undefined : choices[0])
+            : choices[0];
+        for (const choice of choices) {
             const label = document.createElement('label');
             const input = document.createElement('input');
             input.type = 'radio';
             input.name = `customization-${group.groupId}`;
             input.value = choice.optionId;
             input.dataset.groupId = group.groupId;
-            input.dataset.groupName = group.name;
-            input.dataset.optionName = choice.name;
             input.dataset.price = choice.extraPrice;
-            input.checked = index === 0;
+            input.checked = choice === selectedChoice;
             label.append(input, document.createTextNode(` ${choice.name} `));
 
             const price = document.createElement('span');
@@ -501,100 +502,226 @@ function renderCustomizationGroups(item) {
             price.textContent = extraPrice > 0 ? `+₱ ${extraPrice.toFixed(2)}` : 'Free';
             label.appendChild(price);
             fieldset.appendChild(label);
-        });
+        }
         container.appendChild(fieldset);
     }
 }
 
 function updateModalPrice() {
     const total = Math.round(getCustomizationPrice() * 100) * selectedQuantity / 100;
+    const action = editingCartIndex === null ? 'Add to cart' : 'Update cart';
+    const locked = cartBusy || cartVersion === null;
     modalPrice.textContent = selectedItem.price;
-    addToCartButton.innerHTML = `Add to cart - &#8369; ${total.toFixed(2)}`;
+    addToCartButton.textContent = `${action} - ₱ ${total.toFixed(2)}`;
     document.querySelector('#itemQuantity').textContent = selectedQuantity;
-    addToCartButton.disabled = (selectedItem.optionGroups || [])
+    document.querySelector('#decreaseQuantity').disabled = locked || selectedQuantity <= 1;
+    document.querySelector('#increaseQuantity').disabled = locked || selectedQuantity >= 999;
+    document.querySelectorAll('#customizationGroups fieldset').forEach(group => { group.disabled = locked; });
+    addToCartButton.disabled = locked || (selectedItem.optionGroups || [])
         .some(group => group.required && (!group.choices.length
             || !document.querySelector(`input[name="customization-${group.groupId}"]:checked`)));
 }
 
-function openItemModal(item) {
-    // Reset quantity and customizations whenever a product is opened.
+function openItemModal(item, cartIndex = null) {
+    if (cartBusy || cartVersion === null) {
+        document.body.classList.add('cart-open');
+        return;
+    }
+    const savedItem = cart[cartIndex];
     selectedItem = item;
-    selectedQuantity = 1;
+    editingCartIndex = cartIndex;
+    selectedQuantity = savedItem?.quantity ?? 1;
     document.querySelector('#modalItemName').textContent = item.name;
     document.querySelector('#modalItemDescription').textContent = `${item.name} prepared fresh and customized to your preference.`;
     const image = document.querySelector('#modalItemImage');
     image.src = stallImageUrl(item.image);
     image.hidden = !item.image;
     image.alt = item.name;
-    renderCustomizationGroups(item);
+    const savedOptions = savedItem && new Map(savedItem.options.map(({groupId, optionId}) => [groupId, optionId]));
+    renderCustomizationGroups(item, savedOptions);
+    cartItemFeedback.hidden = true;
     modal.hidden = false;
     updateModalPrice();
 }
 
-function renderOrder() {
-    // Rebuild cart rows and total each time an item is added.
-    const orderItems = document.querySelector('#orderItems');
-    if (!cart.length) {
-        orderItems.innerHTML = '<p class="empty-order-message">Your cart is empty!</p>';
-    } else {
-        orderItems.replaceChildren();
-        cart.forEach(item => {
-            const row = document.createElement('div');
-            row.className = 'order-item';
-            const image = document.createElement('img');
-            image.src = stallImageUrl(item.image);
-            image.alt = item.name;
-            image.hidden = !item.image;
-            row.appendChild(image);
-            const details = document.createElement('div');
-            const title = document.createElement('h3');
-            title.textContent = item.name;
-            const summary = document.createElement('p');
-            const selections = item.options.map(option => `${option.groupName}: ${option.optionName}`);
-            summary.textContent = [...selections, `Quantity: ${item.quantity}`].join(' · ');
-            details.append(title, summary);
-            const price = document.createElement('strong');
-            price.textContent = `₱ ${item.total.toFixed(2)}`;
-            row.append(details, price);
-            orderItems.appendChild(row);
-        });
+function cartItemDetails(line, product) {
+    if (!product) return {selections: [], issue: 'This product is no longer available.', totalCents: 0};
+
+    const options = new Map(line.options.map(({groupId, optionId}) => [groupId, optionId]));
+    const selections = [];
+    let unitCents = Math.round(product.price * 100);
+    let missingRequiredOption = false;
+
+    for (const group of product.optionGroups) {
+        const choice = group.choices.find(choice => choice.optionId === options.get(group.groupId));
+        if (choice) {
+            selections.push(`${group.name}: ${choice.name}`);
+            unitCents += Math.round(Number(choice.extraPrice) * 100);
+        } else if (group.required) {
+            missingRequiredOption = true;
+        }
     }
-    const total = cart.reduce((sum, item) => sum + Math.round(item.total * 100), 0) / 100;
-    document.querySelector('#checkoutButton').innerHTML = `Checkout - &#8369; ${total.toFixed(2)}`;
+
+    // Flag changed options while keeping the saved line available for editing.
+    if (missingRequiredOption || selections.length !== options.size) {
+        return {selections, issue: 'Update this item’s options or remove it.', totalCents: 0};
+    }
+    return {selections, issue: '', totalCents: unitCents * line.quantity};
+}
+
+function cartLineButton(label, productName, onClick) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'btn btn-sm btn-outline-secondary py-0';
+    button.textContent = label;
+    button.setAttribute('aria-label', `${label} ${productName}`);
+    button.addEventListener('click', onClick);
+    return button;
+}
+
+function renderOrder() {
+    orderItems.replaceChildren();
+    if (!cart.length && cartVersion !== null) {
+        const message = document.createElement('p');
+        message.className = 'empty-order-message';
+        message.textContent = 'Your cart is empty!';
+        orderItems.appendChild(message);
+    }
+
+    let totalCents = 0;
+    cart.forEach((line, index) => {
+        const product = menuProductsById.get(line.productId);
+        const {selections, issue, totalCents: itemTotal} = cartItemDetails(line, product);
+        totalCents += itemTotal;
+        const name = product?.name || 'Unavailable item';
+        const row = document.createElement('div');
+        row.className = 'order-item';
+        row.dataset.unavailable = String(Boolean(issue));
+        const image = document.createElement(product?.image ? 'img' : 'span');
+        if (product?.image) {
+            image.src = stallImageUrl(product.image);
+            image.alt = '';
+        }
+
+        const details = document.createElement('div');
+        const title = document.createElement('h3');
+        title.textContent = name;
+        const summary = document.createElement('p');
+        summary.textContent = [...selections, `Quantity: ${line.quantity}`].join(' · ');
+        details.append(title, summary);
+        if (issue) {
+            const message = document.createElement('p');
+            message.textContent = issue;
+            details.appendChild(message);
+        }
+
+        const actions = document.createElement('div');
+        actions.className = 'd-flex flex-wrap gap-1 mt-1';
+        if (product) {
+            actions.appendChild(cartLineButton('Edit', name, () => openItemModal(product, index)));
+        }
+        actions.appendChild(cartLineButton('Remove', name, () => saveCart(cart.filter((_, i) => i !== index))));
+        details.appendChild(actions);
+
+        const price = document.createElement('strong');
+        price.textContent = issue ? '' : `₱ ${(itemTotal / 100).toFixed(2)}`;
+        row.append(image, details, price);
+        orderItems.appendChild(row);
+    });
+    checkoutButton.textContent = `Checkout - ₱ ${(totalCents / 100).toFixed(2)}`;
+}
+
+function updateCartControls() {
+    const locked = cartBusy || cartVersion === null;
+    checkoutButton.disabled = locked || !cart.length || Boolean(orderItems.querySelector('[data-unavailable="true"]'));
+    orderItems.querySelectorAll('button').forEach(button => { button.disabled = locked; });
+    retryCartButton.disabled = cartBusy;
+    if (!modal.hidden) updateModalPrice();
+}
+
+function setCartFeedback(message, canRetry = false) {
+    cartFeedback.textContent = message;
+    cartFeedback.hidden = !message;
+    retryCartButton.hidden = !canRetry;
+}
+
+async function requestCart(body) {
+    const response = await fetch(cartUrl, {
+        method: body ? 'POST' : 'GET', body, headers: {Accept: 'application/json'}
+    }).catch(() => null);
+    const result = await response?.json().catch(() => null);
+
+    if (!response?.ok || !result?.success) {
+        const fallback = body ? 'Unable to save your cart. Please try again.' : 'Unable to load your cart.';
+        throw Object.assign(new Error(result?.message || fallback), {status: response?.status});
+    }
+    cart = result.items;
+    cartVersion = result.version;
+    renderOrder();
+}
+
+async function loadCart() {
+    if (cartBusy) return;
+    cartBusy = true;
+    setCartFeedback('Loading your cart…');
+    updateCartControls();
+    try {
+        await requestCart();
+        setCartFeedback('');
+    } catch (error) {
+        cartVersion = null;
+        renderOrder();
+        setCartFeedback(error.message, true);
+    } finally {
+        cartBusy = false;
+        updateCartControls();
+    }
+}
+
+async function saveCart(items) {
+    if (cartBusy || cartVersion === null) return false;
+    cartBusy = true;
+    cartItemFeedback.hidden = true;
+    setCartFeedback('Saving your cart…');
+    updateCartControls();
+
+    const body = new FormData();
+    body.set('csrfToken', serverStallData.cartCsrfToken);
+    body.set('version', String(cartVersion));
+    body.set('items', JSON.stringify(items));
+    try {
+        await requestCart(body);
+        setCartFeedback('');
+        return true;
+    } catch (error) {
+        if (error.status === 409) {
+            // Reload before another edit so a stale tab cannot overwrite a newer cart.
+            cartVersion = null;
+            await requestCart().catch(() => {});
+            modal.hidden = true;
+            document.body.classList.add('cart-open');
+            setCartFeedback('Your cart changed elsewhere. Review the latest cart and try again.', cartVersion === null);
+        } else if (!modal.hidden) {
+            setCartFeedback('');
+            cartItemFeedback.textContent = error.message;
+            cartItemFeedback.hidden = false;
+        } else {
+            setCartFeedback(error.message);
+        }
+        return false;
+    } finally {
+        cartBusy = false;
+        updateCartControls();
+    }
 }
 
 function openCheckout() {
-    const desktopPickupTime = document.querySelector('#pickupTime').value;
-    const mobilePickupTime = document.querySelector('#pickupTimeMobile').value;
-    const pickupTime = desktopPickupTime || mobilePickupTime;
-    const total = cart.reduce((sum, item) => sum + Math.round(item.total * 100), 0) / 100;
-
-    if (!cart.length) {
-        document.querySelector('#emptyCartMessage').hidden = false;
-        return;
-    }
-
-    // Persist this stall's cart for checkout.js, which reads it on the next page.
-    const checkoutData = {
-        stall: {
-            id: stall.id || null,
-            name: stall.name,
-            location: stall.location,
-            hours: stall.hours,
-            logo: stallImageUrl(stall.logo),
-            qrCodePath: stall.qrCodePath || '',
-            pickupTimes: stall.pickupTimes,
-        },
-        items: cart,
-        pickupTime,
-        total
-    };
-
-    sessionStorage.setItem('greendash-checkout', JSON.stringify(checkoutData));
-    const extension = window.location.pathname.endsWith('.html') ? '.html' : '.php';
-    window.location.href = serverStallData
-        ? new URL('controller-user/checkout.php', stallApplicationUrl).href
-        : `checkout${extension}`;
+    if (checkoutButton.disabled) return;
+    const pickupTime = document.querySelector('#pickupTime').value || document.querySelector('#pickupTimeMobile').value;
+    const checkoutUrl = new URL('controller-user/checkout.php', stallApplicationUrl);
+    checkoutUrl.searchParams.set('stallId', stallId);
+    if (pickupTime) checkoutUrl.searchParams.set('pickupTime', pickupTime);
+    window.location.href = checkoutUrl.href;
 }
 
 document.querySelectorAll('.add-item-button').forEach((button) => {
@@ -615,16 +742,23 @@ document.querySelector('#decreaseQuantity').addEventListener('click', () => {
     updateModalPrice();
 });
 
-addToCartButton.addEventListener('click', () => {
-    cart.push({
-        ...selectedItem,
+addToCartButton.addEventListener('click', async () => {
+    const line = {
+        productId: selectedItem.productId,
         options: selectedCustomizations(),
         quantity: selectedQuantity,
-        total: Math.round(getCustomizationPrice() * 100) * selectedQuantity / 100
-    });
-    modal.hidden = true;
-    renderOrder();
-    document.body.classList.add('cart-open');
+        specialInstructions: cart[editingCartIndex]?.specialInstructions ?? ''
+    };
+    const items = [...cart];
+    if (editingCartIndex === null) {
+        items.push(line);
+    } else {
+        items[editingCartIndex] = line;
+    }
+    if (await saveCart(items)) {
+        modal.hidden = true;
+        document.body.classList.add('cart-open');
+    }
 });
 
 document.querySelector('#modalCloseButton').addEventListener('click', () => {
@@ -644,15 +778,21 @@ document.querySelector('#closeOrderButton').addEventListener('click', () => {
     document.body.classList.remove('cart-open');
 });
 
-document.querySelector('#checkoutButton').addEventListener('click', openCheckout);
-document.querySelector('#closeEmptyCartMessage').addEventListener('click', () => {
-    document.querySelector('#emptyCartMessage').hidden = true;
-});
-document.querySelector('#emptyCartMessage').addEventListener('click', (event) => {
-    if (event.target === document.querySelector('#emptyCartMessage')) {
-        document.querySelector('#emptyCartMessage').hidden = true;
+checkoutButton.addEventListener('click', openCheckout);
+retryCartButton.addEventListener('click', loadCart);
+window.addEventListener('pageshow', event => {
+    if (event.persisted) {
+        modal.hidden = true;
+        cart = [];
+        cartVersion = null;
+        renderOrder();
+        loadCart();
     }
 });
+if (new URLSearchParams(window.location.search).get('cart') === '1') {
+    document.body.classList.add('cart-open');
+}
+loadCart();
 
 document.querySelector('#filterButton').addEventListener('click', () => {
     const panel = document.querySelector('#filterPanel');

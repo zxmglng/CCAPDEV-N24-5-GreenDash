@@ -1,7 +1,9 @@
 <?php
 
 session_start();
+header('Cache-Control: no-store');
 require_once(__DIR__ . "/../app/core/db.php");
+require_once(__DIR__ . "/../app/models/cart-model.php");
 require_once(__DIR__ . "/../app/models/stall-model.php");
 require_once(__DIR__ . "/../app/models/stall-hours-model.php");
 require_once(__DIR__ . "/../app/models/review-model.php");
@@ -13,6 +15,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $stalls = getAllStalls($pdo);
+$savedCartStalls = array_fill_keys(getSavedCartStallIds($pdo, (int) $_SESSION['user_id']), true);
 $ratingSummaries = getStallRatingSummaries($pdo);
 $stallLocations = [];
 $stallTypes = [];

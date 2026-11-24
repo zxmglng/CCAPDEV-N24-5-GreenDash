@@ -89,6 +89,7 @@
                     }
                     $statusText = ((int) $stall['is_open'] === 1) ? 'OPEN' : 'CLOSED';
                     $statusClass = ((int) $stall['is_open'] === 1) ? 'open' : 'closed';
+                    $hasSavedCart = isset($savedCartStalls[(int) $stall['id']]);
                     ?>
 
                     <div class="stall-card"
@@ -149,8 +150,9 @@
                             </div>
 
                             <a class="view-stall-button"
-                            href="stall-info.php?stall=<?= (int) $stall['id'] ?>">
-                                View Stall
+                                href="stall-info.php?stall=<?= (int) $stall['id'] ?><?= $hasSavedCart ? '&amp;cart=1' : '' ?>"
+                                <?= $hasSavedCart ? 'data-resume-cart' : '' ?>>
+                                <?= $hasSavedCart ? 'Resume cart' : 'View Stall' ?>
                             </a>
                         </div>
                     </div>

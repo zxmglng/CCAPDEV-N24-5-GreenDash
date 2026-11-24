@@ -9,6 +9,7 @@ C:.
 +---app
 |   +---core
 |   |       admin-auth.php
+|   |       cart.php
 |   |       checkout.php
 |   |       db.php
 |   |       orders.php
@@ -18,6 +19,7 @@ C:.
 |   |       vendor-orders.php
 |   |       
 |   +---models
+|   |       cart-model.php
 |   |       category-model.php
 |   |       order-model.php
 |   |       product-model.php
@@ -118,6 +120,7 @@ C:.
 |       
 +---controller-user
 |       cancel-order.php
+|       cart.php
 |       checkout.php
 |       google-login.php
 |       orders.php
@@ -142,6 +145,7 @@ C:.
 |       
 +---database
 |       CCAPDEV-N24-5-GreenDash.sql
+|       add_user_carts.sql
 |       additional_sample_data.sql
 |       
 +---js
@@ -219,4 +223,5 @@ C:.
 |       
 \---tests
         test_admin_auth.py
+        test_user_cart.py
         

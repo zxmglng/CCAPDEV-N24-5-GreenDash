@@ -4,8 +4,10 @@ require_once __DIR__ . '/../models/stall-model.php';
 require_once __DIR__ . '/../models/stall-hours-model.php';
 require_once __DIR__ . '/../models/product-model.php';
 require_once __DIR__ . '/../models/order-model.php';
+require_once __DIR__ . '/../models/cart-model.php';
 
 class CheckoutValidationException extends RuntimeException {}
+class CheckoutCartChangedException extends RuntimeException {}
 
 function startCheckoutSession(): void
 {
@@ -46,12 +48,10 @@ function checkoutPriceCents($price): int
     return (int) $parts[1] * 100 + (int) str_pad($parts[2] ?? '', 2, '0');
 }
 
-function validateCheckoutRequest(array $data): array
+function validateCheckoutItems(mixed $orderItems): array
 {
-    $stallId = checkoutPositiveInteger($data['stallId'] ?? null, 'Stall ID');
-    $orderItems = $data['orderItems'] ?? null;
     if (!is_array($orderItems) || !array_is_list($orderItems) || !$orderItems || count($orderItems) > 100) {
-        throw new CheckoutValidationException('Your order must contain between 1 and 100 items.');
+        throw new CheckoutValidationException('Your cart must contain between 1 and 100 items.');
     }
 
     $items = [];
@@ -96,7 +96,13 @@ function validateCheckoutRequest(array $data): array
         );
         $items[] = $normalized;
     }
+    return $items;
+}
 
+function validateCheckoutRequest(array $data): array
+{
+    $stallId = checkoutPositiveInteger($data['stallId'] ?? null, 'Stall ID');
+    $cartVersion = checkoutPositiveInteger($data['cartVersion'] ?? null, 'Cart version');
     $paymentMethod = $data['paymentMethod'] ?? null;
     if (!in_array($paymentMethod, ['cash', 'online'], true)) {
         throw new CheckoutValidationException('Select a valid payment method.');
@@ -115,7 +121,7 @@ function validateCheckoutRequest(array $data): array
         throw new CheckoutValidationException('Select a valid pick-up time.');
     }
     return [
-        'stallId' => $stallId, 'orderItems' => $items, 'pickupTime' => trim($pickupTime),
+        'stallId' => $stallId, 'cartVersion' => $cartVersion, 'pickupTime' => trim($pickupTime),
         'paymentMethod' => $paymentMethod,
         'referenceNumber' => $paymentMethod === 'online' ? $referenceNumber : null,
     ];
@@ -144,6 +150,36 @@ function checkoutOpeningIntervals(array $hours, DateTimeImmutable $now): array
         }
     }
     return $intervals;
+}
+
+function getCheckoutStallDetails(PDO $pdo, array $stall): array
+{
+    $id = (int) $stall['id'];
+    $now = new DateTimeImmutable('now', new DateTimeZone('Asia/Manila'));
+    $day = $now->format('Y-m-d');
+    $pickupTimes = [];
+    $hoursLabel = 'Closed';
+    foreach (checkoutOpeningIntervals(getStallOperatingHours($pdo, $id), $now) as [$opens, $closes]) {
+        if ($opens->format('Y-m-d') === $day || ($now >= $opens && $now < $closes)) {
+            $hoursLabel = $opens->format('g:i A') . ' - ' . $closes->format('g:i A');
+        }
+        for ($start = $opens; $start->modify('+15 minutes') <= $closes; $start = $start->modify('+15 minutes')) {
+            if ($start >= $now && $start->format('Y-m-d') === $day) {
+                $pickupTimes[] = $start->format('g:i A') . ' - ' . $start->modify('+15 minutes')->format('g:i A');
+            }
+        }
+    }
+
+    return [
+        'id' => $id,
+        'name' => $stall['name'],
+        'location' => $stall['location'],
+        'hours' => $hoursLabel,
+        'pickupTimes' => $pickupTimes,
+        'logo' => $stall['image_path'] ?? '',
+        'banner' => $stall['banner_path'] ?? '',
+        'qrCodePath' => $stall['qr_code_path'] ?? '',
+    ];
 }
 
 function checkoutPickup(string $pickupTime, array $hours, DateTimeImmutable $now): array
@@ -183,17 +219,100 @@ function checkoutPickup(string $pickupTime, array $hours, DateTimeImmutable $now
     throw new CheckoutValidationException('The selected pick-up time is outside this stall\'s operating hours.');
 }
 
+// Cart previews and order snapshots use the same current menu prices.
+function priceCheckoutItems(PDO $pdo, int $stallId, array $orderItems): array
+{
+    $products = [];
+    foreach (getStallProducts($pdo, $stallId) as $product) {
+        $products[(int) $product['id']] = $product;
+    }
+    $optionGroupsByProduct = getProductOptionGroups(
+        $pdo,
+        array_column($orderItems, 'productId')
+    );
+    $items = [];
+    $total = 0;
+    foreach ($orderItems as $requestedItem) {
+        $product = $products[$requestedItem['productId']] ?? null;
+        if (!$product || !(bool) $product['is_available']) {
+            throw new CheckoutValidationException('An item is unavailable. Please refresh the stall menu.');
+        }
+        $basePrice = checkoutPriceCents($product['price']);
+        $unitPrice = $basePrice;
+        $options = [];
+        $productGroups = $optionGroupsByProduct[$requestedItem['productId']] ?? [];
+        $selectedOptions = [];
+        foreach ($requestedItem['options'] as $selection) {
+            $selectedOptions[$selection['groupId']] = $selection['optionId'];
+        }
+        foreach ($productGroups as $group) {
+            $selectedOptionId = $selectedOptions[$group['groupId']] ?? null;
+            if ($selectedOptionId === null) {
+                if ($group['required']) {
+                    throw new CheckoutValidationException(
+                        'Choose an option for ' . $group['name'] . ' on ' . $product['name'] . '.'
+                    );
+                }
+                continue;
+            }
+
+            $choice = null;
+            foreach ($group['choices'] as $availableChoice) {
+                if ($availableChoice['optionId'] === $selectedOptionId) {
+                    $choice = $availableChoice;
+                    break;
+                }
+            }
+            if ($choice === null) {
+                throw new CheckoutValidationException(
+                    'A selected customization is no longer available. Please refresh the menu.'
+                );
+            }
+            $extraPrice = checkoutPriceCents($choice['extraPrice']);
+            $unitPrice += $extraPrice;
+            $options[] = [
+                'option_id' => $choice['optionId'],
+                'option_group_name' => $group['name'],
+                'option_name' => $choice['name'],
+                'extra_price' => checkoutMoney($extraPrice),
+            ];
+            unset($selectedOptions[$group['groupId']]);
+        }
+        if ($selectedOptions) {
+            throw new CheckoutValidationException(
+                'A selected customization does not belong to this product.'
+            );
+        }
+        $itemTotal = $unitPrice * $requestedItem['quantity'];
+        $total += $itemTotal;
+        if ($total > 9999999999) {
+            throw new CheckoutValidationException('The order total exceeds the supported amount.');
+        }
+        $items[] = [
+            'menu_item_id' => (int) $product['id'], 'item_name' => $product['name'],
+            'image_path' => $product['image_path'] ?? '',
+            // Category names are optional snapshots; no category-table schema was supplied.
+            'category_name' => null,
+            'special_instructions' => $requestedItem['specialInstructions'] !== '' ? $requestedItem['specialInstructions'] : null,
+            'quantity' => $requestedItem['quantity'], 'base_price' => checkoutMoney($basePrice),
+            'unit_price' => checkoutMoney($unitPrice), 'total_price' => checkoutMoney($itemTotal),
+            'options' => $options,
+        ];
+    }
+    return [$items, $total];
+}
+
 function placeCheckoutOrder(PDO $pdo, int $userId, array $request, ?DateTimeImmutable $now = null): array
 {
-    $request = validateCheckoutRequest($request);
     $now = $now ?? new DateTimeImmutable('now', new DateTimeZone('Asia/Manila'));
+    $stallId = $request['stallId'];
     $pdo->beginTransaction();
     try {
         $user = getCheckoutUser($pdo, $userId);
         if (!$user || $user['acc_status'] === 'inactive') {
             throw new CheckoutValidationException('Your account cannot place orders. Please sign in again.');
         }
-        $stall = getCheckoutStall($pdo, $request['stallId']);
+        $stall = getCheckoutStall($pdo, $stallId);
         if (!$stall) {
             throw new CheckoutValidationException('This stall is no longer available.');
         }
@@ -201,83 +320,13 @@ function placeCheckoutOrder(PDO $pdo, int $userId, array $request, ?DateTimeImmu
             || (isset($stall['status']) && $stall['status'] === 'closed')) {
             throw new CheckoutValidationException('This stall is currently closed.');
         }
-        $pickup = checkoutPickup($request['pickupTime'], getStallOperatingHours($pdo, $request['stallId']), $now);
-        $products = [];
-        foreach (getStallProducts($pdo, $request['stallId']) as $product) {
-            $products[(int) $product['id']] = $product;
+        // Hold the cart lock until both the order and the cart clear can commit.
+        $cart = getUserCart($pdo, $userId, $stallId, true);
+        if ($cart['version'] !== $request['cartVersion'] || !$cart['items']) {
+            throw new CheckoutCartChangedException('Your cart changed. Reopen it to review your items.');
         }
-        $optionGroupsByProduct = getProductOptionGroups(
-            $pdo,
-            array_column($request['orderItems'], 'productId')
-        );
-        $items = [];
-        $total = 0;
-        foreach ($request['orderItems'] as $requestedItem) {
-            $product = $products[$requestedItem['productId']] ?? null;
-            if (!$product || !(bool) $product['is_available']) {
-                throw new CheckoutValidationException('An item is unavailable. Please refresh the stall menu.');
-            }
-            $basePrice = checkoutPriceCents($product['price']);
-            $unitPrice = $basePrice;
-            $options = [];
-            $productGroups = $optionGroupsByProduct[$requestedItem['productId']] ?? [];
-            $selectedOptions = [];
-            foreach ($requestedItem['options'] as $selection) {
-                $selectedOptions[$selection['groupId']] = $selection['optionId'];
-            }
-            foreach ($productGroups as $group) {
-                $selectedOptionId = $selectedOptions[$group['groupId']] ?? null;
-                if ($selectedOptionId === null) {
-                    if ($group['required']) {
-                        throw new CheckoutValidationException(
-                            'Choose an option for ' . $group['name'] . ' on ' . $product['name'] . '.'
-                        );
-                    }
-                    continue;
-                }
-
-                $choice = null;
-                foreach ($group['choices'] as $availableChoice) {
-                    if ($availableChoice['optionId'] === $selectedOptionId) {
-                        $choice = $availableChoice;
-                        break;
-                    }
-                }
-                if ($choice === null) {
-                    throw new CheckoutValidationException(
-                        'A selected customization is no longer available. Please refresh the menu.'
-                    );
-                }
-                $extraPrice = checkoutPriceCents($choice['extraPrice']);
-                $unitPrice += $extraPrice;
-                $options[] = [
-                    'option_id' => $choice['optionId'],
-                    'option_group_name' => $group['name'],
-                    'option_name' => $choice['name'],
-                    'extra_price' => checkoutMoney($extraPrice),
-                ];
-                unset($selectedOptions[$group['groupId']]);
-            }
-            if ($selectedOptions) {
-                throw new CheckoutValidationException(
-                    'A selected customization does not belong to this product.'
-                );
-            }
-            $itemTotal = $unitPrice * $requestedItem['quantity'];
-            $total += $itemTotal;
-            if ($total > 9999999999) {
-                throw new CheckoutValidationException('The order total exceeds the supported amount.');
-            }
-            $items[] = [
-                'menu_item_id' => (int) $product['id'], 'item_name' => $product['name'],
-                // Category names are optional snapshots; no category-table schema was supplied.
-                'category_name' => null,
-                'special_instructions' => $requestedItem['specialInstructions'] !== '' ? $requestedItem['specialInstructions'] : null,
-                'quantity' => $requestedItem['quantity'], 'base_price' => checkoutMoney($basePrice),
-                'unit_price' => checkoutMoney($unitPrice), 'total_price' => checkoutMoney($itemTotal),
-                'options' => $options,
-            ];
-        }
+        $pickup = checkoutPickup($request['pickupTime'], getStallOperatingHours($pdo, $stallId), $now);
+        [$items, $total] = priceCheckoutItems($pdo, $stallId, validateCheckoutItems($cart['items']));
         $orderNumber = 'GD' . strtoupper(bin2hex(random_bytes(8)));
         $orderId = insertCheckoutOrder($pdo, [
             'order_number' => $orderNumber, 'user_id' => $userId, 'stall_id' => (int) $stall['id'],
@@ -291,6 +340,9 @@ function placeCheckoutOrder(PDO $pdo, int $userId, array $request, ?DateTimeImmu
             foreach ($item['options'] as $option) {
                 insertCheckoutItemOption($pdo, $orderItemId, $option);
             }
+        }
+        if (!clearUserCart($pdo, $userId, $stallId, $cart['version'])) {
+            throw new CheckoutCartChangedException('Your cart changed. Reopen it to review your items.');
         }
         $pdo->commit();
         return ['success' => true, 'orderId' => $orderId,

@@ -8,6 +8,7 @@ Functions must accept `$pdo` as the first parameter, execute queries, and return
 
 ## Files
 
+- `cart-model.php` loads and updates versioned carts by user and stall and empties the purchased cart during checkout.
 - `review-model.php`: list stall reviews and completed eligible orders, lock the owned order, and create/update/delete its review.
 - `order-model.php`: save checkout records; load user/vendor orders, item snapshots, and options; cancel a user's pending order; and lock/update vendor-owned orders.
 - `user-model.php`: retrieve account status for authenticated actions.
