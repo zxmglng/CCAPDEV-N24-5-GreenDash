@@ -1,7 +1,10 @@
 <?php
 
-session_start();
+require_once(__DIR__ . "/../app/core/session.php");
+startGreenDashSession();
+
 header('Cache-Control: no-store');
+
 require_once(__DIR__ . "/../app/core/db.php");
 require_once(__DIR__ . "/../app/models/cart-model.php");
 require_once(__DIR__ . "/../app/models/stall-model.php");

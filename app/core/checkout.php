@@ -5,15 +5,14 @@ require_once __DIR__ . '/../models/stall-hours-model.php';
 require_once __DIR__ . '/../models/product-model.php';
 require_once __DIR__ . '/../models/order-model.php';
 require_once __DIR__ . '/../models/cart-model.php';
+require_once __DIR__ . '/session.php';
 
 class CheckoutValidationException extends RuntimeException {}
 class CheckoutCartChangedException extends RuntimeException {}
 
 function startCheckoutSession(): void
 {
-    if (session_status() !== PHP_SESSION_ACTIVE) {
-        session_start();
-    }
+    startGreenDashSession();
     header('Cache-Control: no-store');
 }
 

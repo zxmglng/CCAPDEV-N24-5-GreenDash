@@ -1,13 +1,12 @@
 <?php
 require_once __DIR__ . '/../models/user-model.php';
+require_once __DIR__ . '/session.php';
 
 class VendorRequestException extends RuntimeException {}
 
 function startVendorSession(): void
 {
-    if (session_status() !== PHP_SESSION_ACTIVE) {
-        session_start();
-    }
+    startGreenDashSession();
     header('Cache-Control: no-store');
 }
 

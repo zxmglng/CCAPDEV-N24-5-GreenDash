@@ -1,7 +1,9 @@
 <?php
-// this controller handsle session_start(), logout, POST, updating profile, and loads profile view
+// this controller handsle session initiallization, logout, POST, updating profile, and loads profile view
 
-session_start();
+require_once(__DIR__ . "/../app/core/session.php");
+startGreenDashSession();
+
 require_once(__DIR__ . "/../app/core/db.php");
 require_once(__DIR__ . "/../app/models/user-model.php");
 require_once(__DIR__ . "/../app/models/order-model.php");

@@ -1,14 +1,13 @@
 <?php
 require_once __DIR__ . '/../models/review-model.php';
 require_once __DIR__ . '/../models/user-model.php';
+require_once __DIR__ . '/session.php';
 
 class ReviewRequestException extends RuntimeException {}
 
 function startReviewSession(): void
 {
-    if (session_status() !== PHP_SESSION_ACTIVE) {
-        session_start();
-    }
+    startGreenDashSession();
     header('Cache-Control: no-store');
 }
 

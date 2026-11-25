@@ -1,16 +1,10 @@
 <?php
 
+require_once __DIR__ . '/session.php';
+
 function startAdminSession(): void
 {
-    if (session_status() !== PHP_SESSION_ACTIVE) {
-        session_start([
-            'use_strict_mode' => true,
-            'cookie_httponly' => true,
-            'cookie_secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
-            'cookie_samesite' => 'Lax',
-        ]);
-    }
-
+    startGreenDashSession();
     header('Cache-Control: no-store');
 }
 
