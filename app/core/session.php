@@ -8,7 +8,6 @@
 // cookie_httponly = prevent JS from accessing the session cookie
 // cookie_secure = send the cookie only over HTTPS
 // cookie_samesite = restrict cross-site cookie requests to help prevent CSRF
-
 function startGreenDashSession(): void
 {
     if (session_status() !== PHP_SESSION_ACTIVE) {
@@ -16,4 +15,25 @@ function startGreenDashSession(): void
         session_start(['use_strict_mode' => 1, 'use_only_cookies' => 1, 'use_trans_sid' => 0,
             'cookie_lifetime' => 0, 'cookie_httponly' => 1, 'cookie_secure' => $isHttps, 'cookie_samesite' => 'Lax',]);
     }
+}
+
+
+// destroy the current session and remove its cookie
+function destroyGreenDashSession(): void
+{
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        startGreenDashSession();
+    }
+
+    // clear all session variables
+    $_SESSION = [];
+    // get the current session cookie settings
+    $params = session_get_cookie_params();
+    // expire the session cookie in the browser.
+    setcookie(session_name(), '', ['expires' => time() - 42000, 'path' => $params['path'], 'domain' => $params['domain'],
+        'secure' => $params['secure'], 'httponly' => $params['httponly'], 'samesite' => $params['samesite'] ?? 'Lax'
+    ]);
+
+    // Destroy the server-side session.
+    session_destroy();
 }

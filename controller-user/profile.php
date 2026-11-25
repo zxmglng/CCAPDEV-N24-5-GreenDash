@@ -10,7 +10,7 @@ require_once(__DIR__ . "/../app/models/order-model.php");
 
 //log out current user
 if (isset($_GET['logout'])) {
-    session_destroy();
+    destroyGreenDashSession();
     header('Location: ../index.php');
     exit;
 }
