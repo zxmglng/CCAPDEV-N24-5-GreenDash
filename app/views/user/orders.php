@@ -28,6 +28,13 @@ if (!defined('GREENDASH_ORDERS_VIEW')) {
 
             <h1 class="section-headers">Orders</h1>
 
+            <p class="order-cancellation-limit">
+                You can cancel up to 3 orders per week.
+                You have <?= (int) $ordersData['cancellationsRemaining'] ?>
+                cancellations remaining this week.
+                Pending-order cancellations do not count toward this limit.
+            </p>
+
             <section class="orders-section" aria-labelledby="ongoing-heading">
                 <h2 class="orders-section-heading" id="ongoing-heading">Ongoing orders</h2>
             </section>

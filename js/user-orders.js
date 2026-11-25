@@ -138,7 +138,7 @@ function renderOrderDetails() {
     reviewButton.textContent = order.review ? 'Edit review' : 'Leave a review';
     deleteReviewButton.hidden = !canReview || !order.review;
     reviewButton.disabled = deleteReviewButton.disabled = reviewBusy;
-    cancelOrderButton.hidden = order.statusClass !== 'pending';
+    cancelOrderButton.hidden = !['pending', 'preparing'].includes(order.statusClass);
     const items = document.querySelector('#orderModalItems');
     items.replaceChildren();
     order.items.forEach(item => {
@@ -251,14 +251,20 @@ deleteReviewButton.addEventListener('click', async () => {
 
 cancelOrderButton.addEventListener('click', () => {
     const order = orderById.get(selectedOrderId);
-    if (!order || order.statusClass !== 'pending') return;
-    document.querySelector('#cancelUserOrderMessage').textContent = `Cancel order ${order.id} from ${order.name}?`;
+    if (!order || !['pending', 'preparing'].includes(order.statusClass)) return;
+    const message = document.querySelector('#cancelUserOrderMessage');
+    if (order.statusClass === 'preparing') {
+        message.textContent = `Cancel order ${order.id} from ${order.name}? You can cancel up to 3 Preparing orders per week. You have ${ordersData.cancellationsRemaining} cancellations remaining this week.`;
+    } else {
+        message.textContent = `Cancel order ${order.id} from ${order.name}? Pending-order cancellations do not count toward your weekly limit.`;
+    }
     returnToDetails = true;
     switchOrderModal(orderInfoModal, cancelOrderModal);
 });
+
 document.querySelector('#confirmCancelUserOrderButton').addEventListener('click', async event => {
     const order = orderById.get(selectedOrderId);
-    if (!order || order.statusClass !== 'pending' || event.currentTarget.disabled) return;
+    if (!order || !['pending', 'preparing'].includes(order.statusClass) || event.currentTarget.disabled) return;
     const button = event.currentTarget;
     button.disabled = true;
     try {
