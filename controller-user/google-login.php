@@ -1,5 +1,6 @@
 <?php
-session_start();
+require_once(__DIR__ . "/../app/core/session.php");
+startGreenDashSession();
 header('Content-Type: application/json');
 
 require_once(__DIR__ . "/../app/core/db.php");
