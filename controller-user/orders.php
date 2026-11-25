@@ -17,7 +17,9 @@ try {
         exit;
     }
     // Collect only this user's order records and a token for review/cancellation requests.
-    $ordersData = ['orders' => loadUserOrders($pdo, $userId), 'csrfToken' => reviewCsrfToken()];
+    $cancellationCount = getWeeklyOrderCancellationCount($pdo, $userId);
+    $ordersData = ['orders' => loadUserOrders($pdo, $userId), 'csrfToken' => reviewCsrfToken(), 'cancellationCount' => $cancellationCount, 
+    'cancellationsRemaining' => max(0, 3 - $cancellationCount)];
     $assetBase = '../';
     $userPageBase = '../app/views/user/';
     // The view guard ensures the template is reached with its required user data already prepared.

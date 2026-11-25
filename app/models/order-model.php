@@ -89,6 +89,92 @@ function cancelPendingUserOrder(PDO $pdo, int $userId, int $orderId): bool
     return $stmt->rowCount() === 1;
 }
 
+//gets the status of order, returns status (pending, preparing, etc)
+function getUserOrderStatus(PDO $pdo, int $userId, int $orderId): ?string
+{
+    $stmt = $pdo->prepare('SELECT status FROM orders WHERE order_id = ? AND user_id = ?');
+    $stmt->execute([$orderId, $userId]);
+    $status = $stmt->fetchColumn();
+    return $status !== false ? $status : null;
+}
+
+// weekly cancellation counter
+function getWeeklyOrderCancellationCount(PDO $pdo, int $userId): int
+{
+    $timezone = new DateTimeZone('Asia/Manila');
+    $now = new DateTimeImmutable('now', $timezone);
+
+    // weekly allowance = max 3, every monday at 12AM to sunday 11:59PM
+    $weekStart = $now->modify('monday this week')->setTime(0, 0, 0);
+    $nextWeekStart = $weekStart->modify('+7 days');
+
+    $stmt = $pdo->prepare(
+        'SELECT COUNT(*) FROM user_order_cancellations WHERE user_id = ? AND cancelled_at >= ? AND cancelled_at < ?'
+    );
+
+    $stmt->execute([$userId, $weekStart->format('Y-m-d H:i:s'), $nextWeekStart->format('Y-m-d H:i:s')]);
+    return (int) $stmt->fetchColumn();
+}
+
+// order cancellation function :> 
+function cancelPreparingUserOrder(PDO $pdo, int $userId, int $orderId): string
+{
+    try {
+        $pdo->beginTransaction();
+        // lock the user row so cancellation req from the user wont exceed their weekly limit (<=3)
+        $stmt = $pdo->prepare('SELECT user_id FROM users WHERE user_id = ? FOR UPDATE');
+        $stmt->execute([$userId]);
+
+        if (!$stmt->fetchColumn()) {
+            $pdo->rollBack();
+            return 'not_cancellable';
+        }
+
+        // verify ownership and lock the requested order
+        $stmt = $pdo->prepare(
+            'SELECT order_id, payment_status FROM orders WHERE order_id = ? AND user_id = ? AND status = ? FOR UPDATE');
+        $stmt->execute([$orderId, $userId, 'preparing']);
+        $order = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$order) {
+            $pdo->rollBack();
+            return 'not_cancellable';
+        }
+
+        // checks user weekly cancellation allowance
+        $cancellationCount = getWeeklyOrderCancellationCount($pdo, $userId);
+        if ($cancellationCount >= 3) {
+            $pdo->rollBack();
+            return 'limit_reached';
+        }
+        // update the order only if it is still preparing
+        $stmt = $pdo->prepare("UPDATE orders SET status = 'cancelled', 
+            payment_status = CASE WHEN payment_status = 'paid' THEN 'paid' ELSE 'not_charged' END
+            WHERE order_id = ? AND user_id = ? AND status = 'preparing'");
+        $stmt->execute([$orderId, $userId]);
+
+        if ($stmt->rowCount() !== 1) {
+            $pdo->rollBack();
+            return 'not_cancellable';
+        }
+
+        // record successful cancellation using PH time
+        $timezone = new DateTimeZone('Asia/Manila');
+        $cancelledAt = new DateTimeImmutable('now', $timezone);
+
+        $stmt = $pdo->prepare('INSERT INTO user_order_cancellations (user_id, order_id, cancelled_at) VALUES (?, ?, ?)');
+        $stmt->execute([$userId, $orderId, $cancelledAt->format('Y-m-d H:i:s')]);
+        $pdo->commit();
+        return 'success';
+
+    } catch (Throwable $error) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        throw $error;
+    }
+}
+
 function getUserCompletedOrderCount(PDO $pdo, int $userId): int
 {
     $stmt = $pdo->prepare("SELECT COUNT(*) FROM orders WHERE user_id = ? AND status = 'completed'");
