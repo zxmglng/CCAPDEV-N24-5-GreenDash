@@ -253,11 +253,12 @@ cancelOrderButton.addEventListener('click', () => {
     const order = orderById.get(selectedOrderId);
     if (!order || !['pending', 'preparing'].includes(order.statusClass)) return;
     const message = document.querySelector('#cancelUserOrderMessage');
-    if (order.statusClass === 'preparing') {
-        message.textContent = `Cancel order ${order.id} from ${order.name}? You can cancel up to 3 Preparing orders per week. You have ${ordersData.cancellationsRemaining} cancellations remaining this week.`;
-    } else {
-        message.textContent = `Cancel order ${order.id} from ${order.name}? Pending-order cancellations do not count toward your weekly limit.`;
-    }
+    const confirmButton = document.querySelector('#confirmCancelUserOrderButton');
+    message.textContent = `Are you sure you want to cancel order ${order.id} from ${order.name}?`;
+
+    // Reset the confirmation button whenever a new order is selected.
+    confirmButton.hidden = false;
+    confirmButton.disabled = false;
     returnToDetails = true;
     switchOrderModal(orderInfoModal, cancelOrderModal);
 });
@@ -275,7 +276,15 @@ document.querySelector('#confirmCancelUserOrderButton').addEventListener('click'
         const result = await response.json();
         if (!response.ok || result.success !== true) throw new Error(result.message || 'Unable to cancel this order.');
         window.location.reload();
-    } catch (error) { document.querySelector('#cancelUserOrderMessage').textContent = error.message; }
+    } catch (error) { 
+            const message = document.querySelector('#cancelUserOrderMessage');
+            message.textContent = error.message;
+
+            // Hide the confirmation button if the weekly cancellation limit is reached.
+            if (/limit.*cancell|cancell.*limit/i.test(error.message)) {
+                button.hidden = true;
+            }
+        }
     finally { button.disabled = false; }
 });
 cancelOrderModal.addEventListener('hidden.bs.modal', () => {
