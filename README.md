@@ -1,13 +1,14 @@
 # CCAPDEV-N24-5-GreenDash
 
-GreenDash is a campus food ordering application for DLSU customers, food vendors, and administrators. Customers browse stalls, customize items, save carts, place pickup orders, and review completed orders. Vendors manage their menus and fulfill orders. Administrators manage users, stalls, and store requests.
+GreenDash is a campus food ordering application for DLSU customers, food vendors, and administrators. Customers browse stalls, customize items, save carts, place pickup orders, and review completed orders. Vendors manage their menus and fulfill orders. Administrators manage users, stalls, and store requests and track vendor cancellations.
 
 - **Repository:** [CCAPDEV-N24-5-GreenDash](https://github.com/zxmglng/CCAPDEV-N24-5-GreenDash)
 - **Phase 2 branch:** `backend`
+- **Security phase and PHP deployment branch:** `security`
 - **Stack:** Apache, PHP, MariaDB, JavaScript/jQuery, Bootstrap, and Google Identity Services.
 - **Homepage:** the root `index.php`, served at `/GreenDash/` on the demonstration server.
 
-Phase 1's GitHub Pages deployment must be preserved for comparison. Deploy Phase 2 to the PHP server from `backend`; keep the GitHub Pages publishing branch and settings unchanged. The `pages/` directory contains the earlier HTML prototypes.
+Deploy the PHP application from `security`. Keep the Phase 1 GitHub Pages deployment and the earlier HTML prototypes in `pages/` available for comparison.
 
 ## MVC structure
 
@@ -16,8 +17,8 @@ Phase 1's GitHub Pages deployment must be preserved for comparison. Deploy Phase
 | `index.php` | Landing page with customer, vendor, and admin sign-in links. |
 | `controller-user/` | Customer requests, Google login, role selection, carts, checkout, orders, profiles, and reviews. |
 | `controller-vendor/` | Vendor requests, store/menu management, uploads, order progression, pickup, and history. |
-| `controller-admin/` | Admin login, dashboard, user/stall management, and request decisions. |
-| `app/models/` | SQL queries and database persistence for accounts, stalls, menus, carts, orders, reviews, and requests. |
+| `controller-admin/` | Admin login, dashboard, user/stall management, request decisions, and vendor cancellation tracking. |
+| `app/models/` | SQL queries and database persistence for accounts, stalls, menus, carts, orders, reviews, requests, and vendor cancellations. |
 | `app/views/` | PHP templates and shared navigation that render the page data. |
 | `app/core/` | PDO connection, session/authorization helpers, and validation/workflow rules. |
 | `js/`, `style/`, `assets/`, `bootstrap/`, `bootstrap-icons/` | Browser behavior, presentation, and static assets. |
@@ -44,7 +45,7 @@ These instructions use the existing project layout: a source checkout at `~/Gree
 
 ### 1. Check the required software
 
-The application needs PHP 8.0 or later, MariaDB with InnoDB, Apache with PHP enabled, Git, rsync, and Composer. PHP needs PDO MySQL, mbstring, fileinfo, and sessions; the Google client also needs its Composer dependencies. The incremental sample script requires MariaDB 10.1 or later.
+The application and its locked Composer dependencies need PHP 8.1 or later. The server also needs MariaDB with InnoDB, Apache with PHP enabled, Git, rsync, and Composer. PHP needs PDO MySQL, mbstring, fileinfo, and sessions. The incremental sample script requires MariaDB 10.1 or later.
 
 On an Ubuntu server where these components are not installed, an administrator can install them with:
 
@@ -66,12 +67,12 @@ sudo systemctl status apache2 mariadb --no-pager
 
 Keep the existing Apache site and assigned listening port. The project uses actual `.php` files as routes, so it does not require URL rewriting or a project `.htaccess` file. Apache must serve `index.php` as a directory index and execute PHP.
 
-### 2. Retrieve the backend branch
+### 2. Retrieve the security branch
 
 For a new checkout:
 
 ```bash
-git clone --branch backend --single-branch https://github.com/zxmglng/CCAPDEV-N24-5-GreenDash.git ~/GreenDash-src
+git clone --branch security --single-branch https://github.com/zxmglng/CCAPDEV-N24-5-GreenDash.git ~/GreenDash-src
 ```
 
 If the checkout already exists, use the update commands below instead of cloning again.
@@ -151,17 +152,21 @@ mariadb -u YOUR_DATABASE_USER -p greenDash < ~/GreenDash-src/database/add_user_c
 
 The app creates cart rows as customers shop. A fresh cart table starts empty.
 
+Apply the vendor order cancellation migration after the `users`, `stalls`, and `orders` tables exist. The vendor workflow and the admin Vendor Cancellations report use the same records to track reasons and each vendor's weekly allowance. [Vendor order cancellation migration](database/add_vendor_order_cancellations.sql)
+
+```bash
+mariadb -u YOUR_DATABASE_USER -p greenDash < ~/GreenDash-src/database/add_vendor_order_cancellations.sql
+```
+
 ### 5. Install and configure Google sign-in
 
-`controller-user/google-login.php` requires `vendor/autoload.php` and the Google PHP client. This checkout currently does not include a Composer manifest or the installed `vendor/` directory. On a new deployment, run the following **from the site directory**, using an account that can write there:
+`controller-user/google-login.php` loads the Google PHP client through `vendor/autoload.php`. Install dependencies from the tracked `composer.lock` using an account with write access to the site directory.
 
 ```bash
 cd /var/www/html/GreenDash
-composer require google/apiclient
+composer install --no-dev --prefer-dist
 php -r 'require "vendor/autoload.php"; echo class_exists("Google\\Client") ? "Google client ready\n" : "Google client missing\n";'
 ```
-
-This creates the dependency manifest, lock file, and installed dependencies in the site directory. An existing working deployment can retain its installation. If Composer manifests are later committed to the repository, use `composer install --no-dev --prefer-dist` after deployment to install the locked dependencies. See the [Google PHP client installation instructions](https://github.com/googleapis/google-api-php-client#installation).
 
 Use one Google OAuth web client ID consistently in:
 
@@ -209,17 +214,28 @@ PHP sessions are already used for customer/vendor identity and admin access. The
 
 ## Deploy later changes
 
-After committing and pushing the backend changes, run this in the source checkout on the server:
+Check the source checkout on the server before deploying pushed changes.
 
 ```bash
 git -C ~/GreenDash-src status --short
 git -C ~/GreenDash-src branch --show-current
-git -C ~/GreenDash-src pull --ff-only origin backend
 ```
 
-The branch should be `backend`. Resolve any local changes or divergence before continuing if Git refuses the pull. After a successful pull, repeat the **rsync command in setup step 3** to copy all changed application files together. The source checkout and live site are separate directories; pulling updates only the source checkout. Hard-refresh the browser after deploying changed JavaScript or CSS.
+If this checkout tracks only the old `backend` branch, add `security` to the branches it fetches.
 
-The rsync command preserves the live connection file and installed dependencies. If `app/core/db.php` changes in the repository, merge its code changes into the site's copy while retaining the configured connection values. Import database changes separately as instructed by the relevant SQL script.
+```bash
+git -C ~/GreenDash-src remote set-branches --add origin security
+```
+
+If the checkout is on another branch, run `git -C ~/GreenDash-src fetch origin security`. Then run `git -C ~/GreenDash-src switch security` if the local branch already exists, or `git -C ~/GreenDash-src switch --create security --track origin/security` to create it.
+
+```bash
+git -C ~/GreenDash-src pull --ff-only origin security
+```
+
+Resolve any local changes or divergence before continuing if Git refuses the pull. After a successful pull, apply any pending migrations in setup step 4 and repeat the **rsync command in setup step 3** to copy all changed files to the live site. Hard-refresh the browser after deploying changed JavaScript or CSS.
+
+The rsync command preserves the live connection file and installed dependencies. If `app/core/db.php` changes in the repository, merge its code changes into the site's copy while retaining the configured connection values. Rerun `composer install --no-dev --prefer-dist` in the site directory when the Composer dependencies change.
 
 ## Navigation and demonstration
 
@@ -233,7 +249,9 @@ Begin at the homepage and use links and buttons for every feature. The route pat
 | Vendor menus | Vendor sign-in → Profile → Manage store → assigned stall → menu/category/customization controls | `controller-vendor/profile.php`, `manage-menu.php`, `manage-store.php`, `menu.php`, `product-options.php`, `upload-image.php` |
 | Request a stall | Vendor Profile sidebar → Request to add a new store → submit | `controller-vendor/request-store.php` |
 | Fulfill and collect | Vendor navigation → Order Requests → progress order → Pickup → verify order number/payment → collect → Transaction History | `controller-vendor/orders.php`, `order.php`, `update-order.php`, `pickup.php`, `transaction-history.php` |
+| Cancel an unpaid vendor order | Vendor navigation → Order Requests → order details → Cancel order → choose reason and confirm | `controller-vendor/orders.php`, `order.php`, `update-order.php` |
 | Admin management | Admin sign-in → Dashboard; sidebar → Stalls → Manage/Requests or Users → Manage | `controller-admin/home.php`, `manage-stores.php`, `store-requests.php`, `manage-users.php` |
+| Track vendor cancellations | Admin sign-in → Vendor Cancellations → review weekly usage or filter cancellation records | `controller-admin/vendor-cancellations.php` |
 
 Page/data reads use GET. Google sign-in posts JSON to PHP. Cart saves, checkout, profile edits, role selection, reviews, menu edits, request decisions, and order status changes use POST. Directory filtering also runs in the browser without changing database data.
 
@@ -246,10 +264,12 @@ Cash/online choices and payment references are recorded in the database. The ven
 ## Verify the deployment
 
 - Open the root homepage and complete customer, vendor, and admin navigation using buttons. Check that pages, images, styles, and scripts load.
-- Confirm the database import and cart migration completed without SQL errors. The incremental sample script prints record counts for the tables listed below.
+- Confirm the database import and both migrations completed without SQL errors. The incremental sample script prints record counts for the tables listed below.
 - Save an item with a customization, reload the stall, and confirm it persists after signing out and back in. Sign into a second account in the same browser and confirm it sees only its own cart.
 - Place an order, reload the customer's Orders page, and verify its items, options, and total. Confirm the assigned vendor can find the same order.
 - Complete collection with payment confirmation, then create, edit, and delete a review. Refresh the stall review list and transaction history to verify persistence.
+- With a vendor account that has a fresh weekly allowance, cancel three unpaid orders using the standard reason. Confirm a fourth standard cancellation is blocked and an exception with an explanation goes through. Reopen the cancelled order in **Transaction History** to check its reason and explanation.
+- As an admin, open **Vendor Cancellations** and confirm that vendor's weekly usage shows **3 / 3** standard cancellations and **1** exception. Find the recorded cancellation by filtering history by vendor, reason, and period (**Current week** or **All time**).
 - Save a menu change, upload an image, and submit a store request. Check its appearance in the admin request list and approve or deny it through the UI.
 - Check invalid input and access from an account without the required role/ownership; the server should reject unauthorized changes.
 
@@ -429,8 +449,8 @@ The original frontend task allocation is retained below as historical planning n
 - Vendor controllers load orders only for stalls assigned through `stalls.vendor_id`.
 - Active orders support search, stall/status filters, and pickup-time/status sorting.
 - The pickup page verifies the customer's order ID and records collection after payment confirmation.
-- PHP enforces `pending` → `preparing` → `ready` → `completed`; completed/cancelled orders appear in transaction history with actual customer ratings.
-- See [vendor controller setup and routes](controller-vendor/README.md). No additional tables are required for this workflow.
+- PHP enforces `pending` → `preparing` → `ready` → `completed`. Completed and cancelled orders appear in transaction history with actual customer ratings where available.
+- Vendors can cancel unpaid active orders. Each vendor has three standard cancellations per Manila calendar week across their stalls, with exceptions for stock shortages, utility outages, and emergency closures. [Vendor controller setup and routes](controller-vendor/README.md)
 
 
 ## Raph — Vendor Store + Admin

@@ -9,8 +9,14 @@
     const paymentLabels = {pending: 'Pending', paid: 'Paid', not_charged: 'Not charged'};
     const nextStatuses = {pending: 'preparing', preparing: 'ready'};
     const actionLabels = {pending: 'Start preparing', preparing: 'Mark ready for pickup'};
+    const cancellationLabels = {standard: 'Standard', out_of_stock: 'Out of stock',
+        utility_outage: 'Utility outage', emergency_closure: 'Emergency closure'};
     const currency = new Intl.NumberFormat('en-PH', {style: 'currency', currency: 'PHP'});
     const dateFormat = new Intl.DateTimeFormat('en-PH', {dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Manila'});
+    const cancellationForm = select('#vendorCancellationForm');
+    const cancellationReason = select('#vendorCancellationReason');
+    const cancellationDetails = select('#vendorCancellationDetails');
+    const cancellationFeedback = select('#vendorCancellationFeedback');
     let orders = data.orders;
     let selectedOrder = null;
     let verifiedPickup = null;
@@ -126,11 +132,14 @@
         const values = {...order, orderNumber: `ORDER ID: ${order.orderNumber}`, status: statusLabels[order.status],
             pickup: pickupLabel(order), createdAt: dateFormat.format(new Date(order.createdAt)),
             paymentMethod: order.paymentMethod === 'online' ? 'Online payment' : 'Cash',
-            paymentStatus: paymentLabels[order.paymentStatus], total: currency.format(order.total)};
+            paymentStatus: paymentLabels[order.paymentStatus], total: currency.format(order.total),
+            cancellationReason: cancellationLabels[order.cancellationReason]};
         root.querySelectorAll('[data-order-field]').forEach(node => {
             node.textContent = values[node.dataset.orderField] || '—';
         });
         root.querySelector('[data-order-reference]').hidden = !order.paymentReference;
+        root.querySelector('[data-order-cancellation-reason]').hidden = !values.cancellationReason;
+        root.querySelector('[data-order-cancellation-details]').hidden = !order.cancellationDetails;
         const itemRows = order.items.map(item => {
             const row = element('div', 'vendor-order-item');
             const copy = element('div', 'vendor-order-item-copy');
@@ -162,11 +171,27 @@
         renderOrders();
     }
 
+    function updateCancellationDetailsRequirement() {
+        cancellationDetails.required = cancellationReason.value !== '' && cancellationReason.value !== 'standard';
+        cancellationDetails.setCustomValidity('');
+        select('#vendorCancellationDetailsLabel').textContent = cancellationDetails.required
+            ? 'Details (required)' : 'Details (optional)';
+    }
+
+    function resetCancellationForm() {
+        if (!cancellationForm) return;
+        cancellationForm.reset();
+        cancellationForm.hidden = true;
+        updateCancellationDetailsRequirement();
+        feedback(cancellationFeedback, '');
+    }
+
     async function openDetails(params) {
         const currentRequest = ++detailRequest;
         selectedOrder = null;
         const modal = select('#vendorOrderModal');
         const root = modal.querySelector('[data-order-details]');
+        resetCancellationForm();
         root.hidden = true;
         feedback(select('#vendorModalFeedback'), 'Loading order…');
         bootstrap.Modal.getOrCreateInstance(modal).show();
@@ -184,32 +209,38 @@
 
     function setBusy(value) {
         busy = value;
-        document.querySelectorAll('[data-order-advance], [data-order-cancel], #vendorCollectionForm button, '
+        document.querySelectorAll('[data-order-advance], [data-order-cancel], #vendorCancellationFields, #vendorCollectionForm button, '
             + '#vendorPaymentConfirmed, #vendorPickupForm input, #vendorPickupForm button').forEach(node => { node.disabled = value; });
     }
 
-    async function updateStatus(order, status, paymentConfirmed = false) {
-        const result = await request(orderUrl('update-order.php'), {method: 'POST', body: new URLSearchParams({
+    async function updateStatus(order, status, {paymentConfirmed = false, cancellation} = {}) {
+        const body = new URLSearchParams({
             orderId: order.orderId, expectedStatus: order.status, status,
             paymentConfirmed: paymentConfirmed ? '1' : '0', csrfToken: data.csrfToken
-        })});
+        });
+        if (cancellation) {
+            body.set('cancellationReason', cancellation.reason);
+            body.set('cancellationDetails', cancellation.details);
+        }
+        const result = await request(orderUrl('update-order.php'), {method: 'POST', body});
         rememberOrder(result.order);
         return result.order;
     }
 
-    async function updateSelectedOrder(status) {
+    async function updateSelectedOrder(status, cancellation) {
         if (busy || !selectedOrder) return;
         const order = selectedOrder;
         const currentRequest = detailRequest;
         setBusy(true);
-        const message = select('#vendorModalFeedback');
+        const message = cancellation ? cancellationFeedback : select('#vendorModalFeedback');
         feedback(message, 'Saving…');
         try {
-            const updatedOrder = await updateStatus(order, status);
+            const updatedOrder = await updateStatus(order, status, {cancellation});
             if (currentRequest !== detailRequest) return;
             selectedOrder = updatedOrder;
+            resetCancellationForm();
             renderDetails(selectedOrder, select('#vendorOrderModal [data-order-details]'));
-            feedback(message, `Order updated: ${statusLabels[selectedOrder.status]}.`);
+            feedback(select('#vendorModalFeedback'), `Order updated: ${statusLabels[selectedOrder.status]}.`);
         } catch (error) {
             if (currentRequest === detailRequest) feedback(message, error.message, true);
         } finally {
@@ -259,8 +290,31 @@
         select(selector)?.addEventListener('change', renderOrders);
     });
     select('[data-order-advance]')?.addEventListener('click', () => updateSelectedOrder(nextStatuses[selectedOrder?.status]));
-    select('[data-order-cancel]')?.addEventListener('click', () => {
-        if (selectedOrder && !busy && confirm(`Cancel unpaid order ${selectedOrder.orderNumber}?`)) updateSelectedOrder('cancelled');
+    const cancellationButton = select('#vendorOrderModal [data-order-cancel]');
+    cancellationButton?.addEventListener('click', () => {
+        if (!selectedOrder || busy || cancellationButton.hidden) return;
+        feedback(select('#vendorModalFeedback'), '');
+        select('#vendorOrderModal [data-order-actions]').hidden = true;
+        cancellationForm.hidden = false;
+        cancellationReason.focus();
+    });
+    select('#vendorKeepOrder')?.addEventListener('click', () => {
+        resetCancellationForm();
+        select('#vendorOrderModal [data-order-actions]').hidden = false;
+        cancellationButton.focus();
+    });
+    cancellationReason?.addEventListener('change', updateCancellationDetailsRequirement);
+    cancellationDetails?.addEventListener('input', () => cancellationDetails.setCustomValidity(''));
+    cancellationForm?.addEventListener('submit', event => {
+        event.preventDefault();
+        if (busy || cancellationForm.hidden) return;
+        const details = cancellationDetails.value.trim();
+        if (cancellationDetails.required && !details) {
+            cancellationDetails.setCustomValidity('Enter details for this exception.');
+        }
+        if (cancellationForm.reportValidity()) {
+            updateSelectedOrder('cancelled', {reason: cancellationReason.value, details});
+        }
     });
     select('#vendorOrderModal')?.addEventListener('hidden.bs.modal', () => { ++detailRequest; });
     select('#vendorPickupForm')?.addEventListener('submit', event => { event.preventDefault(); verifyPickup(); });
@@ -277,7 +331,7 @@
         setBusy(true);
         feedback(select('#vendorPickupFeedback'), 'Saving collection…');
         try {
-            displayPickup(await updateStatus(verifiedPickup, 'completed', paymentConfirmed));
+            displayPickup(await updateStatus(verifiedPickup, 'completed', {paymentConfirmed}));
             feedback(select('#vendorPickupFeedback'), 'Order marked as collected. The customer can now leave a review.');
         } catch (error) {
             verifiedPickup = null;

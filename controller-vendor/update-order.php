@@ -12,7 +12,8 @@ try {
         throw new VendorRequestException('Choose a valid order status.', 422);
     }
     $order = changeVendorOrderStatus($pdo, $vendorId, $orderId, $expectedStatus, $status,
-        ($_POST['paymentConfirmed'] ?? '') === '1');
+        ($_POST['paymentConfirmed'] ?? '') === '1', $_POST['cancellationReason'] ?? null,
+        $_POST['cancellationDetails'] ?? null);
     echo json_encode(['success' => true, 'order' => $order], JSON_THROW_ON_ERROR);
 } catch (Throwable $error) {
     vendorControllerError($error, true);

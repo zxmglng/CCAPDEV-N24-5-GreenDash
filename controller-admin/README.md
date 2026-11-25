@@ -17,6 +17,7 @@ Should contain:
 * **`manage-stores.php`** - Requires an admin session and renders `app/views/admin/manage-stores.php`.
 * **`manage-users.php`** - Requires an admin session and renders `app/views/admin/manage-users.php`.
 * **`store-requests.php`** - Requires an admin session and renders `app/views/admin/store-requests.php`.
+* **`vendor-cancellations.php`** - Requires an admin session and renders the read-only vendor cancellation report on GET.
 
 ## Admin authentication
 
@@ -31,5 +32,14 @@ key is preserved. To override it on the VM, configure the PHP process environmen
 variable `GREENDASH_ADMIN_KEY`. The key is not sent to JavaScript or browser
 storage. Successful login rotates the session ID, then redirects to `home.php`.
 
-Authentication does not require the database. The management screens still use
-their existing frontend data; database CRUD is a separate task.
+## Vendor cancellations
+
+Sign in as an admin and select **Vendor Cancellations** in the sidebar. The weekly
+summary shows each vendor's standard cancellations out of three and the exception
+count across their stalls for the current Monday–Sunday week in `Asia/Manila`.
+Use the vendor filter to narrow both the summary and the history. The reason and
+period filters (**Current week** or **All time**) apply to the paginated history.
+
+The report reads the audit records written by the vendor cancellation workflow.
+Apply the existing migration in setup step 4 before opening the report.
+[Vendor order cancellation migration](../database/add_vendor_order_cancellations.sql)

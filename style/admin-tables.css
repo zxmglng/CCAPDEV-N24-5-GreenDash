@@ -269,6 +269,10 @@
     cursor: pointer;
 }
 
+.admin-table.read-only tbody tr {
+    cursor: default;
+}
+
 /* Col-actions; right-align */ 
 .admin-table .col-actions {
     text-align: right;

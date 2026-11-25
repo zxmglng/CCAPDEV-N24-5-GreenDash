@@ -2,6 +2,7 @@
 require_once __DIR__ . '/vendor-auth.php';
 require_once __DIR__ . '/../models/order-model.php';
 require_once __DIR__ . '/../models/stall-model.php';
+require_once __DIR__ . '/../models/vendor-cancellation-model.php';
 
 function vendorOrderDate(?string $value): ?string
 {
@@ -14,6 +15,8 @@ function loadVendorOrders(PDO $pdo, int $vendorId, array $statuses = [], ?int $o
 {
     $records = getVendorOrderRecords($pdo, $vendorId, $statuses, $orderId, $orderNumber);
     $orderIds = array_column($records, 'order_id');
+    $cancelledOrders = array_filter($records, static fn(array $row): bool => $row['status'] === 'cancelled');
+    $cancellations = getVendorOrderCancellations($pdo, $vendorId, array_column($cancelledOrders, 'order_id'));
     $optionsByItem = [];
     foreach (getVendorOrderOptions($pdo, $vendorId, $orderIds) as $option) {
         $optionsByItem[(int) $option['order_item_id']][] = $option['option_group_name'] . ': '
@@ -31,7 +34,8 @@ function loadVendorOrders(PDO $pdo, int $vendorId, array $statuses = [], ?int $o
             'total' => (float) $item['total_price'],
         ];
     }
-    return array_map(static function (array $row) use ($itemsByOrder): array {
+    return array_map(static function (array $row) use ($itemsByOrder, $cancellations): array {
+        $cancellation = $cancellations[(int) $row['order_id']] ?? null;
         return [
             'orderId' => (int) $row['order_id'], 'orderNumber' => $row['order_number'],
             'customer' => trim($row['first_name'] . ' ' . $row['last_name']),
@@ -41,6 +45,9 @@ function loadVendorOrders(PDO $pdo, int $vendorId, array $statuses = [], ?int $o
             'paymentReference' => $row['payment_reference'], 'pickupType' => $row['pickup_type'],
             'pickupAt' => vendorOrderDate($row['pickup_at']), 'createdAt' => vendorOrderDate($row['created_at']),
             'total' => (float) $row['total_amount'], 'items' => $itemsByOrder[(int) $row['order_id']] ?? [],
+            'cancellationReason' => $cancellation['reason'] ?? null,
+            'cancellationDetails' => $cancellation['details'] ?? null,
+            'cancelledAt' => vendorOrderDate($cancellation['cancelled_at'] ?? null),
             'review' => $row['review_rating'] === null ? null : [
                 'rating' => (int) $row['review_rating'], 'comment' => $row['review_comment'] ?? '',
             ],
@@ -48,12 +55,36 @@ function loadVendorOrders(PDO $pdo, int $vendorId, array $statuses = [], ?int $o
     }, $records);
 }
 
-function changeVendorOrderStatus(PDO $pdo, int $vendorId, int $orderId, string $expectedStatus,
-    string $status, bool $paymentConfirmed): array
+function validateVendorCancellation(mixed $reason, mixed $details): array
 {
+    if (!in_array($reason, ['standard', 'out_of_stock', 'utility_outage', 'emergency_closure'], true)) {
+        throw new VendorRequestException('Choose a valid cancellation reason.', 422);
+    }
+    $details = $details ?? '';
+    if (!is_string($details) || !mb_check_encoding($details, 'UTF-8') || mb_strlen($details, 'UTF-8') > 255) {
+        throw new VendorRequestException('Cancellation details must be valid text of up to 255 characters.', 422);
+    }
+    $details = preg_replace('/\A\s+|\s+\z/u', '', $details);
+    if ($reason !== 'standard' && $details === '') {
+        throw new VendorRequestException('Enter details explaining the cancellation exception.', 422);
+    }
+    return [$reason, $details !== '' ? $details : null];
+}
+
+function changeVendorOrderStatus(PDO $pdo, int $vendorId, int $orderId, string $expectedStatus,
+    string $status, bool $paymentConfirmed, mixed $cancellationReason = null, mixed $cancellationDetails = null): array
+{
+    $cancellation = $status === 'cancelled' ? validateVendorCancellation($cancellationReason, $cancellationDetails) : null;
     $pdo->beginTransaction();
     try {
-        requireVendorAccount($pdo, $vendorId);
+        if ($cancellation !== null) {
+            // Serialize cancellations across this vendor's stalls before any transaction snapshot reads.
+            if (!lockActiveVendorAccount($pdo, $vendorId)) {
+                throw new VendorRequestException('An active vendor account is required. Please contact your administrator.', 403);
+            }
+        } else {
+            requireVendorAccount($pdo, $vendorId);
+        }
         $order = getVendorOrderForUpdate($pdo, $vendorId, $orderId);
         if (!$order) {
             throw new VendorRequestException('Order not found for your stores.', 404);
@@ -69,6 +100,14 @@ function changeVendorOrderStatus(PDO $pdo, int $vendorId, int $orderId, string $
         }
         if ($status === 'completed' && !$paymentConfirmed) {
             throw new VendorRequestException('Confirm that payment has been received or verified before collection.', 422);
+        }
+        if ($cancellation !== null) {
+            [$reason, $details] = $cancellation;
+            $cancelledAt = new DateTimeImmutable('now', new DateTimeZone('Asia/Manila'));
+            if ($reason === 'standard' && getWeeklyVendorCancellationCount($pdo, $vendorId, $cancelledAt) >= 3) {
+                throw new VendorRequestException('You have reached the limit of 3 standard cancellations this week.', 409);
+            }
+            insertVendorOrderCancellation($pdo, $vendorId, $orderId, $reason, $details, $cancelledAt);
         }
         if (!updateVendorOrderStatus($pdo, $vendorId, $orderId, $expectedStatus, $status)) {
             throw new VendorRequestException('This order has changed. Please refresh it before continuing.', 409);

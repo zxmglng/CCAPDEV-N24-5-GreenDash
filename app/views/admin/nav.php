@@ -1,6 +1,6 @@
 <?php
 // Shared header + sidebar for authenticated admin pages.
-// Expects: $page = 'home' | 'manage-stores' | 'store-requests' | 'manage-users'
+// Expects the current admin route without its file extension.
 $page       = $page ?? 'home';
 $stallsOpen = in_array($page, ['manage-stores', 'store-requests']);
 $usersOpen  = $page === 'manage-users';
@@ -55,6 +55,10 @@ $usersOpen  = $page === 'manage-users';
                    <?= $page === 'manage-users' ? 'aria-current="page"' : '' ?>>Manage</a>
             </div>
         </div>
+
+        <a href="controller-admin/vendor-cancellations.php"
+           class="sidebar-link <?= $page === 'vendor-cancellations' ? 'active' : '' ?>"
+           <?= $page === 'vendor-cancellations' ? 'aria-current="page"' : '' ?>>Vendor cancellations</a>
 
         <hr>
         <form action="controller-admin/logout.php" method="POST" style="margin: 0;">

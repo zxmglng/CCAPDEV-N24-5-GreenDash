@@ -11,6 +11,7 @@ Functions must accept `$pdo` as the first parameter, execute queries, and return
 - `cart-model.php` loads and updates versioned carts by user and stall and empties the purchased cart during checkout.
 - `review-model.php`: list stall reviews and completed eligible orders, lock the owned order, and create/update/delete its review.
 - `order-model.php`: save checkout records; load user/vendor orders, item snapshots, and options; cancel a user's pending order; and lock/update vendor-owned orders.
+- `vendor-cancellation-model.php` stores vendor cancellation records, counts weekly allowance usage, and queries the admin summary and audit.
 - `user-model.php`: retrieve account status for authenticated actions.
 - `product-model.php`, `stall-model.php`, `stall-hours-model.php`: retrieve menu and stall data used by checkout; `stall-model.php` also lists stalls owned by a vendor.
 - `category-model.php`: reserved for category integration.

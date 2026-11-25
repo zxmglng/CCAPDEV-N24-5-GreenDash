@@ -13,6 +13,8 @@ if (!defined('GREENDASH_VENDOR_ORDERS_VIEW')) {
             <div><dt>Stall:</dt><dd data-order-field="stallName"></dd></div>
             <div><dt>Location:</dt><dd data-order-field="stallLocation"></dd></div>
             <div><dt>Status:</dt><dd data-order-field="status"></dd></div>
+            <div data-order-cancellation-reason hidden><dt>Cancellation reason</dt><dd data-order-field="cancellationReason"></dd></div>
+            <div data-order-cancellation-details hidden><dt>Cancellation details</dt><dd data-order-field="cancellationDetails"></dd></div>
             <div><dt>Pickup:</dt><dd data-order-field="pickup"></dd></div>
             <div><dt>Ordered:</dt><dd data-order-field="createdAt"></dd></div>
             <div><dt>Payment method:</dt><dd data-order-field="paymentMethod"></dd></div>

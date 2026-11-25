@@ -36,6 +36,22 @@
     outline-offset: 3px;
 }
 .vendor-live-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
+.vendor-cancellation-form { margin-top: 24px; }
+.vendor-cancellation-form h3 { font-size: 1.125rem; font-weight: 700; }
+.vendor-cancellation-form fieldset { display: grid; gap: 8px; }
+.vendor-cancellation-form label { font-weight: 600; }
+.vendor-cancellation-form select,
+.vendor-cancellation-form textarea {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--surface-background);
+    color: var(--text-color);
+}
+.vendor-cancellation-form textarea { resize: vertical; }
+.vendor-cancellation-form .vendor-live-actions { margin-top: 4px; }
+.vendor-cancellation-form [role="status"] { margin: 0; }
 .vendor-orders-page [hidden] { display: none !important; }
 .vendor-orders-page .vendor-page-feedback { margin: 20px 45px; }
 .vendor-orders-page [data-error="true"] { color: #b42318; }

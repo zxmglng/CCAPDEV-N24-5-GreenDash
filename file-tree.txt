@@ -30,6 +30,7 @@ C:.
 |   |       stall-model.php
 |   |       store-request-model.php
 |   |       user-model.php
+|   |       vendor-cancellation-model.php
 |   |       
 |   \---views
 |       |   nav.php
@@ -42,6 +43,7 @@ C:.
 |       |       manage-users.php
 |       |       nav.php
 |       |       store-requests.php
+|       |       vendor-cancellations.php
 |       |       
 |       +---user
 |       |       checkout.php
@@ -117,6 +119,7 @@ C:.
 |       manage-users.php
 |       README.md
 |       store-requests.php
+|       vendor-cancellations.php
 |       
 +---controller-user
 |       cancel-order.php
@@ -146,6 +149,7 @@ C:.
 +---database
 |       CCAPDEV-N24-5-GreenDash.sql
 |       add_user_carts.sql
+|       add_vendor_order_cancellations.sql
 |       additional_sample_data.sql
 |       
 +---js
