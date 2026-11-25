@@ -118,6 +118,8 @@ try {
     $_SESSION['user_email'] = $email;
     $_SESSION['user_role'] = $userRole;
 
+    $_SESSION['user_last_activity'] = time();
+
     // user still needs to choose student, faculty, or staff
     if ($userRole === null) {
         echo json_encode([

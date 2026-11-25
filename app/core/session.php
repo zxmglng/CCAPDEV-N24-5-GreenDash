@@ -15,6 +15,58 @@ function startGreenDashSession(): void
         session_start(['use_strict_mode' => 1, 'use_only_cookies' => 1, 'use_trans_sid' => 0,
             'cookie_lifetime' => 0, 'cookie_httponly' => 1, 'cookie_secure' => $isHttps, 'cookie_samesite' => 'Lax',]);
     }
+    enforceGreenDashSessionTimeout(); // enforce the role-based inactivity timeout
+}
+
+// enforce role-based session inactivity timeouts
+function enforceGreenDashSessionTimeout(): void
+{
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        return;
+    }
+    $currentTime = time();
+    $sessionExpired = false;
+
+    // admin inactivity timeout = 30 min
+    if (!empty($_SESSION['admin_authenticated'])) {
+        $lastActivity = (int) ($_SESSION['admin_last_activity'] ?? $currentTime);
+
+        if (($currentTime - $lastActivity) >= 1800) {
+            unset($_SESSION['admin_authenticated'], $_SESSION['admin_name'], $_SESSION['admin_user_id'],
+                $_SESSION['admin_csrf_token'], $_SESSION['admin_last_activity']);
+            $sessionExpired = true;
+        } else {
+            $_SESSION['admin_last_activity'] = $currentTime;
+        }
+    }
+    // userand vendor inactivity timeout
+    if (isset($_SESSION['user_id'])) {
+        // user and vendor timeout = 15 min
+        $timeout = 900;
+        $lastActivity = (int) ($_SESSION['user_last_activity'] ?? $currentTime);
+        if (($currentTime - $lastActivity) >= $timeout) {
+            unset($_SESSION['user_id'], $_SESSION['user_email'], $_SESSION['user_role'], $_SESSION['user_last_activity'],
+                $_SESSION['vendor_csrf_token'], $_SESSION['checkout_csrf_token'], $_SESSION['checkout_receipts'], $_SESSION['review_csrf_token']);
+            $sessionExpired = true;
+        } else {
+            $_SESSION['user_last_activity'] = $currentTime;
+        }
+    }
+
+    // handle expired authentication sesh
+    if ($sessionExpired) {
+        $hasAdminSession = !empty($_SESSION['admin_authenticated']);
+        $hasUserSession = isset($_SESSION['user_id']);
+        
+        if (!$hasAdminSession && !$hasUserSession) {
+            destroyGreenDashSession();
+            return;
+        }
+        // regenerate session ID after removing expired authentication data
+        if (!session_regenerate_id(true)) {
+            destroyGreenDashSession();
+        }
+    }
 }
 
 
