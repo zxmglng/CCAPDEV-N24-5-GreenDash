@@ -102,6 +102,16 @@ try {
     $userId = $user['user_id'];
     $userRole = $user['user_role'];
 
+    // regenerate the session ID after successful authentication
+    if (!session_regenerate_id(true)) {
+        http_response_code(500);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Unable to establish a secure session.'
+        ]);
+        exit;
+    }
+
     // identify the logged in user using PHP session
     $_SESSION['user_id'] = $userId;
     $_SESSION['user_email'] = $email;
