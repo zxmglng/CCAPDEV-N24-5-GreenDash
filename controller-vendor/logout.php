@@ -13,9 +13,10 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 try {
     requireVendorCsrfToken($_POST['csrfToken'] ?? null);
-    $_SESSION = [];
-    session_destroy();
+    // destroy the vendor session and remove its cookie
+    destroyGreenDashSession();
     header('Location: ../app/views/vendor/login.php', true, 303);
+    exit;
 } catch (VendorRequestException $error) {
     http_response_code($error->getCode());
     header('Content-Type: text/plain; charset=utf-8');

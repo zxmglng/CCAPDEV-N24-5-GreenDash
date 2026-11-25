@@ -37,3 +37,20 @@ function destroyGreenDashSession(): void
     // Destroy the server-side session.
     session_destroy();
 }
+
+// clear selected session variables while preserving other active sessions
+function clearGreenDashSessionData(array $keys): bool
+{
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        startGreenDashSession();
+    }
+
+    // remove only the specified session variables
+    foreach ($keys as $key) {
+        if (is_string($key) && $key !== '') {
+            unset($_SESSION[$key]);
+        }
+    }
+    // generate new session ID to invalidate the previous one
+    return session_regenerate_id(true);
+}

@@ -13,8 +13,10 @@ if (!isAdminCsrfTokenValid($_POST['csrfToken'] ?? null)) {
     exit;
 }
 
-// Keep any independent user login in this browser intact.
-unset($_SESSION['admin_authenticated'], $_SESSION['admin_csrf_token']);
-session_regenerate_id(true);
+// clear admin session data while preserving any independent user login
+if (!clearGreenDashSessionData(['admin_authenticated', 'admin_name', 'admin_user_id', 'admin_csrf_token'])) {
+    http_response_code(500);
+    exit;
+}
 header('Location: ../index.php', true, 303);
 exit;
