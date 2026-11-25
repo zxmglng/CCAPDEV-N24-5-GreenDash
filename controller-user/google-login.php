@@ -29,7 +29,7 @@ if ($credential === '') {
     exit;
 }
 
-$googleClientId = '480778889925-f2akgk8hkv2b6rtoqhc9laag22l21irc.apps.googleusercontent.com';
+$googleClientId = '717424681848-6b9rh0o2u5h7gtkfljmqoinuv66ujr9m.apps.googleusercontent.com';
 
 // verify google ID token
 $client = new Google\Client([
