@@ -1,3 +1,8 @@
+<?php
+require_once __DIR__ . '/app/core/security-headers.php';
+sendGreenDashCspReportOnly();
+?>
+
 <!-- 
     Landing page for the PHP MVC application.
 --> 

@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/security-headers.php';
+
 // start a secure session w protected cookie settings
 // use_strict_mode = prevents uninitialized session IDs from being accepted
 // use_only_cookies = allow session IDs to be sent only thru cookies
@@ -10,6 +12,7 @@
 // cookie_samesite = restrict cross-site cookie requests to help prevent CSRF
 function startGreenDashSession(): void
 {
+    sendGreenDashCspReportOnly();
     if (session_status() !== PHP_SESSION_ACTIVE) {
         $isHttps = !empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off';
         session_start(['use_strict_mode' => 1, 'use_only_cookies' => 1, 'use_trans_sid' => 0,
