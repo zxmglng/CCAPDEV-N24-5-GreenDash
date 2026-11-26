@@ -84,6 +84,7 @@
     async function uploadPhoto(file) {
         const form = new FormData();
         form.append('image', file);
+        form.append('stallId', String(stallId));
         form.append('csrfToken', state.csrfToken);
         const res = await fetch(new URL('controller-vendor/upload-image.php', SCRIPT_BASE), {
             method: 'POST',
@@ -122,6 +123,7 @@
     function productImageUrl(path) {
         if (!path) return null;
         if (/^(https?:|data:|\/)/i.test(path)) return path;
+        if (path.startsWith('../assets/')) path = path.slice(3);
         return new URL(path, SCRIPT_BASE).href;
     }
 
@@ -381,6 +383,7 @@
 
         // ITEM MODAL -----------------------------------------------------
         const itemForm = byId('itemForm');
+        const saveItemBtn = itemForm.querySelector('button[type=submit]');
         const itemNameInput = byId('itemName');
         const itemPriceInput = byId('itemPrice');
         const itemDescInput = byId('itemDescription');
@@ -396,6 +399,8 @@
         const optionGroupsStatus = byId('customizationEditorStatus');
         const addOptionGroupBtn = byId('addOptionGroupBtn');
         const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
+        const PHOTO_MIME_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+        let itemModalVersion = 0;
 
         function renderPhoto() {
             photoBox.replaceChildren();
@@ -539,6 +544,7 @@
         });
 
         function openItemModal(item = null) {
+            itemModalVersion += 1;
             state.editingItem = item;
             itemForm.reset();
             itemError.textContent = '';
@@ -593,27 +599,35 @@
         });
         photoInput.addEventListener('change', async () => {
             const file = photoInput.files[0];
-            if (!file) return;
-            if (!file.type.startsWith('image/')) {
-                itemError.textContent = 'Please choose an image file.';
+            if (!file || saveItemBtn.disabled) return;
+            if (file.type && !PHOTO_MIME_TYPES.has(file.type)) {
+                itemError.textContent = 'Choose a JPEG, PNG, WebP, or GIF image.';
                 photoInput.value = '';
                 return;
             }
             if (file.size > MAX_PHOTO_BYTES) {
-                itemError.textContent = 'That image is too big. Please choose one under 5 MB.';
+                itemError.textContent = 'Choose an image that is 5 MB or smaller.';
                 photoInput.value = '';
                 return;
             }
+            const modalVersion = itemModalVersion;
             itemError.textContent = '';
             photoBtn.disabled = true;
+            removePhotoBtn.disabled = true;
+            saveItemBtn.disabled = true;
             try {
                 const path = await uploadPhoto(file);
-                state.pendingPhoto = path;
-                renderPhoto();
+                if (modalVersion === itemModalVersion) {
+                    state.pendingPhoto = path;
+                    renderPhoto();
+                }
             } catch (err) {
-                itemError.textContent = err.message;
+                if (modalVersion === itemModalVersion) itemError.textContent = err.message;
             } finally {
                 photoBtn.disabled = false;
+                removePhotoBtn.disabled = false;
+                saveItemBtn.disabled = false;
+                photoInput.value = '';
             }
         });
 
@@ -624,6 +638,7 @@
 
         itemForm.addEventListener('submit', async e => {
             e.preventDefault();
+            if (saveItemBtn.disabled) return;
             const name = itemNameInput.value.trim();
             const price = parseFloat(itemPriceInput.value);
             const categoryBox = itemCats.querySelector('input:checked');
@@ -633,8 +648,7 @@
             if (Number.isNaN(price) || price < 0) { itemError.textContent = 'Please enter a valid price.'; return; }
             if (!categoryId) { itemError.textContent = 'Pick a category for this item.'; return; }
 
-            const saveBtn = itemForm.querySelector('button[type=submit]');
-            saveBtn.disabled = true;
+            saveItemBtn.disabled = true;
             try {
                 const payload = {
                     categoryId,
@@ -666,7 +680,6 @@
                         }
                     } catch (optErr) {
                         itemError.textContent = 'Item saved, but customizations failed: ' + optErr.message;
-                        saveBtn.disabled = false;
                         return;
                     }
                 }
@@ -695,7 +708,7 @@
             } catch (err) {
                 itemError.textContent = err.message;
             } finally {
-                saveBtn.disabled = false;
+                saveItemBtn.disabled = false;
             }
         });
 

@@ -1,5 +1,12 @@
 <?php
 
+function getStallProduct(PDO $pdo, int $stallId, int $productId): ?array
+{
+    $stmt = $pdo->prepare('SELECT * FROM products WHERE stall_id = ? AND id = ?');
+    $stmt->execute([$stallId, $productId]);
+    return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+}
+
 function getStallProducts(PDO $pdo, int $stallId): array
 {
     $stmt = $pdo->prepare("

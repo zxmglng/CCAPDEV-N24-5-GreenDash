@@ -64,7 +64,7 @@ function updateUserProfile(PDO $pdo, int $userId, string $firstName, string $las
         SET first_name = ?,
             last_name = ?,
             contact_num = ?,
-            profile_image = ?
+            profile_image = COALESCE(?, profile_image)
         WHERE user_id = ?
     ");
 

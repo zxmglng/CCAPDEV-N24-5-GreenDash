@@ -12,6 +12,7 @@ C:.
 |   |       cart.php
 |   |       checkout.php
 |   |       db.php
+|   |       image-upload.php
 |   |       orders.php
 |   |       product-options.php
 |   |       reviews.php

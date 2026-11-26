@@ -36,7 +36,11 @@
                                     id="profileAvatar"
                                     class="profile-avatar"
                                 >
-                                <input type="file" id="profilePictureInput" accept="image/*" hidden>
+                                <input type="file" id="profilePictureInput" name="profileImage"
+                                    accept="image/jpeg,image/png,image/webp,image/gif" aria-describedby="profilePictureHint" hidden>
+                                <p id="profilePictureHint" class="small" hidden>
+                                    Select your avatar to choose a JPEG, PNG, WebP or GIF up to 2 MB.
+                                </p>
                                 <!-- REPLACED THE HARDCODED VALUE WITH DB VALS!! -->
                                 <h2 id="profileName">
                                     <?= htmlspecialchars($user['first_name'] . ' ' . $user['last_name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>

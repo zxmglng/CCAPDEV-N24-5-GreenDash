@@ -158,7 +158,8 @@ $vendorHeaderLocation = count($vendorStalls) === 1
                     <div class="item-top">
                         <div class="item-photo-wrap">
                             <div class="item-photo" id="itemPhotoPreview"><i class="bi bi-image" aria-hidden="true"></i></div>
-                            <input type="file" id="itemPhotoInput" accept="image/*" class="visually-hidden" tabindex="-1">
+                            <input type="file" id="itemPhotoInput" accept="image/jpeg,image/png,image/webp,image/gif"
+                                class="visually-hidden" tabindex="-1">
                             <button type="button" class="vendor-btn secondary small" id="itemPhotoBtn">Upload photo</button>
                             <button type="button" class="photo-remove" id="itemPhotoRemove" hidden>Remove photo</button>
                         </div>

@@ -14,7 +14,7 @@ Should contain:
 
 - `google-login-token.php` issues a pre-login CSRF token for the current browser session.
 - `google-login.php` validates the pre-login token before verifying the Google ID token.
-- `profile.php` checks the signed-in account and requires a CSRF token for profile edits.
+- `profile.php` checks the signed-in account and requires a CSRF token for profile edits, including an optional avatar upload.
 - `select-role.php` checks the signed-in account and requires a CSRF token when assigning its first role.
 - `logout.php` accepts only a POST with a valid customer CSRF token.
 - `cart.php` loads and updates a signed-in customer's saved cart for a stall.
@@ -35,6 +35,14 @@ through `js/google-login-request.js`. They submit it alongside `credential`
 in the JSON login request. Successful sign-in rotates the session ID and
 clears the previous account's tokens. Deploy the PHP and JavaScript files
 together so both callbacks can send the required token.
+
+## Profile photo uploads
+
+The multipart profile edit form includes an optional `profileImage` file field.
+It accepts JPEG, PNG, WebP, and GIF up to 2 MiB, 2,048 px on each edge, and
+4,000,000 total pixels. PHP validates and decodes the upload before assigning a
+randomly named file in `assets/uploads/profiles/` to the signed-in account.
+[Server upload setup](../README.md#6-allow-application-uploads)
 
 ## Saved carts
 

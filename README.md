@@ -45,13 +45,13 @@ These instructions use the existing project layout: a source checkout at `~/Gree
 
 ### 1. Check the required software
 
-The application and its locked Composer dependencies need PHP 8.1 or later. The server also needs MariaDB with InnoDB, Apache with PHP enabled, Git, rsync, and Composer. PHP needs PDO MySQL, mbstring, fileinfo, and sessions. The incremental sample script requires MariaDB 10.1 or later.
+The application and its locked Composer dependencies need PHP 8.1 or later. The server also needs MariaDB with InnoDB, Apache with PHP enabled, Git, rsync, and Composer. PHP needs PDO MySQL, mbstring, fileinfo, GD, and sessions. The incremental sample script requires MariaDB 10.1 or later.
 
 On an Ubuntu server where these components are not installed, an administrator can install them with:
 
 ```bash
 sudo apt update
-sudo apt install apache2 mariadb-server mariadb-client libapache2-mod-php php php-cli php-mysql php-mbstring php-curl php-xml php-zip git rsync unzip composer
+sudo apt install apache2 mariadb-server mariadb-client libapache2-mod-php php php-cli php-mysql php-mbstring php-gd php-curl php-xml php-zip git rsync unzip composer
 sudo systemctl enable --now apache2 mariadb
 ```
 
@@ -60,10 +60,13 @@ Check the installation:
 ```bash
 php -v
 php -m
+php -r 'print_r(gd_info());'
 mariadb --version
 composer --version
 sudo systemctl status apache2 mariadb --no-pager
 ```
+
+Check that GD supports JPEG, PNG, WebP, and GIF and that Apache’s PHP runtime loads both GD and fileinfo.
 
 Keep the existing Apache site and assigned listening port. The project uses actual `.php` files as routes, so it does not require URL rewriting or a project `.htaccess` file. Apache must serve `index.php` as a directory index and execute PHP.
 
@@ -187,12 +190,21 @@ sudo install -d -o www-data -g www-data -m 0775 \
   /var/www/html/GreenDash/assets/stalls \
   /var/www/html/GreenDash/assets/stalls/pending \
   /var/www/html/GreenDash/assets/uploads \
-  /var/www/html/GreenDash/assets/uploads/products
+  /var/www/html/GreenDash/assets/uploads/products \
+  /var/www/html/GreenDash/assets/uploads/profiles
 ```
 
-The request approval flow moves an uploaded logo from `assets/stalls/pending/` into `assets/stalls/`, so both directories must be writable by PHP. Product images are saved in `assets/uploads/products/`.
+The request approval flow moves an uploaded logo from `assets/stalls/pending/` into `assets/stalls/`, so both directories must be writable by PHP. Product images are stored by stall under `assets/uploads/products/`. Customer avatars are stored in `assets/uploads/profiles/`. Uploads use the existing image path columns.
 
-In Apache's PHP configuration, enable file uploads and allow at least `upload_max_filesize = 5M` and `post_max_size = 8M`. The application accepts PNG store logos up to 2 MB and JPG/PNG/WEBP/GIF product images up to 5 MB. Restart Apache after changing its PHP configuration:
+PHP checks the file type with fileinfo, verifies size and dimensions, and decodes the image with GD before saving its original bytes under a random filename.
+
+| Upload | Formats | File size | Max width and height | Max total pixels |
+| --- | --- | ---: | ---: | ---: |
+| Vendor product image | JPEG, PNG, WebP, GIF | 5 MiB | 4,096 px each | 8,000,000 |
+| Vendor store logo | PNG | 2 MiB | 4,096 px each | 8,000,000 |
+| Customer avatar | JPEG, PNG, WebP, GIF | 2 MiB | 2,048 px each | 4,000,000 |
+
+In Apache's PHP configuration, enable file uploads and set `upload_max_filesize = 5M` or higher. Set `post_max_size = 8M` or higher so the body can include both the file and the other form fields. Restart Apache after changing its PHP configuration.
 
 ```bash
 sudo systemctl restart apache2
@@ -270,7 +282,8 @@ Cash/online choices and payment references are recorded in the database. The ven
 - Complete collection with payment confirmation, then create, edit, and delete a review. Refresh the stall review list and transaction history to verify persistence.
 - With a vendor account that has a fresh weekly allowance, cancel three unpaid orders using the standard reason. Confirm a fourth standard cancellation is blocked and an exception with an explanation goes through. Reopen the cancelled order in **Transaction History** to check its reason and explanation.
 - As an admin, open **Vendor Cancellations** and confirm that vendor's weekly usage shows **3 / 3** standard cancellations and **1** exception. Find the recorded cancellation by filtering history by vendor, reason, and period (**Current week** or **All time**).
-- Save a menu change, upload an image, and submit a store request. Check its appearance in the admin request list and approve or deny it through the UI.
+- Upload a product image, save a menu change, and reload the stall page. Submit a store request with a PNG logo and check its appearance in the admin request list before deciding on it.
+- Change a customer avatar from Profile and reload the page. Confirm a corrupt image, a renamed non-image, and an image above the dimension limit are rejected.
 - Check invalid input and access from an account without the required role/ownership; the server should reject unauthorized changes.
 
 If a page fails, inspect that request's status and response in browser Developer Tools. On the server, inspect the Apache/PHP error log (normally `/var/log/apache2/error.log` on Ubuntu). A missing Google autoloader needs step 5; database connection errors need matching step 3 credentials and a running MariaDB server; upload errors need step 6 permissions and limits. A 404 requires checking the deployed file's path and exact filename case.

@@ -18,6 +18,19 @@ Use the existing Google login endpoint/dependency installation. Vendor login now
 
 Apply the vendor order cancellation migration after creating or importing the `users`, `stalls`, and `orders` tables. Use the same migration on existing databases. Deploy the controllers, models, core helpers, views, JavaScript, and CSS together. Old vendor view URLs redirect to the controllers. [Vendor order cancellation migration](../database/add_vendor_order_cancellations.sql)
 
+## Menu images and store logos
+
+`upload-image.php` accepts multipart POSTs with `csrfToken`, `stallId`, and an
+`image` file in JPEG, PNG, WebP, or GIF up to 5 MiB. The stall must belong to
+the signed-in vendor. The API returns a path under `assets/uploads/products/<stallId>/`
+for use when saving the menu. Edits may also reuse an approved local image
+already saved for that product.
+
+`request-store.php` accepts PNG logos up to 2 MiB. Both upload paths check the
+file type and decode the image. The width and height can each be up to 4,096 px,
+with up to 8,000,000 pixels total.
+[Server upload setup](../README.md#6-allow-application-uploads)
+
 ## Status and payment rules
 
 - Normal progression: `pending` → `preparing` → `ready` → `completed`.

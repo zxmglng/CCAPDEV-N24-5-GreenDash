@@ -1,5 +1,6 @@
 <?php
 require __DIR__ . '/_bootstrap.php';
+require_once __DIR__ . '/../app/core/image-upload.php';
 require_once __DIR__ . '/../app/models/store-request-model.php';
 require_once __DIR__ . '/../app/models/stall-hours-model.php';
 
@@ -14,6 +15,7 @@ if (!in_array($_SERVER['REQUEST_METHOD'], ['GET', 'POST'], true)) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $logoPath = null;
     try {
         requireVendorCsrfToken($_POST['csrfToken'] ?? null);
 
@@ -55,48 +57,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new VendorRequestException('Please pick at least one operating day.', 422);
         }
 
-        // Logo upload — required, PNG only, up to 2 MB.
-        if (!isset($_FILES['storeLogo']) || $_FILES['storeLogo']['error'] !== UPLOAD_ERR_OK) {
-            throw new VendorRequestException('Please upload a PNG logo.', 422);
-        }
-        $file = $_FILES['storeLogo'];
-        if ($file['size'] > 2 * 1024 * 1024) {
-            throw new VendorRequestException('Logo is too large. Maximum 2 MB.', 422);
-        }
-        $finfo = new finfo(FILEINFO_MIME_TYPE);
-        $mime = $finfo->file($file['tmp_name']);
-        if ($mime !== 'image/png') {
-            throw new VendorRequestException('Logo must be a PNG file.', 422);
-        }
-
-        $pendingDir = __DIR__ . '/../assets/stalls/pending';
-        if (!is_dir($pendingDir)) {
-            mkdir($pendingDir, 0775, true);
-        }
-        $filename = bin2hex(random_bytes(16)) . '.png';
-        if (!move_uploaded_file($file['tmp_name'], $pendingDir . '/' . $filename)) {
-            throw new VendorRequestException('Unable to save the logo. Please try again.', 500);
-        }
-
         $hoursRows = array_map(
             fn(int $d) => ['day_of_week' => $d, 'opens_at' => $opens . ':00', 'closes_at' => $closes . ':00'],
             $selectedDays
         );
         $hoursText = format_hours_text($hoursRows);
 
+        $logoPath = storeUploadedRasterImage(
+            $_FILES['storeLogo'] ?? null,
+            ['image/png' => 'png'],
+            2 * 1024 * 1024,
+            'assets/stalls/pending'
+        );
         create_store_request($pdo, $vendorId, $name, $location, $hoursText, [
             'store_type' => $storeType,
-            'logo_path' => 'assets/stalls/pending/' . $filename,
+            'logo_path' => $logoPath,
         ]);
+        $logoPath = null;
 
         header('Location: request-store.php?submitted=1', true, 303);
         exit;
 
+    } catch (ImageUploadValidationException $e) {
+        http_response_code(422);
+        $error = $e->getMessage();
     } catch (VendorRequestException $e) {
+        http_response_code($e->getCode());
         $error = $e->getMessage();
     } catch (Throwable $e) {
+        http_response_code(500);
         error_log('Store request failed: ' . $e->getMessage());
         $error = 'Unable to submit your request. Please try again.';
+    } finally {
+        // A failed request should leave no pending logo behind.
+        if ($logoPath !== null && !@unlink(dirname(__DIR__) . '/' . $logoPath)) {
+            error_log('Unable to remove an unused store logo.');
+        }
     }
 }
 

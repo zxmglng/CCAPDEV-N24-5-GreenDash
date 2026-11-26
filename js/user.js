@@ -75,14 +75,21 @@ async function handleGoogleLogin(response) {
 }
 
 $(document).ready(function () {
-    let newProfilePic = null;
+    const profileAvatar = $('#profileAvatar');
+    const profilePictureInput = $('#profilePictureInput');
+    const profilePictureHint = $('#profilePictureHint');
+    const editableProfileFields = $('#firstName, #lastName, #contactNumber');
+    const allowedPhotoTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    const maxPhotoBytes = 2 * 1024 * 1024;
+    let savedAvatarUrl = profileAvatar.attr('src');
 
     // The button switches between edit mode and saving the current form values.
     $('#editProfileBtn').click(function () {
         const button = $(this);
         if (button.text().trim() === 'Edit Profile') {
-            $('#firstName, #lastName, #contactNumber').prop('readonly', false);
-            $('#profileAvatar').addClass('editable-avatar');
+            editableProfileFields.prop('readonly', false);
+            profileAvatar.addClass('editable-avatar');
+            profilePictureHint.prop('hidden', false);
             button.text('Save Changes');
             return;
         }
@@ -90,50 +97,64 @@ $(document).ready(function () {
         const newFirstName = $('#firstName').val().trim();
         const newLastName = $('#lastName').val().trim();
         const newContactNumber = $('#contactNumber').val().trim();
+        const file = profilePictureInput[0]?.files[0];
+        const formData = new FormData();
+        formData.set('csrfToken', $('#profileCsrfToken').val());
+        formData.set('first_name', newFirstName);
+        formData.set('last_name', newLastName);
+        formData.set('contact_num', newContactNumber);
+        if (file) formData.set('profileImage', file);
 
-        // Send the edited fields and optional new image to the server-side profile endpoint.
+        button.prop('disabled', true);
+        editableProfileFields.prop('readonly', true);
+        profilePictureInput.prop('disabled', true);
         $.ajax({
             url: 'profile.php',
             type: 'POST',
-            data: {
-                csrfToken: $('#profileCsrfToken').val(),
-                first_name: newFirstName,
-                last_name: newLastName,
-                contact_num: newContactNumber,
-                profile_image: newProfilePic || ''
-            },
-            success: function () {
+            data: formData,
+            dataType: 'json',
+            processData: false,
+            contentType: false,
+            success: function (result) {
                 $('#profileName').text(`${newFirstName} ${newLastName}`);
-                $('#firstName, #lastName, #contactNumber').prop('readonly', true);
-                $('#profileAvatar').removeClass('editable-avatar');
+                if (result.profileImage) savedAvatarUrl = result.profileImage;
+                profileAvatar.attr('src', savedAvatarUrl).removeClass('editable-avatar');
+                profilePictureInput.val('');
+                profilePictureHint.prop('hidden', true);
                 button.text('Edit Profile');
-                newProfilePic = null;
                 alert('Profile updated successfully!');
             },
             error: function (xhr) {
-                const sessionChanged = xhr.status === 401 || xhr.status === 403;
-                alert(sessionChanged ? 'Please reload the profile page and try again.'
-                    : 'Error updating profile. Please try again.');
+                editableProfileFields.prop('readonly', false);
+                alert(xhr.responseJSON?.message || 'Error updating profile. Please try again.');
+            },
+            complete: function () {
+                profilePictureInput.prop('disabled', false);
+                button.prop('disabled', false);
             }
         });
     });
 
-    $('#profileAvatar').click(function () {
-        // Only allow changing the avatar while the profile form is in edit mode.
-        if ($('#editProfileBtn').text().trim() === 'Save Changes') {
-            $('#profilePictureInput').click();
+    profileAvatar.click(function () {
+        if ($('#editProfileBtn').text().trim() === 'Save Changes' && !profilePictureInput.prop('disabled')) {
+            profilePictureInput.click();
         }
     });
 
-    $('#profilePictureInput').change(function () {
+    profilePictureInput.change(function () {
         const file = this.files[0];
+        profileAvatar.attr('src', savedAvatarUrl);
         if (!file) return;
 
-        // Preview the selected image immediately; it is sent with the profile form on save.
+        if ((file.type && !allowedPhotoTypes.includes(file.type)) || file.size > maxPhotoBytes) {
+            this.value = '';
+            alert('Choose a JPEG, PNG, WebP or GIF image up to 2 MB.');
+            return;
+        }
+
         const reader = new FileReader();
-        reader.onload = event => {
-            newProfilePic = event.target.result;
-            $('#profileAvatar').attr('src', newProfilePic);
+        reader.onload = () => {
+            if (this.files[0] === file) profileAvatar.attr('src', reader.result);
         };
         reader.readAsDataURL(file);
     });

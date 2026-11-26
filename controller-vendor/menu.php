@@ -14,14 +14,34 @@ function menuRespond(int $status, array $body): void
     exit;
 }
 
-function requireOwnedStall(PDO $pdo, int $vendorId, int $stallId): void
+function validateProductImagePath(mixed $path, int $stallId, ?string $previous = null): ?string
 {
-    foreach (getVendorStalls($pdo, $vendorId) as $stall) {
-        if ((int) $stall['id'] === $stallId) {
-            return;
+    if ($path === null || $path === '') {
+        return null;
+    }
+    if (is_string($path)) {
+        $root = dirname(__DIR__);
+        $uploadPattern = '#\Aassets/uploads/products/' . $stallId . '/[a-f0-9]{32}\.(?:jpg|png|webp|gif)\z#';
+        $file = $root . '/' . $path;
+        if (preg_match($uploadPattern, $path) && realpath($file) === $file && is_file($file)) {
+            return $path;
+        }
+
+        // Only the existing item may retain a legacy image reference.
+        if ($path === $previous) {
+            $relative = str_starts_with($path, '../assets/') ? substr($path, 3) : $path;
+            $seedPattern = '#\Aassets/(?!uploads/)(?:[a-z0-9_-]+/)*[a-z0-9_][a-z0-9_.-]*\.(?:jpe?g|png|webp|gif)\z#i';
+            $legacyUploadPattern = '#\Aassets/uploads/products/[a-f0-9]{32}\.(?:jpg|png|webp|gif)\z#';
+            if (preg_match($seedPattern, $relative) || preg_match($legacyUploadPattern, $relative)) {
+                $legacyFile = $root . '/' . $relative;
+                $resolved = realpath($legacyFile);
+                if ($resolved === false || ($resolved === $legacyFile && is_file($legacyFile))) {
+                    return $path;
+                }
+            }
         }
     }
-    throw new VendorRequestException('Stall not found for this vendor.', 404);
+    throw new InvalidArgumentException('Choose an image uploaded for this stall.');
 }
 
 function parsePrice($value): string
@@ -43,8 +63,8 @@ function parsePrice($value): string
 
 try {
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-        $stallId = vendorPositiveId($_GET['stallId'] ?? null);
-        requireOwnedStall($pdo, $vendorId, $stallId);
+        $stallId = vendorPositiveId($_GET['stallId'] ?? null, 'stall ID');
+        requireVendorOwnedStall($pdo, $vendorId, $stallId);
         $categories = getCategoryRowsByStall($pdo, $stallId);
         $products = getStallProducts($pdo, $stallId);
         $groupsByProduct = getProductOptionGroups($pdo, array_column($products, 'id'), true);
@@ -67,8 +87,8 @@ try {
     }
     requireVendorCsrfToken($request['csrfToken'] ?? null);
     $action = $request['action'] ?? '';
-    $stallId = vendorPositiveId($request['stallId'] ?? null);
-    requireOwnedStall($pdo, $vendorId, $stallId);
+    $stallId = vendorPositiveId($request['stallId'] ?? null, 'stall ID');
+    requireVendorOwnedStall($pdo, $vendorId, $stallId);
 
     if ($action === 'category_add') {
         $name = trim((string) ($request['name'] ?? ''));
@@ -104,7 +124,7 @@ try {
         $name = trim((string) ($request['name'] ?? ''));
         $description = trim((string) ($request['description'] ?? ''));
         $price = parsePrice($request['price'] ?? null);
-        $imagePath = $request['imagePath'] ?? null;
+        $imagePath = validateProductImagePath($request['imagePath'] ?? null, $stallId);
         $available = !empty($request['available']);
 
         if ($name === '' || mb_strlen($name, 'UTF-8') > 150) {
@@ -113,31 +133,30 @@ try {
         if (mb_strlen($description, 'UTF-8') > 1000) {
             throw new InvalidArgumentException('Description is too long.');
         }
-        if (!is_string($imagePath) || $imagePath === '') {
-            $imagePath = null;
-        }
-
         $id = addProduct($pdo, $stallId, $categoryId, $name, $description ?: null, $price, $imagePath, $available);
         menuRespond(200, ['success' => true, 'productId' => $id]);
     }
 
     if ($action === 'product_update') {
         $productId = vendorPositiveId($request['productId'] ?? null);
+        $product = getStallProduct($pdo, $stallId, $productId);
+        if (!$product) {
+            throw new VendorRequestException('Item not found.', 404);
+        }
         $categoryId = vendorPositiveId($request['categoryId'] ?? null);
         $name = trim((string) ($request['name'] ?? ''));
         $description = trim((string) ($request['description'] ?? ''));
         $price = parsePrice($request['price'] ?? null);
-        $imagePath = $request['imagePath'] ?? null;
+        $currentImage = $product['image_path'];
+        $requestedImage = array_key_exists('imagePath', $request) ? $request['imagePath'] : $currentImage;
+        $imagePath = validateProductImagePath($requestedImage, $stallId, $currentImage);
         $available = !empty($request['available']);
 
         if ($name === '' || mb_strlen($name, 'UTF-8') > 150) {
             throw new InvalidArgumentException('Item names must be 1–150 characters.');
         }
-        if (!is_string($imagePath) || $imagePath === '') {
-            $imagePath = null;
-        }
-
-        if (!updateProduct($pdo, $productId, $stallId, $categoryId, $name, $description ?: null, $price, $imagePath, $available)) {
+        if (!updateProduct($pdo, $productId, $stallId, $categoryId, $name, $description ?: null, $price, $imagePath, $available)
+            && !getStallProduct($pdo, $stallId, $productId)) {
             throw new VendorRequestException('Item not found.', 404);
         }
         menuRespond(200, ['success' => true]);
