@@ -56,14 +56,14 @@ function createGoogleUser(PDO $pdo, string $email, string $firstName, string $la
     return (int) $pdo->lastInsertId();
 }
 
-// Create a new vendor account with the given details. The account is inactive until an admin approves it.
+// Create a new vendor account with the given details. The account is pending until an admin approves it.
 function createVendorAccount(PDO $pdo, string $email, string $firstName, string $lastName, string $password): int
 {
     $passwordHash = password_hash($password, PASSWORD_DEFAULT);
 
     $stmt = $pdo->prepare("
         INSERT INTO users (email_add, first_name, last_name, password_hash, user_role, acc_status)
-        VALUES (?, ?, ?, ?, 'vendor', 'inactive')
+        VALUES (?, ?, ?, ?, 'vendor', 'pending')
     ");
     $stmt->execute([$email, $firstName, $lastName, $passwordHash]);
     return (int) $pdo->lastInsertId();
@@ -116,25 +116,25 @@ function get_users()
     )->fetchAll(PDO::FETCH_ASSOC);
 }
 
-// All pending vendor accounts, for the manage-users.php table for admin
+// All pending vendor accounts, for the Activate Vendors page.
 function getPendingVendors(PDO $pdo): array
 {
     return $pdo->query(
         "SELECT user_id, email_add, first_name, last_name
          FROM users
-         WHERE user_role = 'vendor' AND acc_status = 'inactive'
+         WHERE user_role = 'vendor' AND acc_status = 'pending'
          ORDER BY created_at, user_id"
     )->fetchAll(PDO::FETCH_ASSOC);
 }
 
-// Activate a pending vendor account. Returns true if the account was activated, 
+// Activate a pending vendor account. Returns true if the account was activated,
 // false if it was already active or not a vendor.
 function activateVendor(PDO $pdo, int $userId): bool
 {
     $stmt = $pdo->prepare(
         "UPDATE users
          SET acc_status = 'active'
-         WHERE user_id = ? AND user_role = 'vendor' AND acc_status = 'inactive'"
+         WHERE user_id = ? AND user_role = 'vendor' AND acc_status = 'pending'"
     );
     $stmt->execute([$userId]);
     return $stmt->rowCount() === 1;
@@ -168,15 +168,16 @@ function add_user($first_name, $last_name, $email, $role, $contact_num = null, $
     return $pdo->lastInsertId();
 }
 
-function update_user($id, $first_name, $last_name, $email, $role, $contact_num = null)
+// Update an existing user. $password is optional — pass null to skip.
+function update_user($id, $first_name, $last_name, $email, $role, $contact_num = null, $status = 'active')
 {
     global $pdo;
     $stmt = $pdo->prepare(
         "UPDATE users
-         SET first_name = ?, last_name = ?, email_add = ?, user_role = ?, contact_num = ?
+         SET first_name = ?, last_name = ?, email_add = ?, user_role = ?, contact_num = ?, acc_status = ?
          WHERE user_id = ?"
     );
-    $stmt->execute([$first_name, $last_name, $email, $role, $contact_num, $id]);
+    $stmt->execute([$first_name, $last_name, $email, $role, $contact_num, $status, $id]);
     return true;
 }
 

@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         $id = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
         $vendor = $id !== false && $id > 0 ? getUserById($pdo, (int) $id) : null;
-        if (!$vendor || $vendor['user_role'] !== 'vendor' || $vendor['acc_status'] !== 'inactive') {
+        if (!$vendor || $vendor['user_role'] !== 'vendor' || $vendor['acc_status'] !== 'pending') {
             throw new InvalidArgumentException('That pending vendor account no longer exists.');
         }
         if (!activateVendor($pdo, (int) $id)) {

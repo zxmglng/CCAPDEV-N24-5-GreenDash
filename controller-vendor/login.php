@@ -51,10 +51,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new InvalidArgumentException('Invalid email or password.');
             }
 
-            // check if the account status is either active or inactive
-            // if the account status is neither active nor inactive, throw an exception;
-            // user can still log in if the account status is inactive!
-            if (!in_array($user['acc_status'], ['active', 'inactive'], true)) {
+            if ($user['acc_status'] === 'inactive') {
+                throw new InvalidArgumentException('This vendor account is inactive. Please contact your administrator.');
+            }
+            if (!in_array($user['acc_status'], ['active', 'pending'], true)) {
                 throw new InvalidArgumentException('This account cannot sign in.');
             }
 

@@ -59,12 +59,12 @@ $vendorHeaderLocation = count($vendorStalls) === 1
             </aside>
 
             <main class="vendor-content">
-                <!-- Display a notice if the vendor account is not active -->
+                <!-- Display a notice while vendor activation is pending. -->
+                <?php if ($vendor['acc_status'] === 'pending'): ?>
                 <div class="inactive-notice">
-                    <?php if ($vendor['acc_status'] !== 'active'): ?>
                     <p class="field-error" role="status">NOTICE: Please wait for the admin to activate your account. You can browse the vendor menu, but store requests are unavailable until your account is active.</p>
-                    <?php endif; ?>
                 </div>
+                <?php endif; ?>
                 
                 <h1 class="page-title">Account Details</h1>
 

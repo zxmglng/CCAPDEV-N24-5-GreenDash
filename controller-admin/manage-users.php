@@ -42,10 +42,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $ln = trim($_POST['last_name'] ?? '');
             $email = trim($_POST['email'] ?? '');
             $role = $_POST['role'] ?? 'student';
+            $status = $_POST['status'] ?? 'active';
             $contact = trim($_POST['contact_num'] ?? '') ?: null;
 
             if ($id <= 0 || $fn === '' || $ln === '' || $email === '') {
                 throw new InvalidArgumentException('Please fill in all required fields.');
+            }
+            if (!in_array($role, ['student', 'faculty', 'staff', 'vendor', 'admin'], true)
+                || !in_array($status, ['active', 'inactive'], true)) {
+                throw new InvalidArgumentException('Choose a valid role and account status.');
             }
 
             $existing = find_user_by_email($email);
@@ -53,7 +58,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new InvalidArgumentException('A user with that email already exists.');
             }
 
-            update_user($id, $fn, $ln, $email, $role, $contact);
+            $current = getUserById($pdo, $id);
+            if (!$current) {
+                throw new InvalidArgumentException('That user no longer exists.');
+            }
+            $willDeactivateLastAdmin = $current['user_role'] === 'admin'
+                && $current['acc_status'] === 'active'
+                && ($role !== 'admin' || $status !== 'active');
+            if ($willDeactivateLastAdmin) {
+                $countStmt = $pdo->prepare(
+                    "SELECT COUNT(*) FROM users WHERE user_role = 'admin' AND acc_status = 'active' AND user_id <> ?"
+                );
+                $countStmt->execute([$id]);
+                if ((int) $countStmt->fetchColumn() === 0) {
+                    throw new InvalidArgumentException('You cannot deactivate or change the role of the last active admin.');
+                }
+            }
+
+            update_user($id, $fn, $ln, $email, $role, $contact, $status);
             header('Location: manage-users.php');
             exit;
 

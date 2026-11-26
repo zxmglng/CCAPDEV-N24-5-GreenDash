@@ -28,9 +28,12 @@ function requireVendorAccount(PDO $pdo, int $vendorId): array
         throw new VendorRequestException('An active vendor account is required. Please contact your administrator.', 403);
     }
 
-    // Pending vendors can browse the vendor area, but cannot submit any form actions.
-    if ($vendor['acc_status'] !== 'active') {
+    // Check if the vendor account is pending or inactive
+    if ($vendor['acc_status'] === 'pending') {
         throw new VendorRequestException('Please wait for the admin to activate your account.', 403);
+    }
+    if ($vendor['acc_status'] === 'inactive') {
+        throw new VendorRequestException('This vendor account is inactive. Please contact your administrator.', 403);
     }
     return $vendor;
 }

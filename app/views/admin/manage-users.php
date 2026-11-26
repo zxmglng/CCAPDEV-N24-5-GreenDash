@@ -67,7 +67,8 @@
                                     data-name="<?= htmlspecialchars($u['first_name'] . ' ' . $u['last_name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
                                     data-email="<?= htmlspecialchars($u['email_add'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
                                     data-contact="<?= htmlspecialchars($u['contact_num'] ?? '', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
-                                    data-role="<?= htmlspecialchars(strtolower($role), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
+                                    data-role="<?= htmlspecialchars(strtolower($role), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"               
+                                    data-status="<?= htmlspecialchars($u['acc_status'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
                                     <td><?= htmlspecialchars($u['first_name'] . ' ' . $u['last_name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></td>
                                     <td><?= htmlspecialchars($u['email_add'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></td>
                                     <td><?= htmlspecialchars($u['contact_num'] ?? '—', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></td>

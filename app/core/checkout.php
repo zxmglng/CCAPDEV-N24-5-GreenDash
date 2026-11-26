@@ -308,7 +308,7 @@ function placeCheckoutOrder(PDO $pdo, int $userId, array $request, ?DateTimeImmu
     $pdo->beginTransaction();
     try {
         $user = getCheckoutUser($pdo, $userId);
-        if (!$user || $user['acc_status'] === 'inactive') {
+        if (!$user || $user['acc_status'] !== 'active') {
             throw new CheckoutValidationException('Your account cannot place orders. Please sign in again.');
         }
         $stall = getCheckoutStall($pdo, $stallId);

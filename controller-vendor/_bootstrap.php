@@ -46,11 +46,14 @@ try {
     if (!$vendor || $vendor['user_role'] !== 'vendor') {
         throw new VendorRequestException('An active vendor account is required. Please contact your administrator.', 403);
     }
+    if ($vendor['acc_status'] === 'inactive') {
+        throw new VendorRequestException('This vendor account is inactive. Please contact your administrator.', 403);
+    }
     // Pending vendors can browse the vendor area, but cannot submit any form actions.
-    if ($vendor['acc_status'] === 'inactive' && $_SERVER['REQUEST_METHOD'] !== 'GET') {
+    if ($vendor['acc_status'] === 'pending' && $_SERVER['REQUEST_METHOD'] !== 'GET') {
         throw new VendorRequestException('Please wait for the admin to activate your account.', 403);
     }
-    if (!in_array($vendor['acc_status'], ['active', 'inactive'], true)) {
+    if (!in_array($vendor['acc_status'], ['active', 'pending'], true)) {
         throw new VendorRequestException('An active vendor account is required. Please contact your administrator.', 403);
     }
 } catch (Throwable $error) {
