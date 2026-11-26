@@ -21,6 +21,11 @@ function validateProductImagePath(mixed $path, int $stallId, ?string $previous =
     }
     if (is_string($path)) {
         $root = dirname(__DIR__);
+
+        // NEW: default image path for added items without an image set
+        if ($path === 'assets/main/no-image-set.png' && is_file($root . '/' . $path)) {
+            return $path;
+        }
         $uploadPattern = '#\Aassets/uploads/products/' . $stallId . '/[a-f0-9]{32}\.(?:jpg|png|webp|gif)\z#';
         $file = $root . '/' . $path;
         if (preg_match($uploadPattern, $path) && realpath($file) === $file && is_file($file)) {
@@ -124,7 +129,8 @@ try {
         $name = trim((string) ($request['name'] ?? ''));
         $description = trim((string) ($request['description'] ?? ''));
         $price = parsePrice($request['price'] ?? null);
-        $imagePath = validateProductImagePath($request['imagePath'] ?? null, $stallId);
+        $imagePath = validateProductImagePath($request['imagePath'] ?? null, $stallId)
+            ?? 'assets/main/no-image-set.png';
         $available = !empty($request['available']);
 
         if ($name === '' || mb_strlen($name, 'UTF-8') > 150) {
@@ -134,7 +140,7 @@ try {
             throw new InvalidArgumentException('Description is too long.');
         }
         $id = addProduct($pdo, $stallId, $categoryId, $name, $description ?: null, $price, $imagePath, $available);
-        menuRespond(200, ['success' => true, 'productId' => $id]);
+        menuRespond(200, ['success' => true, 'productId' => $id, 'imagePath' => $imagePath]);
     }
 
     if ($action === 'product_update') {
@@ -148,7 +154,10 @@ try {
         $description = trim((string) ($request['description'] ?? ''));
         $price = parsePrice($request['price'] ?? null);
         $currentImage = $product['image_path'];
-        $requestedImage = array_key_exists('imagePath', $request) ? $request['imagePath'] : $currentImage;
+        $requestedImage = $request['imagePath'] ?? $currentImage ?? 'assets/main/no-image-set.png';
+        if ($requestedImage === '') {
+            $requestedImage = $currentImage ?? 'assets/main/no-image-set.png';
+        }
         $imagePath = validateProductImagePath($requestedImage, $stallId, $currentImage);
         $available = !empty($request['available']);
 

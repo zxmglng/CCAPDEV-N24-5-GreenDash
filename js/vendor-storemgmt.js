@@ -30,6 +30,7 @@
         { key: 'price-asc',  label: 'price (low to high)', icon: 'bi-sort-numeric-down', fn: (a, b) => a.price - b.price },
         { key: 'price-desc', label: 'price (high to low)', icon: 'bi-sort-numeric-up',   fn: (a, b) => b.price - a.price },
     ];
+    const DEFAULT_PRODUCT_IMAGE = 'assets/main/no-image-set.png';
 
     // ---- ELEMENT HELPERS -----------------------------------------------
     const byId = id => document.getElementById(id);
@@ -127,6 +128,7 @@
         return new URL(path, SCRIPT_BASE).href;
     }
 
+    // Convert backend product object to frontend item object
     function toItem(p) {
         return {
             databaseProductId: Number(p.id),
@@ -134,7 +136,7 @@
             price: Number(p.price),
             description: p.description || '',
             categoryId: Number(p.category_id),
-            photo: p.image_path || null,
+            photo: p.image_path || DEFAULT_PRODUCT_IMAGE,       // use default image if none set
             available: Boolean(Number(p.is_available)),
             optionGroups: p.optionGroups || [],
         };
@@ -392,7 +394,6 @@
         const photoBox = byId('itemPhotoPreview');
         const photoInput = byId('itemPhotoInput');
         const photoBtn = byId('itemPhotoBtn');
-        const removePhotoBtn = byId('itemPhotoRemove');
         const deleteItemBtn = byId('deleteItemBtn');
         const availBtn = byId('toggleAvailableBtn');
         const optionGroupsEditor = byId('productOptionGroups');
@@ -402,18 +403,14 @@
         const PHOTO_MIME_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
         let itemModalVersion = 0;
 
+        // Render the photo preview and update the upload/change button text
         function renderPhoto() {
             photoBox.replaceChildren();
-            if (state.pendingPhoto) {
-                const img = elem('img');
-                img.src = productImageUrl(state.pendingPhoto) || '';
-                img.alt = itemNameInput.value.trim() || 'Item photo';
-                photoBox.appendChild(img);
-            } else {
-                photoBox.appendChild(elem('i', 'bi bi-image'));
-            }
-            photoBtn.textContent = state.pendingPhoto ? 'Change photo' : 'Upload photo';
-            removePhotoBtn.hidden = !state.pendingPhoto;
+            const img = elem('img');
+            img.src = productImageUrl(state.pendingPhoto || DEFAULT_PRODUCT_IMAGE) || '';   // fallback to default image if none set
+            img.alt = itemNameInput.value.trim() || 'Item photo';   // fallback alt text if no name set
+            photoBox.appendChild(img);  // always show the image box, even if it's the default image
+            photoBtn.textContent = state.pendingPhoto === DEFAULT_PRODUCT_IMAGE ? 'Upload photo' : 'Change photo';  // change button text if the current photo is the default image
         }
 
         function renderAvailability() {
@@ -549,7 +546,7 @@
             itemForm.reset();
             itemError.textContent = '';
             photoInput.value = '';
-            state.pendingPhoto = item ? item.photo : null;
+            state.pendingPhoto = item ? (item.photo || DEFAULT_PRODUCT_IMAGE) : DEFAULT_PRODUCT_IMAGE;      // use default image if none set
             state.pendingAvailable = item ? item.available : true;
             state.editingOptionGroups = item
                 ? item.optionGroups.map(g => ({...g, choices: g.choices.map(c => ({...c}))}))
@@ -592,11 +589,6 @@
         addItemBtn.addEventListener('click', () => openItemModal());
 
         photoBtn.addEventListener('click', () => photoInput.click());
-        removePhotoBtn.addEventListener('click', () => {
-            state.pendingPhoto = null;
-            photoInput.value = '';
-            renderPhoto();
-        });
         photoInput.addEventListener('change', async () => {
             const file = photoInput.files[0];
             if (!file || saveItemBtn.disabled) return;
@@ -613,7 +605,6 @@
             const modalVersion = itemModalVersion;
             itemError.textContent = '';
             photoBtn.disabled = true;
-            removePhotoBtn.disabled = true;
             saveItemBtn.disabled = true;
             try {
                 const path = await uploadPhoto(file);
@@ -625,7 +616,6 @@
                 if (modalVersion === itemModalVersion) itemError.textContent = err.message;
             } finally {
                 photoBtn.disabled = false;
-                removePhotoBtn.disabled = false;
                 saveItemBtn.disabled = false;
                 photoInput.value = '';
             }
