@@ -161,7 +161,6 @@ $vendorHeaderLocation = count($vendorStalls) === 1
                             <input type="file" id="itemPhotoInput" accept="image/jpeg,image/png,image/webp,image/gif"
                                 class="visually-hidden" tabindex="-1">
                             <button type="button" class="vendor-btn secondary small" id="itemPhotoBtn">Upload photo</button>
-                            <button type="button" class="photo-remove" id="itemPhotoRemove" hidden>Remove photo</button>
                         </div>
                         <div class="item-top-fields">
                             <label for="itemName" class="form-label">Item name</label>
@@ -175,7 +174,7 @@ $vendorHeaderLocation = count($vendorStalls) === 1
                     <textarea class="form-control" id="itemDescription" rows="3" maxlength="200"></textarea>
 
                     <fieldset class="mt-3">
-                        <legend class="form-label">Shows up under</legend>
+                        <legend class="form-label">Shows up under (select all that apply)</legend>  
                         <div class="category-checks" id="itemCategoryChecks"></div>
                     </fieldset>
 

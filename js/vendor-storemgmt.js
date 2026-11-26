@@ -30,6 +30,7 @@
         { key: 'price-asc',  label: 'price (low to high)', icon: 'bi-sort-numeric-down', fn: (a, b) => a.price - b.price },
         { key: 'price-desc', label: 'price (high to low)', icon: 'bi-sort-numeric-up',   fn: (a, b) => b.price - a.price },
     ];
+    const DEFAULT_PRODUCT_IMAGE = 'assets/main/no-image-set.png';
 
     // ---- ELEMENT HELPERS -----------------------------------------------
     const byId = id => document.getElementById(id);
@@ -127,6 +128,7 @@
         return new URL(path, SCRIPT_BASE).href;
     }
 
+    // Convert backend product object to frontend item object
     function toItem(p) {
         return {
             databaseProductId: Number(p.id),
@@ -134,7 +136,10 @@
             price: Number(p.price),
             description: p.description || '',
             categoryId: Number(p.category_id),
-            photo: p.image_path || null,
+            categoryIds: Array.isArray(p.categories) && p.categories.length
+                ? p.categories.map(category => Number(category.id))
+                : [Number(p.category_id)],
+            photo: p.image_path || DEFAULT_PRODUCT_IMAGE,       // use default image if none set
             available: Boolean(Number(p.is_available)),
             optionGroups: p.optionGroups || [],
         };
@@ -261,7 +266,7 @@
         const addItemBtn = byId('addItemBtn');
 
         function itemsIn(categoryId) {
-            return state.items.filter(i => i.categoryId === categoryId);
+            return state.items.filter(i => (i.categoryIds || [i.categoryId]).includes(categoryId));
         }
 
         function renderItems() {
@@ -392,7 +397,6 @@
         const photoBox = byId('itemPhotoPreview');
         const photoInput = byId('itemPhotoInput');
         const photoBtn = byId('itemPhotoBtn');
-        const removePhotoBtn = byId('itemPhotoRemove');
         const deleteItemBtn = byId('deleteItemBtn');
         const availBtn = byId('toggleAvailableBtn');
         const optionGroupsEditor = byId('productOptionGroups');
@@ -402,18 +406,14 @@
         const PHOTO_MIME_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
         let itemModalVersion = 0;
 
+        // Render the photo preview and update the upload/change button text
         function renderPhoto() {
             photoBox.replaceChildren();
-            if (state.pendingPhoto) {
-                const img = elem('img');
-                img.src = productImageUrl(state.pendingPhoto) || '';
-                img.alt = itemNameInput.value.trim() || 'Item photo';
-                photoBox.appendChild(img);
-            } else {
-                photoBox.appendChild(elem('i', 'bi bi-image'));
-            }
-            photoBtn.textContent = state.pendingPhoto ? 'Change photo' : 'Upload photo';
-            removePhotoBtn.hidden = !state.pendingPhoto;
+            const img = elem('img');
+            img.src = productImageUrl(state.pendingPhoto || DEFAULT_PRODUCT_IMAGE) || '';   // fallback to default image if none set
+            img.alt = itemNameInput.value.trim() || 'Item photo';   // fallback alt text if no name set
+            photoBox.appendChild(img);  // always show the image box, even if it's the default image
+            photoBtn.textContent = state.pendingPhoto === DEFAULT_PRODUCT_IMAGE ? 'Upload photo' : 'Change photo';  // change button text if the current photo is the default image
         }
 
         function renderAvailability() {
@@ -549,7 +549,7 @@
             itemForm.reset();
             itemError.textContent = '';
             photoInput.value = '';
-            state.pendingPhoto = item ? item.photo : null;
+            state.pendingPhoto = item ? (item.photo || DEFAULT_PRODUCT_IMAGE) : DEFAULT_PRODUCT_IMAGE;      // use default image if none set
             state.pendingAvailable = item ? item.available : true;
             state.editingOptionGroups = item
                 ? item.optionGroups.map(g => ({...g, choices: g.choices.map(c => ({...c}))}))
@@ -567,14 +567,9 @@
                 box.type = 'checkbox';
                 box.id = 'item-cat-' + cat.id;
                 box.value = cat.id;
-                box.checked = item ? item.categoryId === cat.id : cat.id === state.selectedCategoryId;
-                box.addEventListener('change', () => {
-                    if (box.checked) {
-                        itemCats.querySelectorAll('input[type="checkbox"]').forEach(b => {
-                            if (b !== box) b.checked = false;
-                        });
-                    }
-                });
+                box.checked = item
+                    ? (item.categoryIds || [item.categoryId]).includes(cat.id)
+                    : cat.id === state.selectedCategoryId;
                 const label = elem('label', 'form-check-label', cat.name);
                 label.htmlFor = box.id;
                 wrap.append(box, label);
@@ -592,11 +587,6 @@
         addItemBtn.addEventListener('click', () => openItemModal());
 
         photoBtn.addEventListener('click', () => photoInput.click());
-        removePhotoBtn.addEventListener('click', () => {
-            state.pendingPhoto = null;
-            photoInput.value = '';
-            renderPhoto();
-        });
         photoInput.addEventListener('change', async () => {
             const file = photoInput.files[0];
             if (!file || saveItemBtn.disabled) return;
@@ -613,7 +603,6 @@
             const modalVersion = itemModalVersion;
             itemError.textContent = '';
             photoBtn.disabled = true;
-            removePhotoBtn.disabled = true;
             saveItemBtn.disabled = true;
             try {
                 const path = await uploadPhoto(file);
@@ -625,7 +614,6 @@
                 if (modalVersion === itemModalVersion) itemError.textContent = err.message;
             } finally {
                 photoBtn.disabled = false;
-                removePhotoBtn.disabled = false;
                 saveItemBtn.disabled = false;
                 photoInput.value = '';
             }
@@ -641,17 +629,17 @@
             if (saveItemBtn.disabled) return;
             const name = itemNameInput.value.trim();
             const price = parseFloat(itemPriceInput.value);
-            const categoryBox = itemCats.querySelector('input:checked');
-            const categoryId = categoryBox ? Number(categoryBox.value) : null;
+            const categoryIds = [...itemCats.querySelectorAll('input:checked')]
+                .map(box => Number(box.value));
 
             if (!name) { itemError.textContent = 'Please enter an item name.'; return; }
             if (Number.isNaN(price) || price < 0) { itemError.textContent = 'Please enter a valid price.'; return; }
-            if (!categoryId) { itemError.textContent = 'Pick a category for this item.'; return; }
+            if (!categoryIds.length) { itemError.textContent = 'Pick at least one category for this item.'; return; }
 
             saveItemBtn.disabled = true;
             try {
                 const payload = {
-                    categoryId,
+                    categoryIds,
                     name,
                     price,
                     description: itemDescInput.value.trim(),
@@ -690,7 +678,8 @@
                     name,
                     price,
                     description: payload.description,
-                    categoryId,
+                    categoryId: categoryIds[0],
+                    categoryIds,
                     photo: payload.imagePath,
                     available: payload.available,
                     optionGroups: state.editingOptionGroups,
@@ -701,7 +690,7 @@
                 } else {
                     state.items.push(refreshed);
                 }
-                state.selectedCategoryId = categoryId;
+                state.selectedCategoryId = categoryIds[0];
                 Modal.close('item-modal');
                 renderCategories();
                 renderItems();
