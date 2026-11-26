@@ -6,14 +6,13 @@ if (window.location.pathname.endsWith('.html')) {
     const adminLoginForm = document.getElementById('adminLoginForm');
 
     adminLoginForm?.addEventListener('submit', (event) => {
-        const key = document.getElementById('adminKey');
+        const email = document.getElementById('email');
+        const password = document.getElementById('password');
         const error = document.getElementById('adminLoginError');
-
-        if (!key.value.trim()) {
+        error.textContent = '';
+if (!email.value.trim() || !password.value) {
             event.preventDefault();
-            error.textContent = 'Please enter the admin key.';
-            key.focus();
+            error.textContent = 'Please enter your email and password.';
         }
-        // Nonempty submissions continue to the PHP controller for verification.
     });
 }

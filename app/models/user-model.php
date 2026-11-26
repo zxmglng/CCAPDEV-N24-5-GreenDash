@@ -69,6 +69,19 @@ function createVendorAccount(PDO $pdo, string $email, string $firstName, string 
     return (int) $pdo->lastInsertId();
 }
 
+// Create an admin account from signup.
+function createAdminUser(PDO $pdo, string $firstName, string $lastName, string $email, string $password): int
+{
+    $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+
+    $stmt = $pdo->prepare("
+        INSERT INTO users (email_add, first_name, last_name, password_hash, user_role, acc_status)
+        VALUES (?, ?, ?, ?, 'admin', 'active')
+    ");
+    $stmt->execute([$email, $firstName, $lastName, $passwordHash]);
+    return (int) $pdo->lastInsertId();
+}
+
 // Save profile fields edited by the authenticated user.
 function updateUserProfile(PDO $pdo, int $userId, string $firstName, string $lastName, ?string $contactNum, ?string $profileImage): bool
 {

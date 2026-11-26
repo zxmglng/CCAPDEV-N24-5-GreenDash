@@ -1,6 +1,9 @@
 Folder PATH listing
 Volume serial number is 0C2A-50D6
 C:.
+|   .gitignore
+|   composer.json
+|   composer.lock
 |   file-tree.txt
 |   index.php
 |   logout.php
@@ -16,6 +19,7 @@ C:.
 |   |       orders.php
 |   |       product-options.php
 |   |       reviews.php
+|   |       security-headers.php
 |   |       session.php
 |   |       user-csrf.php
 |   |       vendor-auth.php
@@ -142,21 +146,28 @@ C:.
 |       
 +---controller-vendor
 |       logout.php
+|       manage-menu.php
+|       manage-store.php
+|       menu.php
 |       order.php
 |       orders.php
 |       pickup.php
 |       product-options.php
+|       profile.php
 |       README.md
+|       request-store.php
 |       transaction-history.php
 |       update-order.php
+|       upload-image.php
 |       _bootstrap.php
 |       
 +---database
-|       CCAPDEV-N24-5-GreenDash.sql
+|       additional_sample_data.sql
 |       add_user_carts.sql
 |       add_user_order_cancellations.sql
 |       add_vendor_order_cancellations.sql
-|       additional_sample_data.sql
+|       CCAPDEV-N24-5-GreenDash.sql
+|       schema_and_data.sql
 |       
 +---js
 |       admin-login.js
@@ -234,5 +245,4 @@ C:.
 |       
 \---tests
         test_admin_auth.py
-        test_user_cart.py
         

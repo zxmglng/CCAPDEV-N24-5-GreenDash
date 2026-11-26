@@ -17,23 +17,30 @@
         <main class="admin-login-wrap">
             <form class="admin-login-card" id="adminLoginForm" method="POST">
                 <input type="hidden" name="csrfToken" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
-                
+
                 <img src="assets/main/GreenDash_LOGO.png" alt="GreenDash Logo">
 
                 <h1>Admin Login</h1>
-                <p>Enter your admin key.</p>
+                <p>Sign in with your admin credentials.</p>
 
                 <?php if ($loginError !== ''): ?>
                     <p class="admin-login-error" role="alert"><?= htmlspecialchars($loginError, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
                 <?php endif; ?>
 
                 <div class="admin-login-field">
-                    <label for="adminKey">Admin Key</label>
-                    <input type="password" id="adminKey" name="adminKey" autocomplete="off" required autofocus>
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" autocomplete="username" required autofocus
+                        value="<?= htmlspecialchars($oldEmail, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
                 </div>
-                
+
+                <div class="admin-login-field">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" autocomplete="current-password" required>
+                </div>
+
                 <button type="submit" class="admin-login-submit">Sign in</button>
                 <p class="admin-login-error" id="adminLoginError" role="alert"></p>
+                <a href="controller-admin/signup.php" class="admin-login-link">Create an admin account</a>
             </form>
         </main>
 
