@@ -138,11 +138,6 @@ stays paid.
 
 ## Local verification
 
-Run `python3 tests/test_user_cart.py` from the repository root with PHP CLI,
-PDO SQLite, and mbstring installed. The test starts a temporary PHP server with
-an isolated SQLite fixture and checks ownership, session changes, cart conflicts,
-and checkout transactions.
-
 On MariaDB, add a customized item to a stall cart, sign out and back in, and
 choose **Resume cart**. Edit its quantity and reload the stall. Place an order
 and reopen the stall to confirm its cart is empty. Use a second account in the
