@@ -24,10 +24,10 @@ if (!defined('GREENDASH_ADMIN_VIEW')) {
             <h1 class="page-title">Pending Vendor Accounts</h1>
 
             <?php if ($activated): ?>
-                <p class="admin-flash" role="status">Vendor account activated.</p>
+                <p class="alert alert-success" role="status">Vendor account activated.</p>
             <?php endif; ?>
             <?php if ($error !== ''): ?>
-                <p class="admin-flash" role="alert"><?= htmlspecialchars($error, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
+                <p class="alert alert-danger" role="alert"><?= htmlspecialchars($error, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
             <?php endif; ?>
 
             <?php if (empty($pendingVendors)): ?>
