@@ -34,14 +34,14 @@ if ($requestMethod === 'POST') {
             && $user['password_hash'] !== ''
             && password_verify($password, $user['password_hash']);
 
-        if (!valid) {
+        if (!$valid) {
             $loginError = 'Invalid email or password.';
         } else {
             session_regenerate_id(true);
             $_SESSION['admin_authenticated'] = true;
             $_SESSION['admin_last_activity'] = time();
             $_SESSION['admin_name'] = trim(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? '')) ?: 'Administrator';
-            $_SESSION['admin_user_id'] = (int) $user['id'];
+            $_SESSION['admin_user_id'] = (int) $user['user_id'];
             unset($_SESSION['admin_csrf_token']);
             header('Location: home.php', true, 303);
             exit;
