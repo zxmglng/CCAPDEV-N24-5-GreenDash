@@ -19,8 +19,13 @@ try {
 
         /* Validate the current password, new password, and confirm password */
 
+        /* Accept old plain-text records only for a matching current password; the new password is always stored hashed below. */
+        $currentPasswordIsValid = is_string($passwordHash)
+            && $passwordHash !== ''
+            && (password_verify($currentPassword, $passwordHash) || hash_equals($passwordHash, $currentPassword));
+
         /* Check if the current password is correct */
-        if (!is_string($passwordHash) || $passwordHash === '' || !password_verify($currentPassword, $passwordHash)) {
+        if (!$currentPasswordIsValid) {
             $passwordChangeError = 'Current password is incorrect.';
             http_response_code(422);
         } 
@@ -38,7 +43,7 @@ try {
         } 
         
         /* Check if the new password is different from the current password */
-        elseif (password_verify($newPassword, $passwordHash)) {
+        elseif ($newPassword === $currentPassword || password_verify($newPassword, $passwordHash)) {
             $passwordChangeError = 'Choose a new password that differs from your current password.';
             http_response_code(422);
         } 
