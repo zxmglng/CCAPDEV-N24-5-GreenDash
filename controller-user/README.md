@@ -49,8 +49,10 @@ randomly named file in `assets/uploads/profiles/` to the signed-in account.
 Apply the cart migration before using the PHP stall directory, menu, and checkout
 pages. [Cart migration](../database/add_user_carts.sql)
 
-The `user_carts` table stores one cart per account and stall. After signing back
-in, choose **Resume cart** on the stall card to reopen it.
+The `user_carts` table stores one cart per account and stall. The cart icon opens
+the current stall's cart on its menu page. From other customer pages, the icon
+opens the only saved cart directly or lets the customer pick from multiple saved
+carts. Customers can also choose **Resume cart** on a stall card.
 
 `GET cart.php?stallId=<id>` returns the current cart's `version` and `items`.
 A cart that has never been saved starts at version `0` with no items.
@@ -139,9 +141,10 @@ stays paid.
 ## Local verification
 
 On MariaDB, add a customized item to a stall cart, sign out and back in, and
-choose **Resume cart**. Edit its quantity and reload the stall. Place an order
-and reopen the stall to confirm its cart is empty. Use a second account in the
-same browser to verify that the cart follows the account.
+open the cart from Profile or Orders. Edit its quantity and reload the stall.
+Save a cart at another stall and confirm the cart icon lets you choose either
+cart. Place an order and reopen the stall to confirm its cart is empty. Use a
+second account in the same browser to verify that the cart follows the account.
 
 When deploying, retain the VM's connection credentials in `app/core/db.php`.
 Merge its exception-based failure handling rather than replacing those settings;

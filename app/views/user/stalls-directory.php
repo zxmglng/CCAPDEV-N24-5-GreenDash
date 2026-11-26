@@ -3,7 +3,7 @@
 ?>
 <head>
     <meta charset="UTF-8">
-    <title>GreenDash - Stalls</title>
+    <title>GreenDash - <?= $showSavedCarts ? 'Saved carts' : 'Stalls' ?></title>
         <link rel="stylesheet" href="<?= htmlspecialchars($assetBase . 'bootstrap/css/bootstrap.min.css', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
         <link rel="stylesheet" href="<?= htmlspecialchars($assetBase . 'bootstrap-icons/bootstrap-icons.css', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
         <link rel="stylesheet" href="<?= htmlspecialchars($assetBase . 'style/centralized.css', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
@@ -18,6 +18,13 @@
 <body data-assets-path="<?= htmlspecialchars($assetBase . 'assets/', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
     <?php include(__DIR__ . '/../nav.php'); ?>
         <main class="stalls-directory-page">
+            <?php if ($showSavedCarts): ?>
+                <h2 class="section-headers">Saved carts</h2>
+                <?php if (!$stalls): ?>
+                    <p>Your carts are empty.</p>
+                <?php endif; ?>
+                <p><a href="stalls-directory.php">Browse all stalls</a></p>
+            <?php else: ?>
             <!-- SEARCH BAR -->
              <div class="search-container">
                 <input type="text" id="searchInput" placeholder="What are you in the mood for?">
@@ -64,6 +71,7 @@
 
              <!-- PAGE TITLE -->
              <h2 class="section-headers"> Stalls Directory </h2>
+            <?php endif; ?>
 
              <!-- Each card is rendered from the current database stall record. -->
             <div class="stall-list">
