@@ -54,11 +54,11 @@
             <div class="admin-table-wrap">
                 <table class="admin-table users-table">
                     <thead>
-                        <tr><th>Name</th><th>Email</th><th>Contact</th><th>Role</th></tr>
+                        <tr><th>Name</th><th>Email</th><th>Contact</th><th>Role</th><th>Date Created</th></tr>
                     </thead>
                     <tbody id="usersBody">
                         <?php if (empty($users)): ?>
-                            <tr><td colspan="4" style="text-align:center;">No users found.</td></tr>
+                            <tr><td colspan="5" style="text-align:center;">No users found.</td></tr>
                         <?php else: ?>
                             <?php foreach ($users as $u): ?>
                                 <?php $role = $u['user_role'] ?? ''; ?>
@@ -73,6 +73,7 @@
                                     <td><?= htmlspecialchars($u['email_add'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></td>
                                     <td><?= htmlspecialchars($u['contact_num'] ?? '—', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></td>
                                     <td><?= htmlspecialchars(ucfirst($role), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></td>
+                                    <td><?= htmlspecialchars($u['created_at'] ?? '—', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php endif; ?>

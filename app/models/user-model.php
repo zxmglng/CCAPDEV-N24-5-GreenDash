@@ -102,16 +102,16 @@ function updateUserRole(PDO $pdo, int $userId, string $role): bool
     return $stmt->execute([$role, $userId]);
 }
 
-// All active users, for the manage-users.php table.
+// Active and inactive accounts remain visible in the Users Directory.
+// Pending vendors are listed separately on the Activate Vendors page.
 function get_users()
 {
     global $pdo;
 
-    // Admin list excludes inactive accounts, which are retained for order history.
     return $pdo->query(
-        "SELECT user_id, email_add, first_name, last_name, contact_num, user_role, acc_status
+        "SELECT user_id, email_add, first_name, last_name, contact_num, user_role, acc_status, created_at
          FROM users
-         WHERE acc_status = 'active'
+         WHERE acc_status IN ('active', 'inactive')
          ORDER BY last_name, first_name"
     )->fetchAll(PDO::FETCH_ASSOC);
 }
