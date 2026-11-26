@@ -361,6 +361,7 @@ let activeCategory = 'all';
 let menuAnimationDirection = 'next';
 const menuCategories = [...document.querySelectorAll('.menu-categories button')]
     .map(button => button.dataset.category);
+const DEFAULT_PRODUCT_IMAGE = 'assets/main/no-image-set.png';       // Default image for products without an image set
 
 const modal = document.querySelector('#itemModal');
 const modalPrice = document.querySelector('#modalBasePrice');
@@ -370,23 +371,25 @@ const menuProducts = serverStallData.products.map(product => ({
     productId: Number(product.id),
     name: product.name,
     price: Number(product.price),
-    image: product.image_path || '',
-    category: product.category ? product.category.toLowerCase() : 'all',
+    image: product.image_path || DEFAULT_PRODUCT_IMAGE,     // Use default image if none is set for the product
+    categories: Array.isArray(product.categories) && product.categories.length      // Use product categories if available, otherwise fallback to single category or 'all'
+        ? product.categories.map(category => category.name.toLowerCase())           // Map category names to lowercase for consistency
+        : [product.category ? product.category.toLowerCase() : 'all'],
     optionGroups: Array.isArray(product.optionGroups) ? product.optionGroups : []
 }));
 const menuProductsById = new Map(menuProducts.map(product => [product.productId, product]));
 
 // Turn controller-provided product records into cards that can be filtered and opened.
-menuProducts.forEach(({productId, name, price, image, category}, index) => {
+menuProducts.forEach(({productId, name, price, image, categories}, index) => {
     const item = document.createElement('div');
     item.className = 'col-12 col-sm-6 col-md-4 col-lg-3 menu-column';
-    item.dataset.category = category;
+    item.dataset.categories = JSON.stringify(categories);       // stringify: store categories as a JSON string for later parsing
     item.dataset.name = name.toLowerCase();
     item.dataset.price = String(price);
     item.innerHTML = `
         <div class="menu-item">
             <div class="menu-image-container">
-                <img src="${escapeStallHtml(stallImageUrl(image))}" alt="${escapeStallHtml(name)}" ${image ? '' : 'hidden'}>
+                <img src="${escapeStallHtml(stallImageUrl(image))}" alt="${escapeStallHtml(name)}">
                 <button type="button" class="add-item-button" aria-label="Add ${escapeStallHtml(name)}"
                     data-product-index="${index}"
                     data-product-id="${productId || ''}" data-menu-name="${escapeStallHtml(name)}"
@@ -404,7 +407,11 @@ function belongsToCategory(item, category) {
     if (category === 'all') {
         return true;
     }
-    return item.dataset.category === category;
+    try {
+        return JSON.parse(item.dataset.categories).includes(category);  // Check if the item belongs to the given category
+    } catch {
+        return false;
+    }
 }
 
 function showMenuCategory(category, direction = 'next') {

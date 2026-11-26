@@ -174,7 +174,7 @@ $vendorHeaderLocation = count($vendorStalls) === 1
                     <textarea class="form-control" id="itemDescription" rows="3" maxlength="200"></textarea>
 
                     <fieldset class="mt-3">
-                        <legend class="form-label">Shows up under</legend>
+                        <legend class="form-label">Shows up under (select all that apply)</legend>  
                         <div class="category-checks" id="itemCategoryChecks"></div>
                     </fieldset>
 

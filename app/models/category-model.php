@@ -41,8 +41,14 @@ function renameCategory(PDO $pdo, int $stallId, int $categoryId, string $name): 
 
 function deleteCategory(PDO $pdo, int $stallId, int $categoryId): bool
 {
-    // Refuse if any products still reference this category.
-    $check = $pdo->prepare("SELECT COUNT(*) FROM products WHERE category_id = ? AND stall_id = ?");
+    // Refuse if any products still use this category.
+    // We check the product_categories table for any products that belong to this category and also belong to the given stall.
+    $check = $pdo->prepare(
+        "SELECT COUNT(*)
+         FROM product_categories pc
+         JOIN products p ON p.id = pc.product_id
+         WHERE pc.category_id = ? AND p.stall_id = ?"
+    );
     $check->execute([$categoryId, $stallId]);
     if ((int) $check->fetchColumn() > 0) {
         throw new RuntimeException('Move or delete the products in this category before removing it.');

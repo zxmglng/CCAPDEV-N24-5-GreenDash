@@ -136,6 +136,9 @@
             price: Number(p.price),
             description: p.description || '',
             categoryId: Number(p.category_id),
+            categoryIds: Array.isArray(p.categories) && p.categories.length
+                ? p.categories.map(category => Number(category.id))
+                : [Number(p.category_id)],
             photo: p.image_path || DEFAULT_PRODUCT_IMAGE,       // use default image if none set
             available: Boolean(Number(p.is_available)),
             optionGroups: p.optionGroups || [],
@@ -263,7 +266,7 @@
         const addItemBtn = byId('addItemBtn');
 
         function itemsIn(categoryId) {
-            return state.items.filter(i => i.categoryId === categoryId);
+            return state.items.filter(i => (i.categoryIds || [i.categoryId]).includes(categoryId));
         }
 
         function renderItems() {
@@ -564,14 +567,9 @@
                 box.type = 'checkbox';
                 box.id = 'item-cat-' + cat.id;
                 box.value = cat.id;
-                box.checked = item ? item.categoryId === cat.id : cat.id === state.selectedCategoryId;
-                box.addEventListener('change', () => {
-                    if (box.checked) {
-                        itemCats.querySelectorAll('input[type="checkbox"]').forEach(b => {
-                            if (b !== box) b.checked = false;
-                        });
-                    }
-                });
+                box.checked = item
+                    ? (item.categoryIds || [item.categoryId]).includes(cat.id)
+                    : cat.id === state.selectedCategoryId;
                 const label = elem('label', 'form-check-label', cat.name);
                 label.htmlFor = box.id;
                 wrap.append(box, label);
@@ -631,17 +629,17 @@
             if (saveItemBtn.disabled) return;
             const name = itemNameInput.value.trim();
             const price = parseFloat(itemPriceInput.value);
-            const categoryBox = itemCats.querySelector('input:checked');
-            const categoryId = categoryBox ? Number(categoryBox.value) : null;
+            const categoryIds = [...itemCats.querySelectorAll('input:checked')]
+                .map(box => Number(box.value));
 
             if (!name) { itemError.textContent = 'Please enter an item name.'; return; }
             if (Number.isNaN(price) || price < 0) { itemError.textContent = 'Please enter a valid price.'; return; }
-            if (!categoryId) { itemError.textContent = 'Pick a category for this item.'; return; }
+            if (!categoryIds.length) { itemError.textContent = 'Pick at least one category for this item.'; return; }
 
             saveItemBtn.disabled = true;
             try {
                 const payload = {
-                    categoryId,
+                    categoryIds,
                     name,
                     price,
                     description: itemDescInput.value.trim(),
@@ -680,7 +678,8 @@
                     name,
                     price,
                     description: payload.description,
-                    categoryId,
+                    categoryId: categoryIds[0],
+                    categoryIds,
                     photo: payload.imagePath,
                     available: payload.available,
                     optionGroups: state.editingOptionGroups,
@@ -691,7 +690,7 @@
                 } else {
                     state.items.push(refreshed);
                 }
-                state.selectedCategoryId = categoryId;
+                state.selectedCategoryId = categoryIds[0];
                 Modal.close('item-modal');
                 renderCategories();
                 renderItems();

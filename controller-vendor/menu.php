@@ -66,6 +66,32 @@ function parsePrice($value): string
     return $value;
 }
 
+// Parse and validate category IDs for a product, ensuring they belong to the given stall.
+function parseProductCategoryIds(mixed $input, PDO $pdo, int $stallId): array
+{   
+    // Ensure the input is an array and not empty
+    // array contains the category IDs selected for the product
+    if (!is_array($input) || !$input) {
+        throw new InvalidArgumentException('Choose at least one category.');
+    }
+
+    // Validate each category ID and ensure it belongs to the given stall
+    $validIds = array_fill_keys(array_map(      
+        static fn(array $category): int => (int) $category['id'],   
+        getCategoryRowsByStall($pdo, $stallId)      // Get all categories for the stall to validate against
+    ), true);
+    $categoryIds = [];      // Array to store validated category IDs
+    foreach ($input as $value) {    // Validate each input category ID against the valid IDs for the stall
+        $categoryId = vendorPositiveId($value, 'category ID');
+        if (!isset($validIds[$categoryId])) {
+            throw new InvalidArgumentException('Choose categories from this store.');
+        }
+        $categoryIds[] = $categoryId;
+    }
+
+    return array_values(array_unique($categoryIds));
+}
+
 try {
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $stallId = vendorPositiveId($_GET['stallId'] ?? null, 'stall ID');
@@ -125,7 +151,8 @@ try {
     }
 
     if ($action === 'product_add') {
-        $categoryId = vendorPositiveId($request['categoryId'] ?? null);
+        $categoryInput = $request['categoryIds'] ?? (isset($request['categoryId']) ? [$request['categoryId']] : null);
+        $categoryIds = parseProductCategoryIds($categoryInput, $pdo, $stallId);
         $name = trim((string) ($request['name'] ?? ''));
         $description = trim((string) ($request['description'] ?? ''));
         $price = parsePrice($request['price'] ?? null);
@@ -139,7 +166,7 @@ try {
         if (mb_strlen($description, 'UTF-8') > 1000) {
             throw new InvalidArgumentException('Description is too long.');
         }
-        $id = addProduct($pdo, $stallId, $categoryId, $name, $description ?: null, $price, $imagePath, $available);
+        $id = addProduct($pdo, $stallId, $categoryIds, $name, $description ?: null, $price, $imagePath, $available);
         menuRespond(200, ['success' => true, 'productId' => $id, 'imagePath' => $imagePath]);
     }
 
@@ -149,7 +176,8 @@ try {
         if (!$product) {
             throw new VendorRequestException('Item not found.', 404);
         }
-        $categoryId = vendorPositiveId($request['categoryId'] ?? null);
+        $categoryInput = $request['categoryIds'] ?? (isset($request['categoryId']) ? [$request['categoryId']] : null);
+        $categoryIds = parseProductCategoryIds($categoryInput, $pdo, $stallId);
         $name = trim((string) ($request['name'] ?? ''));
         $description = trim((string) ($request['description'] ?? ''));
         $price = parsePrice($request['price'] ?? null);
@@ -164,7 +192,7 @@ try {
         if ($name === '' || mb_strlen($name, 'UTF-8') > 150) {
             throw new InvalidArgumentException('Item names must be 1–150 characters.');
         }
-        if (!updateProduct($pdo, $productId, $stallId, $categoryId, $name, $description ?: null, $price, $imagePath, $available)
+        if (!updateProduct($pdo, $productId, $stallId, $categoryIds, $name, $description ?: null, $price, $imagePath, $available)
             && !getStallProduct($pdo, $stallId, $productId)) {
             throw new VendorRequestException('Item not found.', 404);
         }

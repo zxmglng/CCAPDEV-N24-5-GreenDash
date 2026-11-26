@@ -17,7 +17,58 @@ function getStallProducts(PDO $pdo, int $stallId): array
         ORDER BY p.id
     ");
     $stmt->execute([$stallId]);
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Add categories to each product
+    $categoriesByProduct = getProductCategories($pdo, array_column($products, 'id'));
+    foreach ($products as &$product) {
+        $product['categories'] = $categoriesByProduct[(int) $product['id']] ?? [];
+    }
+    unset($product);    // Break the reference to the last product
+    return $products;   // Return the products with their associated categories
+}
+
+// Get all products for a stall, including their option groups and choices.
+function getProductCategories(PDO $pdo, array $productIds): array
+{
+    $productIds = array_values(array_unique(array_filter(array_map('intval', $productIds), static fn(int $id): bool => $id > 0)));
+    if (!$productIds) {
+        return [];
+    }
+
+    $placeholders = implode(',', array_fill(0, count($productIds), '?'));
+    $stmt = $pdo->prepare(
+        /* pc = product_categories, c = categories */
+
+        "SELECT pc.product_id, c.id, c.name /* Fetch category id and name */
+         FROM product_categories pc /* Join with categories to get category details */
+         JOIN categories c ON c.id = pc.category_id /* Ensure we only get categories that exist */
+         WHERE pc.product_id IN ($placeholders) /* Filter by the provided product IDs */
+         ORDER BY pc.product_id, c.id"  
+    );
+    $stmt->execute($productIds);
+
+    // Build an array mapping product IDs to their categories
+    $categoriesByProduct = [];  // Initialize an empty array to hold the categories for each product
+    foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {   // Loop through each row returned from the query
+        $categoriesByProduct[(int) $row['product_id']][] = [
+            'id' => (int) $row['id'],   // Store the category ID as an integer
+            'name' => $row['name'],     // Store the category name
+        ];
+    }
+    return $categoriesByProduct;        // Return the mapping of product IDs to their associated categories
+}
+
+// Replace all categories for a product with the given list of category IDs.
+function replaceProductCategories(PDO $pdo, int $productId, array $categoryIds): void
+{
+    $delete = $pdo->prepare('DELETE FROM product_categories WHERE product_id = ?'); // Delete existing category associations for the product
+    $delete->execute([$productId]); // Execute the delete statement with the product ID
+
+    $insert = $pdo->prepare('INSERT INTO product_categories (product_id, category_id) VALUES (?, ?)');  // Prepare the insert statement to add new category associations
+    foreach (array_values(array_unique(array_map('intval', $categoryIds))) as $categoryId) {
+        $insert->execute([$productId, $categoryId]);    // Execute the insert statement for each unique category ID associated with the product
+    }
 }
 
 function getProductOptionGroups(PDO $pdo, array $productIds, bool $includeUnavailable = false): array
@@ -69,27 +120,45 @@ function getProductOptionGroups(PDO $pdo, array $productIds, bool $includeUnavai
     return $groups;
 }
 
-function addProduct(PDO $pdo, int $stallId, int $categoryId, string $name, ?string $description,
+function addProduct(PDO $pdo, int $stallId, array $categoryIds, string $name, ?string $description,
     string $price, ?string $imagePath, bool $isAvailable): int
 {
-    $stmt = $pdo->prepare(
-        "INSERT INTO products (stall_id, category_id, name, description, price, image_path, is_available)
-         VALUES (?, ?, ?, ?, ?, ?, ?)"
-    );
-    $stmt->execute([$stallId, $categoryId, $name, $description, $price, $imagePath, $isAvailable ? 1 : 0]);
-    return (int) $pdo->lastInsertId();
+    $pdo->beginTransaction();
+    try {
+        $stmt = $pdo->prepare(
+            "INSERT INTO products (stall_id, category_id, name, description, price, image_path, is_available)
+             VALUES (?, ?, ?, ?, ?, ?, ?)"
+        );
+        $stmt->execute([$stallId, $categoryIds[0], $name, $description, $price, $imagePath, $isAvailable ? 1 : 0]);
+        $productId = (int) $pdo->lastInsertId();
+        replaceProductCategories($pdo, $productId, $categoryIds);
+        $pdo->commit();
+        return $productId;
+    } catch (Throwable $error) {
+        if ($pdo->inTransaction()) $pdo->rollBack();
+        throw $error;
+    }
 }
 
-function updateProduct(PDO $pdo, int $productId, int $stallId, int $categoryId, string $name,
+function updateProduct(PDO $pdo, int $productId, int $stallId, array $categoryIds, string $name,
     ?string $description, string $price, ?string $imagePath, bool $isAvailable): bool
 {
-    $stmt = $pdo->prepare(
-        "UPDATE products
-         SET category_id = ?, name = ?, description = ?, price = ?, image_path = ?, is_available = ?
-         WHERE id = ? AND stall_id = ?"
-    );
-    $stmt->execute([$categoryId, $name, $description, $price, $imagePath, $isAvailable ? 1 : 0, $productId, $stallId]);
-    return $stmt->rowCount() > 0;
+    $pdo->beginTransaction();
+    try {
+        $stmt = $pdo->prepare(
+            "UPDATE products
+             SET category_id = ?, name = ?, description = ?, price = ?, image_path = ?, is_available = ?
+             WHERE id = ? AND stall_id = ?"
+        );
+        $stmt->execute([$categoryIds[0], $name, $description, $price, $imagePath, $isAvailable ? 1 : 0, $productId, $stallId]);
+        $updated = $stmt->rowCount() > 0;
+        replaceProductCategories($pdo, $productId, $categoryIds);
+        $pdo->commit();
+        return $updated;
+    } catch (Throwable $error) {
+        if ($pdo->inTransaction()) $pdo->rollBack();
+        throw $error;
+    }
 }
 
 function deleteProduct(PDO $pdo, int $productId, int $stallId): bool

@@ -662,9 +662,14 @@ body.cart-open .order-summary {
 .menu-image-container {
     position: relative;
     width: 100%;
+    aspect-ratio: 1;
+    border-radius: 20px;
+    background: #f1f1f1;
 }
 .menu-image-container img {
     width: 100%;
+    height: 100%;
+    object-fit: cover;
     border-radius: 20px;
     display: block;
 }
@@ -683,6 +688,7 @@ body.cart-open .order-summary {
     border-radius: 50%;
     background-color: #ffffff;
     color: #404040;
+    z-index: 1;
     font-size: 0;
     cursor: pointer;
 }
