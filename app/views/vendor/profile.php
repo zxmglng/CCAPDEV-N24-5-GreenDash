@@ -82,6 +82,10 @@ $vendorHeaderLocation = count($vendorStalls) === 1
                         <dt>Account type:</dt>
                         <dd><?= htmlspecialchars(ucfirst($vendor['user_role']), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></dd>
                     </div>
+                    <div class="account-row">
+                        <dt>Account status:</dt>
+                        <dd><?= htmlspecialchars(ucfirst($vendor['acc_status']), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></dd>
+                    </div>
                 </dl>
 
                 <form method="post" action="logout.php">
