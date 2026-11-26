@@ -39,8 +39,8 @@ function enforceGreenDashSessionTimeout(): void
         $lastActivity = (int) ($_SESSION['admin_last_activity'] ?? $currentTime);
 
         // FOR TESTING ONLY = uncomment
-        if (($currentTime - $lastActivity) >= 10) {
-        // if (($currentTime - $lastActivity) >= 1800) {
+        // if (($currentTime - $lastActivity) >= 10) {
+        if (($currentTime - $lastActivity) >= 1800) {
             unset($_SESSION['admin_authenticated'], $_SESSION['admin_name'], $_SESSION['admin_user_id'],
                 $_SESSION['admin_csrf_token'], $_SESSION['admin_last_activity']);
             $sessionExpired = true;
@@ -52,8 +52,8 @@ function enforceGreenDashSessionTimeout(): void
     if (isset($_SESSION['user_id'])) {
         // user and vendor timeout = 15 min
         // FOR TESTING ONLY = uncomment
-        $timeout = 10;
-        // $timeout = 900;
+        // $timeout = 10;
+        $timeout = 900;
         $lastActivity = (int) ($_SESSION['user_last_activity'] ?? $currentTime);
         if (($currentTime - $lastActivity) >= $timeout) {
             clearGreenDashUserSessionData();
