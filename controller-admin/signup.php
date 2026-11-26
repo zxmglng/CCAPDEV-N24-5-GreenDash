@@ -54,9 +54,9 @@ if ($requestMethod === 'POST') {
         unset($_SESSION['admin_csrf_token']);
         header('Location: home.php', true, 303);
         exit;
-    } 
-} elseif ($requestMethod === 'GET') {
-    header('Allow: GEET, POST');
+    }
+} elseif ($requestMethod !== 'GET') {
+    header('Allow: GET, POST');
     http_response_code(405);
     exit;
 }
