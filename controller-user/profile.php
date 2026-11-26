@@ -1,40 +1,41 @@
 <?php
-// this controller handsle session initiallization, logout, POST, updating profile, and loads profile view
 
-require_once(__DIR__ . "/../app/core/session.php");
+require_once __DIR__ . '/../app/core/session.php';
+require_once __DIR__ . '/../app/core/user-csrf.php';
 startGreenDashSession();
+header('Cache-Control: no-store');
 
-require_once(__DIR__ . "/../app/core/db.php");
-require_once(__DIR__ . "/../app/models/user-model.php");
-require_once(__DIR__ . "/../app/models/order-model.php");
-
-//log out current user
-if (isset($_GET['logout'])) {
-    destroyGreenDashSession();
-    header('Location: ../index.php');
-    exit;
-}
-
+$isPost = $_SERVER['REQUEST_METHOD'] === 'POST';
 if (!isset($_SESSION['user_id'])) {
-    header('Location: ../index.php');
+    if ($isPost) {
+        http_response_code(401);
+    } else {
+        header('Location: ../index.php');
+    }
     exit;
 }
 
-// get info of the logged in user
-$user = getUserById($pdo, $_SESSION['user_id']);
-if (!$user) {
-    header('Location: ../index.php');
+if ($isPost && !isUserCsrfTokenValid($_POST['csrfToken'] ?? null)) {
+    http_response_code(403);
     exit;
 }
 
-// get user's order activity
-$totalOrders = getUserCompletedOrderCount($pdo, $_SESSION['user_id']);
-$totalSpent = getUserTotalSpent($pdo, $_SESSION['user_id']);
-$favoriteStall = getUserFavoriteStall($pdo, $_SESSION['user_id']);
-$monthlyOrders = getUserMonthlyOrderCounts($pdo, $_SESSION['user_id']);
+require_once __DIR__ . '/../app/core/db.php';
+require_once __DIR__ . '/../app/models/user-model.php';
+require_once __DIR__ . '/../app/models/order-model.php';
 
-// update profile info
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+$userId = (int) $_SESSION['user_id'];
+$user = getUserById($pdo, $userId);
+if (!$user || $user['acc_status'] !== 'active') {
+    if ($isPost) {
+        http_response_code(403);
+    } else {
+        header('Location: ../index.php');
+    }
+    exit;
+}
+
+if ($isPost) {
     $firstName = trim($_POST['first_name'] ?? '');
     $lastName = trim($_POST['last_name'] ?? '');
     $contactNum = trim($_POST['contact_num'] ?? '');
@@ -42,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     updateUserProfile(
         $pdo,
-        $_SESSION['user_id'],
+        $userId,
         $firstName,
         $lastName,
         $contactNum !== '' ? $contactNum : null,
@@ -51,9 +52,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 
-// paths used by the shared navigation
+$totalOrders = getUserCompletedOrderCount($pdo, $userId);
+$totalSpent = getUserTotalSpent($pdo, $userId);
+$favoriteStall = getUserFavoriteStall($pdo, $userId);
+$monthlyOrders = getUserMonthlyOrderCounts($pdo, $userId);
+$csrfToken = userCsrfToken();
 $assetBase = '../';
 $userPageBase = '../app/views/user/';
 
-require_once(__DIR__ . "/../app/views/user/profile.php");
-?>
+require __DIR__ . '/../app/views/user/profile.php';

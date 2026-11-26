@@ -1,3 +1,5 @@
+const USER_APPLICATION_URL = new URL('../', document.currentScript.src);
+
 function pageRoute(path) {
     // Use prototype HTML pages when this script is running outside the PHP app.
     return window.location.pathname.endsWith('.html')
@@ -57,33 +59,18 @@ function getUserLoginRedirect() {
 // Google verifies the credential in the backend; the browser only handles the response and redirect.
 async function handleGoogleLogin(response) {
     try {
-        const loginButton = document.getElementById('googleLoginButton');
-        const loginEndpoint = loginButton?.dataset.loginEndpoint
-            || (window.location.pathname.includes('/controller-user/')
-                ? 'google-login.php'
-                : 'controller-user/google-login.php');
-        const backendResponse = await fetch(loginEndpoint, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({credential: response.credential})
-        });
-
-        // Stop on any HTTP or application-level error before changing the current page.
-        const result = await backendResponse.json();
-        if (!backendResponse.ok || !result.success) {
-            alert(result.message || 'Login failed. Please try again.');
-            return;
-        }
+        const {submitGoogleCredential} = await import(new URL('js/google-login-request.js', USER_APPLICATION_URL));
+        const result = await submitGoogleCredential(response.credential);
         if (result.needs_role) {
             // New accounts must choose a role before proceeding to the user area.
-            window.location.href = 'controller-user/select-role.php';
+            window.location.href = new URL('controller-user/select-role.php', USER_APPLICATION_URL).href;
             return;
         }
 
         window.location.href = getUserLoginRedirect();
     } catch (error) {
         console.error(error);
-        alert('An error occurred during login. Please try again.');
+        alert(error.message || 'An error occurred during login. Please try again.');
     }
 }
 
@@ -109,6 +96,7 @@ $(document).ready(function () {
             url: 'profile.php',
             type: 'POST',
             data: {
+                csrfToken: $('#profileCsrfToken').val(),
                 first_name: newFirstName,
                 last_name: newLastName,
                 contact_num: newContactNumber,
@@ -122,8 +110,10 @@ $(document).ready(function () {
                 newProfilePic = null;
                 alert('Profile updated successfully!');
             },
-            error: function () {
-                alert('Error updating profile. Please try again.');
+            error: function (xhr) {
+                const sessionChanged = xhr.status === 401 || xhr.status === 403;
+                alert(sessionChanged ? 'Please reload the profile page and try again.'
+                    : 'Error updating profile. Please try again.');
             }
         });
     });
@@ -146,10 +136,6 @@ $(document).ready(function () {
             $('#profileAvatar').attr('src', newProfilePic);
         };
         reader.readAsDataURL(file);
-    });
-
-    $('#logoutBtn').click(function () {
-        window.location.href = 'profile.php?logout=1';
     });
 });
 

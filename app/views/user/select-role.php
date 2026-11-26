@@ -27,6 +27,8 @@
                 </p>
             <?php endif; ?>
             <form method="post" action="select-role.php" class="select-role-form">
+                <input type="hidden" name="csrfToken"
+                    value="<?= htmlspecialchars($csrfToken, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
                 <div class="role-card-group">
                     <input type="radio" id="roleStudent" name="user_role" value="student" required>
                     <label for="roleStudent" class="role-option-card">

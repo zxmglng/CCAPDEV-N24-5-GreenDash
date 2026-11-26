@@ -77,7 +77,11 @@
 
                                 <div class="profile-button-group">
                                     <button type="button" id="editProfileBtn" class="edit-profile-btn">Edit Profile</button>
-                                    <button type="button" id="logoutBtn" class="logout-btn">Logout</button>
+                                    <form method="post" action="logout.php">
+                                        <input type="hidden" id="profileCsrfToken" name="csrfToken"
+                                            value="<?= htmlspecialchars($csrfToken, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
+                                        <button type="submit" id="logoutBtn" class="logout-btn">Logout</button>
+                                    </form>
                                 </div>
                             </div>
                         </section>

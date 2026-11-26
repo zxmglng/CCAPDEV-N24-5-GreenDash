@@ -12,12 +12,29 @@ Should contain:
 
 ## Files
 
+- `google-login-token.php` issues a pre-login CSRF token for the current browser session.
+- `google-login.php` validates the pre-login token before verifying the Google ID token.
+- `profile.php` checks the signed-in account and requires a CSRF token for profile edits.
+- `select-role.php` checks the signed-in account and requires a CSRF token when assigning its first role.
+- `logout.php` accepts only a POST with a valid customer CSRF token.
 - `cart.php` loads and updates a signed-in customer's saved cart for a stall.
 - `checkout.php` loads the signed-in customer's saved cart for the selected stall, creates the checkout CSRF token, and renders `app/views/user/checkout.php`.
 - `submit-order.php` accepts checkout POST requests and returns JSON. It validates the saved cart, saves the order, and empties the purchased cart in one transaction.
 - `orders.php` requires a signed-in active user and renders only that user's saved orders, items, options, and reviews.
 - `reviews.php` provides public stall review lists on GET and owner-authorized review saves/deletes on POST.
 - `cancel-order.php` handles the existing Orders page cancellation action for the owner's pending orders.
+
+## Account CSRF protection
+
+Customer profile edits, role selection, and logout submit a session-bound
+`csrfToken` form field. PHP rejects invalid tokens with HTTP 403 before
+making a change.
+
+The customer and vendor sign-in callbacks both request a pre-login token
+through `js/google-login-request.js`. They submit it alongside `credential`
+in the JSON login request. Successful sign-in rotates the session ID and
+clears the previous account's tokens. Deploy the PHP and JavaScript files
+together so both callbacks can send the required token.
 
 ## Saved carts
 

@@ -54,20 +54,8 @@ async function handleVendorGoogleLogin(response) {
 
     if (VENDOR_PAGE_EXTENSION === '.php') {
         try {
-            const loginResponse = await fetch(new URL('controller-user/google-login.php', VENDOR_APPLICATION_URL), {
-                method: 'POST', credentials: 'same-origin',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({credential: response.credential})
-            });
-            let result;
-            try {
-                result = await loginResponse.json();
-            } catch {
-                throw new Error('The login server returned an unexpected response. Please try again.');
-            }
-            if (!loginResponse.ok || !result.success) {
-                throw new Error(result.message || 'Unable to sign in. Please try again.');
-            }
+            const {submitGoogleCredential} = await import(new URL('js/google-login-request.js', VENDOR_APPLICATION_URL));
+            const result = await submitGoogleCredential(response.credential);
             if (result.user_role !== 'vendor') {
                 clearVendorData();
                 alert('This account is not registered as a vendor. Ask your administrator to set up your vendor account and assign your stall.');
