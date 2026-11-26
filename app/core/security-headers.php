@@ -1,13 +1,12 @@
 <?php
 
-// send CSP in report-only mode first
-// reports policy violations without blocking resources!!
+// reports & enforces policy violations without blocking resources!!
 function sendGreenDashCspReportOnly(): void
 {
     if (headers_sent()) {
         return;
     }
-    header("Content-Security-Policy-Report-Only: "
+    header("Content-Security-Policy: "
     . "default-src 'self'; "
     . "base-uri 'self'; "
     . "object-src 'none'; "
