@@ -56,6 +56,19 @@ function createGoogleUser(PDO $pdo, string $email, string $firstName, string $la
     return (int) $pdo->lastInsertId();
 }
 
+// Create a new vendor account with the given details. The account is inactive until an admin approves it.
+function createVendorAccount(PDO $pdo, string $email, string $firstName, string $lastName, string $password): int
+{
+    $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+
+    $stmt = $pdo->prepare("
+        INSERT INTO users (email_add, first_name, last_name, password_hash, user_role, acc_status)
+        VALUES (?, ?, ?, ?, 'vendor', 'inactive')
+    ");
+    $stmt->execute([$email, $firstName, $lastName, $passwordHash]);
+    return (int) $pdo->lastInsertId();
+}
+
 // Save profile fields edited by the authenticated user.
 function updateUserProfile(PDO $pdo, int $userId, string $firstName, string $lastName, ?string $contactNum, ?string $profileImage): bool
 {
@@ -101,6 +114,30 @@ function get_users()
          WHERE acc_status = 'active'
          ORDER BY last_name, first_name"
     )->fetchAll(PDO::FETCH_ASSOC);
+}
+
+// All pending vendor accounts, for the manage-users.php table for admin
+function getPendingVendors(PDO $pdo): array
+{
+    return $pdo->query(
+        "SELECT user_id, email_add, first_name, last_name
+         FROM users
+         WHERE user_role = 'vendor' AND acc_status = 'inactive'
+         ORDER BY created_at, user_id"
+    )->fetchAll(PDO::FETCH_ASSOC);
+}
+
+// Activate a pending vendor account. Returns true if the account was activated, 
+// false if it was already active or not a vendor.
+function activateVendor(PDO $pdo, int $userId): bool
+{
+    $stmt = $pdo->prepare(
+        "UPDATE users
+         SET acc_status = 'active'
+         WHERE user_id = ? AND user_role = 'vendor' AND acc_status = 'inactive'"
+    );
+    $stmt->execute([$userId]);
+    return $stmt->rowCount() === 1;
 }
 
 // Vendor dropdown for the Add Stall form.

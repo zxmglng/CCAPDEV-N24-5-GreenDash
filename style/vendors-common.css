@@ -285,6 +285,15 @@ body.vendor-page {
 	margin: 0;
 }
 
+/* Shared notice for vendors waiting for account activation. */
+.inactive-notice {
+	border: 1px solid var(--v-border);
+	border-radius: 8px;
+	padding: 9px 16px 12px;
+	margin-bottom: 25px;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, .1);
+}
+
 /* Helper text under a field */
 .form-hint {
 	color: var(--v-text-muted);
@@ -463,4 +472,10 @@ body.dark-mode .vmodal-foot {
 
 body.dark-mode .item-photo {
 	color: rgba(255, 255, 255, 0.7);
+}
+
+/* transitions */
+.vendor-page .fade-enter-active,
+.vendor-page .fade-leave-active {
+	transition: opacity 0.3s ease;
 }

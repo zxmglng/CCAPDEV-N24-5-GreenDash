@@ -59,13 +59,23 @@ $vendorHeaderLocation = count($vendorStalls) === 1
             </aside>
 
             <main class="vendor-content">
+
+                <!-- Display a notice if the vendor account is not active -->
+                <div class="inactive-notice">
+                    <?php if ($vendor['acc_status'] !== 'active'): ?>
+                    <p class="field-error" role="status">NOTICE: Please wait for the admin to activate your account. You can browse the vendor menu, but store requests are unavailable until your account is active.</p>
+                    <?php endif; ?>
+                </div>
+
                 <h1 class="page-title">Manage store</h1>
 
                 <div class="store-grid">
                     <?php if (empty($vendorStalls)): ?>
                         <p class="empty-note">
-                            No stores are assigned to your account yet.
-                            <a href="request-store.php">Request to add a store</a>.
+                            You have no stores yet.
+                            <br>
+                            <br>
+                            <a href="request-store.php" class="btn btn-success">Request to add a store</a>
                         </p>
                     <?php else: ?>
                         <?php foreach ($vendorStalls as $s): ?>

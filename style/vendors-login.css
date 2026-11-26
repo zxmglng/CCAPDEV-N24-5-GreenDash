@@ -30,3 +30,33 @@
     display: flex;
     justify-content: center;
 }
+
+.vendor-auth-form {
+    margin: 0 auto;
+    max-width: 380px;
+    text-align: left;
+}
+
+.vendor-login-divider {
+    color: var(--v-text-muted);
+    margin: 20px auto;
+    max-width: 380px;
+}
+
+.vendor-login-divider::before,
+.vendor-login-divider::after {
+    background: currentColor;
+    content: "";
+    display: inline-block;
+    height: 1px;
+    margin: 0 10px 4px;
+    opacity: 0.3;
+    width: 30%;
+}
+
+.back-link {
+    color: var(--v-text-muted);
+    font-size: 0.875rem;
+    text-decoration: underline;
+}
+

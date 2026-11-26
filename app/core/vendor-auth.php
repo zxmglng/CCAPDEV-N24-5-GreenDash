@@ -24,8 +24,13 @@ function vendorPositiveId($value, string $label = 'order ID'): int
 function requireVendorAccount(PDO $pdo, int $vendorId): array
 {
     $vendor = getUserById($pdo, $vendorId);
-    if (!$vendor || $vendor['acc_status'] !== 'active' || $vendor['user_role'] !== 'vendor') {
+    if (!$vendor || $vendor['user_role'] !== 'vendor') {
         throw new VendorRequestException('An active vendor account is required. Please contact your administrator.', 403);
+    }
+
+    // Pending vendors can browse the vendor area, but cannot submit any form actions.
+    if ($vendor['acc_status'] !== 'active') {
+        throw new VendorRequestException('Please wait for the admin to activate your account.', 403);
     }
     return $vendor;
 }

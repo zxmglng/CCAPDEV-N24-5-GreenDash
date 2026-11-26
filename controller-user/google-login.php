@@ -39,6 +39,7 @@ if (!is_string($credential) || trim($credential) === '') {
     googleLoginFailure(400, 'Missing Google credential.');
 }
 
+// for verifying the Google credentials
 try {
     require_once __DIR__ . '/../vendor/autoload.php';
 

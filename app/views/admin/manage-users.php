@@ -24,6 +24,39 @@
                 <p class="admin-flash" role="alert"><?= htmlspecialchars($error, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
             <?php endif; ?>
 
+            // Pending vendor accounts section
+            <section aria-labelledby="pendingVendorTitle">
+                <h2 id="pendingVendorTitle">Pending Vendor Accounts</h2>
+                <?php if (empty($pendingVendors)): ?>
+                    <p>No vendor accounts are waiting for activation.</p>
+                <?php else: ?>
+                    <div class="admin-table-wrap">
+                        <table class="admin-table">
+                            <thead>
+                                <tr><th>Name</th><th>Email</th><th>Action</th></tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($pendingVendors as $vendor): ?>
+                                    <tr>
+                                        <td><?= htmlspecialchars($vendor['first_name'] . ' ' . $vendor['last_name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></td>
+                                        <td><?= htmlspecialchars($vendor['email_add'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></td>
+                                        <td>
+                                            <form method="post">
+                                                <input type="hidden" name="csrfToken"
+                                                    value="<?= htmlspecialchars($csrfToken, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
+                                                <input type="hidden" name="action" value="activate-vendor">
+                                                <input type="hidden" name="id" value="<?= (int) $vendor['user_id'] ?>">
+                                                <button type="submit" class="admin-btn primary">Activate</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php endif; ?>
+            </section>
+
             <div class="admin-toolbar">
                 <div class="admin-search">
                     <i class="bi bi-search"></i>

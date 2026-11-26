@@ -33,8 +33,8 @@ function vendorRequireMethod(string $method): void
 try {
     if (!isset($_SESSION['user_id'])) {
         if (!($vendorJsonRequest ?? false)) {
-            $target = '../app/views/vendor/login.php?redirect='
-                . rawurlencode('../../../controller-vendor/' . basename($_SERVER['SCRIPT_NAME']));
+            $target = 'login.php?redirect='
+                . rawurlencode('../controller-vendor/' . basename($_SERVER['SCRIPT_NAME']));
             header('Location: ' . $target, true, 302);
             exit;
         }
@@ -42,7 +42,17 @@ try {
     }
     $vendorId = vendorPositiveId($_SESSION['user_id']);
     require __DIR__ . '/../app/core/db.php';
-    $vendor = requireVendorAccount($pdo, $vendorId);
+    $vendor = getUserById($pdo, $vendorId);
+    if (!$vendor || $vendor['user_role'] !== 'vendor') {
+        throw new VendorRequestException('An active vendor account is required. Please contact your administrator.', 403);
+    }
+    // Pending vendors can browse the vendor area, but cannot submit any form actions.
+    if ($vendor['acc_status'] === 'inactive' && $_SERVER['REQUEST_METHOD'] !== 'GET') {
+        throw new VendorRequestException('Please wait for the admin to activate your account.', 403);
+    }
+    if (!in_array($vendor['acc_status'], ['active', 'inactive'], true)) {
+        throw new VendorRequestException('An active vendor account is required. Please contact your administrator.', 403);
+    }
 } catch (Throwable $error) {
     vendorControllerError($error, $vendorJsonRequest ?? false);
 }

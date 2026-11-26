@@ -59,12 +59,20 @@ if (!defined('GREENDASH_VENDOR_REQUEST_STORE_VIEW')) {
             </aside>
 
             <main class="vendor-content">
-                <h1 class="page-title">Request to add a new store</h1>
+
+                <!-- Display a notice if the vendor account is not active -->
+                <div class="inactive-notice">
+                    <?php if ($vendor['acc_status'] !== 'active'): ?>
+                    <p class="field-error" role="status">NOTICE: Please wait for the admin to activate your account. You can browse the vendor menu, but store requests are unavailable until your account is active.</p>
+                    <?php endif; ?>
+                </div>
+                <h1 class="page-title">Request to add a new store</h1>                
 
                 <?php if ($error !== ''): ?>
                     <p class="field-error" role="alert" style="margin-bottom: 12px;"><?= htmlspecialchars($error, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
                 <?php endif; ?>
 
+                <?php if ($vendor['acc_status'] === 'active'): ?>
                 <form class="store-panel" action="request-store.php" method="POST" enctype="multipart/form-data">
                     <input type="hidden" name="csrfToken"
                         value="<?= htmlspecialchars($csrfToken, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
@@ -228,6 +236,7 @@ if (!defined('GREENDASH_VENDOR_REQUEST_STORE_VIEW')) {
                         <button type="submit" class="vendor-btn primary">Submit request</button>
                     </div>
                 </form>
+                <?php endif; ?>
             </main>
         </div>
 

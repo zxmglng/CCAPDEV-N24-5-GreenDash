@@ -75,6 +75,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             delete_user($id);
             header('Location: manage-users.php');
             exit;
+
+            // NEW FOR PHASE 3: action for activating a pending vendor account
+        } elseif ($action === 'activate-vendor') {
+
+            // Validate the vendor ID and check if the account exists and is pending
+        
+            $id = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);    
+            $user = $id !== false && $id > 0 ? getUserById($pdo, $id) : null;
+            if (!$user || $user['user_role'] !== 'vendor' || $user['acc_status'] !== 'inactive') {
+                throw new InvalidArgumentException('That pending vendor account no longer exists.');
+            }
+            if (!activateVendor($pdo, (int) $id)) {
+                throw new RuntimeException('Unable to activate that vendor account. Please try again.');
+            }
+            header('Location: manage-users.php', true, 303);
+            exit;
         }
     } catch (Throwable $e) {
         error_log('Admin user action failed: ' . $e->getMessage());
@@ -86,5 +102,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $users = get_users();
+$pendingVendors = getPendingVendors($pdo);
 $page = 'manage-users';
 require __DIR__ . '/../app/views/admin/manage-users.php';
