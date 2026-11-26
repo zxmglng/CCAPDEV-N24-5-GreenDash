@@ -66,6 +66,8 @@ function enforceGreenDashSessionTimeout(): void
         
         if (!$hasAdminSession && !$hasUserSession) {
             destroyGreenDashSession();
+            // start a new session after expiration
+            startGreenDashSession();
             return;
         }
         // regenerate session ID after removing expired authentication data
