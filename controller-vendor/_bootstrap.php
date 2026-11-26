@@ -61,7 +61,7 @@ try {
         throw new VendorRequestException('Please wait for the admin to activate your account.', 403);
     }
     /* Check if the vendor account has a valid status */
-    if (($vendor['acc_status'] !== 'active' && $vendor['acc_status'] !== 'pending' || $vendor['acc_status'] !== 'inactive')) {
+    if (!in_array($vendor['acc_status'], ['active', 'pending'], true)) {
         throw new VendorRequestException('An active vendor account is required. Please contact your administrator.', 403);
     }
 } catch (Throwable $error) {
