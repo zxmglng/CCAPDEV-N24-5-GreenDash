@@ -3,7 +3,7 @@
 // Expects the current admin route without its file extension.
 $page       = $page ?? 'home';
 $stallsOpen = in_array($page, ['manage-stores', 'store-requests']);
-$usersOpen  = $page === 'manage-users';
+$usersOpen  = in_array($page, ['manage-users', 'activate-vendors'], true);
 ?>
 <header>
     <div class="main-header">
@@ -53,6 +53,9 @@ $usersOpen  = $page === 'manage-users';
                 <a href="controller-admin/manage-users.php"
                    class="submenu-link <?= $page === 'manage-users' ? 'active' : '' ?>"
                    <?= $page === 'manage-users' ? 'aria-current="page"' : '' ?>>Manage</a>
+                <a href="controller-admin/activate-vendors.php"
+                   class="submenu-link <?= $page === 'activate-vendors' ? 'active' : '' ?>"
+                   <?= $page === 'activate-vendors' ? 'aria-current="page"' : '' ?>>Activate Vendors</a>
             </div>
         </div>
 

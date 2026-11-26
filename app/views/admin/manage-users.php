@@ -1,7 +1,8 @@
+<?php $appBasePath = rtrim(dirname(dirname($_SERVER['SCRIPT_NAME'] ?? '/')), '/') . '/'; ?>
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <base href="/GreenDash/">
+        <base href="<?= htmlspecialchars($appBasePath, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>GreenDash - Manage Users</title>
@@ -18,44 +19,12 @@
           data-page="<?= htmlspecialchars($page, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
           data-flash="<?= htmlspecialchars($flashAction, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
         <?php require __DIR__ . '/nav.php'; ?>
-            <h1 class="page-title">Users Directory</h1>
 
             <?php if ($error !== ''): ?>
                 <p class="admin-flash" role="alert"><?= htmlspecialchars($error, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
             <?php endif; ?>
 
-            // Pending vendor accounts section
-            <section aria-labelledby="pendingVendorTitle">
-                <h2 id="pendingVendorTitle">Pending Vendor Accounts</h2>
-                <?php if (empty($pendingVendors)): ?>
-                    <p>No vendor accounts are waiting for activation.</p>
-                <?php else: ?>
-                    <div class="admin-table-wrap">
-                        <table class="admin-table">
-                            <thead>
-                                <tr><th>Name</th><th>Email</th><th>Action</th></tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($pendingVendors as $vendor): ?>
-                                    <tr>
-                                        <td><?= htmlspecialchars($vendor['first_name'] . ' ' . $vendor['last_name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></td>
-                                        <td><?= htmlspecialchars($vendor['email_add'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></td>
-                                        <td>
-                                            <form method="post">
-                                                <input type="hidden" name="csrfToken"
-                                                    value="<?= htmlspecialchars($csrfToken, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
-                                                <input type="hidden" name="action" value="activate-vendor">
-                                                <input type="hidden" name="id" value="<?= (int) $vendor['user_id'] ?>">
-                                                <button type="submit" class="admin-btn primary">Activate</button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                <?php endif; ?>
-            </section>
+            <h1 class="page-title">Users Directory</h1>
 
             <div class="admin-toolbar">
                 <div class="admin-search">
@@ -196,6 +165,16 @@
                         <option value="vendor">Vendor</option>
                         <option value="admin">Admin</option>
                     </select></div>
+                
+                <div class="modal-row"><label class="modal-label" for="editStatus">Status</label>
+                    <select class="form-select" id="editStatus" name="status">
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select></div>
+
+                <!-- Error message for edit user modal -->
+                <p class="field-error" id="editUserError" role="alert"><?= $flashAction === 'edit' ? htmlspecialchars($error, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') : '' ?></p>
+                
                 <div class="modal-actions">
                     <button type="button" class="admin-btn ghost" data-close>Cancel</button>
                     <button type="submit" class="admin-btn primary">Save changes</button>
