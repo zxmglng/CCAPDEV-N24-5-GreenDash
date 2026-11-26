@@ -87,14 +87,15 @@ function initManageUsersPage() {
             name: tr.dataset.name,
             email: tr.dataset.email,
             contact: tr.dataset.contact,
-            role: tr.dataset.role
+            role: tr.dataset.role,
+            status: tr.dataset.status
         };
 
         byId('userModalTitle').textContent = activeUser.name;
         byId('mEmail').textContent = activeUser.email;
         byId('mContact').textContent = activeUser.contact || '—';
         byId('mRole').textContent = activeUser.role.charAt(0).toUpperCase() + activeUser.role.slice(1);
-        byId('mStatus').textContent = 'Active';
+        byId('mStatus').textContent = activeUser.status === 'active' ? 'Active' : 'Inactive';
 
         Modal.open('userModal');
     });
@@ -113,6 +114,7 @@ function initManageUsersPage() {
         byId('editEmail').value = activeUser.email;
         byId('editContact').value = activeUser.contact || '';
         byId('editRole').value = activeUser.role;
+        byId('editStatus').value = activeUser.status;
 
         Modal.close('userModal');
         Modal.open('editUserModal');
