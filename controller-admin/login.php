@@ -29,7 +29,7 @@ if ($requestMethod === 'POST') {
 
         $valid = $user !== null
             && $user['user_role'] === 'admin'
-            && $user['acc_status'] === 'active';
+            && $user['acc_status'] === 'active'
             && is_string($user['password_hash'] ?? null)
             && $user['password_hash'] !== ''
             && password_verify($password, $user['password_hash']);
