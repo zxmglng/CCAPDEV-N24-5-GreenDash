@@ -26,7 +26,14 @@ try {
                 || hash_equals($passwordHash, $currentPassword));
 
         if (!$currentPasswordIsValid) {
-            $passwordChangeError = 'Current password is incorrect.';
+            $loginHash = $_SESSION['vendor_login_password_hash'] ?? null;
+            $matchesLoginHash = is_string($loginHash)
+                && $loginHash !== ''
+                && password_verify($currentPassword, $loginHash);
+
+            $passwordChangeError = $matchesLoginHash
+                ? 'The account password changed after you signed in. Sign in again and retry.'
+                : 'The current password entered does not match the password used at sign-in.';
             http_response_code(422);
         } 
         
@@ -58,6 +65,7 @@ try {
             if (!session_regenerate_id(true)) {    /* Refresh the secure session if the session ID could not be regenerated */
                 throw new RuntimeException('Unable to refresh the secure session.');
             }
+            unset($_SESSION['vendor_login_password_hash']);
             header('Location: profile.php?password_changed=1', true, 303);
             exit;
         }
