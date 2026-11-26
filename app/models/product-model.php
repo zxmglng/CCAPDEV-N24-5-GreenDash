@@ -19,13 +19,32 @@ function getStallProducts(PDO $pdo, int $stallId): array
     $stmt->execute([$stallId]);
     $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Add categories to each product
-    $categoriesByProduct = getProductCategories($pdo, array_column($products, 'id'));
+    // Attempt to fetch product categories for the retrieved products. 
+    try {
+        $categoriesByProduct = getProductCategories($pdo, array_column($products, 'id'));
+    } catch (PDOException $error) {
+        if (!isMissingProductCategoriesTable($error)) {
+            throw $error;
+        }
+        $categoriesByProduct = [];
+        foreach ($products as $product) {
+            $categoriesByProduct[(int) $product['id']][] = [
+                'id' => (int) $product['category_id'],
+                'name' => $product['category'],
+            ];
+        }
+    }
     foreach ($products as &$product) {
         $product['categories'] = $categoriesByProduct[(int) $product['id']] ?? [];
     }
     unset($product);    // Break the reference to the last product
     return $products;   // Return the products with their associated categories
+}
+
+function isMissingProductCategoriesTable(PDOException $error): bool
+{
+    return ($error->errorInfo[0] ?? $error->getCode()) === '42S02'
+        || (int) ($error->errorInfo[1] ?? 0) === 1146;
 }
 
 // Get all products for a stall, including their option groups and choices.
@@ -62,12 +81,19 @@ function getProductCategories(PDO $pdo, array $productIds): array
 // Replace all categories for a product with the given list of category IDs.
 function replaceProductCategories(PDO $pdo, int $productId, array $categoryIds): void
 {
-    $delete = $pdo->prepare('DELETE FROM product_categories WHERE product_id = ?'); // Delete existing category associations for the product
-    $delete->execute([$productId]); // Execute the delete statement with the product ID
+    try {
+        $delete = $pdo->prepare('DELETE FROM product_categories WHERE product_id = ?');
+        $delete->execute([$productId]);
 
-    $insert = $pdo->prepare('INSERT INTO product_categories (product_id, category_id) VALUES (?, ?)');  // Prepare the insert statement to add new category associations
-    foreach (array_values(array_unique(array_map('intval', $categoryIds))) as $categoryId) {
-        $insert->execute([$productId, $categoryId]);    // Execute the insert statement for each unique category ID associated with the product
+        $insert = $pdo->prepare('INSERT INTO product_categories (product_id, category_id) VALUES (?, ?)');
+        foreach (array_values(array_unique(array_map('intval', $categoryIds))) as $categoryId) {
+            $insert->execute([$productId, $categoryId]);
+        }
+    } catch (PDOException $error) {
+        if (isMissingProductCategoriesTable($error)) {
+            throw new RuntimeException('Apply the product categories database migration before saving products.', 0, $error);
+        }
+        throw $error;
     }
 }
 

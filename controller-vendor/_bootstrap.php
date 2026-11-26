@@ -32,7 +32,7 @@ function vendorRequireMethod(string $method): void
 
 try {
     if (!isset($_SESSION['user_id'])) {
-        if (!($vendorJsonRequest ?? false)) {
+        if (!($vendorJsonRequest ?? false)) {   /* Redirect to login page if not a JSON request */
             $target = 'login.php?redirect='
                 . rawurlencode('../controller-vendor/' . basename($_SERVER['SCRIPT_NAME']));
             header('Location: ' . $target, true, 302);
@@ -49,11 +49,19 @@ try {
     if ($vendor['acc_status'] === 'inactive') {
         throw new VendorRequestException('This vendor account is inactive. Please contact your administrator.', 403);
     }
-    // Pending vendors can browse the vendor area, but cannot submit any form actions.
-    if ($vendor['acc_status'] === 'pending' && $_SERVER['REQUEST_METHOD'] !== 'GET') {
+    /* Pending vendors can browse the vendor area and change their password, but cannot submit store actions. */
+    
+    /* Check if the current request is a password change request */
+    /* basename(...) strips off the directory path and leaves the filename */
+    $isPasswordChange = basename($_SERVER['SCRIPT_NAME'] ?? '') === 'profile.php' /* check if this is the profile.php page */ 
+        && $_SERVER['REQUEST_METHOD'] === 'POST';   /* check if this is a POST request */
+
+    /* If the vendor account is pending, only allow GET requests and password change requests */
+    if ($vendor['acc_status'] === 'pending' && $_SERVER['REQUEST_METHOD'] !== 'GET' && !$isPasswordChange) {
         throw new VendorRequestException('Please wait for the admin to activate your account.', 403);
     }
-    if (!in_array($vendor['acc_status'], ['active', 'pending'], true)) {
+    /* Check if the vendor account has a valid status */
+    if (($vendor['acc_status'] !== 'active' && $vendor['acc_status'] !== 'pending' || $vendor['acc_status'] !== 'inactive')) {
         throw new VendorRequestException('An active vendor account is required. Please contact your administrator.', 403);
     }
 } catch (Throwable $error) {

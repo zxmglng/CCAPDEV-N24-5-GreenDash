@@ -88,6 +88,28 @@ $vendorHeaderLocation = count($vendorStalls) === 1
                     </div>
                 </dl>
 
+                <!-- change password section -->
+                <section class="password-section" aria-labelledby="passwordSectionTitle">
+                    <h2 id="passwordSectionTitle">Change password</h2>
+                    <?php if (!empty($_GET['password_changed'])): ?>    <!-- Password changed successfully -->
+                        <p class="password-feedback success" role="status">Password changed successfully.</p>
+                    <?php elseif ($passwordChangeError !== ''): ?> <!-- Password change error -->
+                        <p class="password-feedback error" role="alert"><?= htmlspecialchars($passwordChangeError, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
+                    <?php endif; ?>
+
+                    <!-- Password change form -->
+                    <form method="post" action="profile.php" class="password-form">
+                        <input type="hidden" name="csrfToken" value="<?= htmlspecialchars(vendorCsrfToken(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
+                        <label for="current_password">Current password</label>
+                        <input class="form-control" id="current_password" name="current_password" type="password" autocomplete="current-password" required maxlength="128">
+                        <label for="new_password">New password</label>
+                        <input class="form-control" id="new_password" name="new_password" type="password" autocomplete="new-password" required minlength="8" maxlength="128">
+                        <label for="confirm_password">Confirm new password</label>
+                        <input class="form-control" id="confirm_password" name="confirm_password" type="password" autocomplete="new-password" required minlength="8" maxlength="128">
+                        <button class="vendor-btn" type="submit">Update password</button>
+                    </form>
+                </section>
+
                 <form method="post" action="logout.php">
                     <input type="hidden" name="csrfToken"
                         value="<?= htmlspecialchars(vendorCsrfToken(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
@@ -97,5 +119,6 @@ $vendorHeaderLocation = count($vendorStalls) === 1
         </div>
 
         <script type="module" src="../js/centralized.js"></script>
+        <script src="../js/vendor-profile.js" defer></script>
     </body>
 </html>

@@ -25,6 +25,29 @@
 	overflow-wrap: anywhere;
 }
 
+.password-section {
+	max-width: 520px;
+	margin: 2rem 0;
+}
+
+.password-section h2 {
+	font-size: 1.35rem;
+	margin-bottom: 1rem;
+}
+
+.password-form {
+	display: grid;
+	gap: 0.6rem;
+}
+
+.password-form input {
+	width: 100%;
+	margin-bottom: 0.5rem;
+}
+
+.password-feedback.error { color: #a32222; }
+.password-feedback.success { color: #176b35; }
+
 /* =========================
    RESPONSIVE 
 ========================= */
