@@ -1,5 +1,5 @@
 const lucideScript = document.createElement('script');
-lucideScript.src = 'https://unpkg.com/lucide@latest';
+lucideScript.src = 'https://unpkg.com/lucide@1.81.0/dist/umd/lucide.min.js';
 lucideScript.onload = () => window.lucide && lucide.createIcons();
 document.head.appendChild(lucideScript);
 

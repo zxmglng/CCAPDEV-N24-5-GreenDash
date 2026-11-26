@@ -13,7 +13,7 @@ function sendGreenDashCspReportOnly(): void
     . "object-src 'none'; "
     . "frame-ancestors 'self'; "
     . "form-action 'self'; "
-    . "script-src 'self' https://accounts.google.com https://cdn.jsdelivr.net; "
+    . "script-src 'self' https://accounts.google.com https://cdn.jsdelivr.net https://unpkg.com; "
     . "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; "
     . "img-src 'self' data: blob: https://*.googleusercontent.com https://via.placeholder.com; "
     . "font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; "
