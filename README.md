@@ -155,6 +155,14 @@ mariadb -u YOUR_DATABASE_USER -p greenDash < ~/GreenDash-src/database/add_user_c
 
 The app creates cart rows as customers shop. A fresh cart table starts empty.
 
+Apply the customer order cancellation migration to support the Orders page and
+record cancellations of preparing orders. It creates the tracking table when
+missing and preserves existing cancellation records. [Customer cancellation migration](database/add_user_order_cancellations.sql)
+
+```bash
+mariadb -u YOUR_DATABASE_USER -p greenDash < ~/GreenDash-src/database/add_user_order_cancellations.sql
+```
+
 Apply the vendor order cancellation migration after the `users`, `stalls`, and `orders` tables exist. The vendor workflow and the admin Vendor Cancellations report use the same records to track reasons and each vendor's weekly allowance. [Vendor order cancellation migration](database/add_vendor_order_cancellations.sql)
 
 ```bash
@@ -276,7 +284,7 @@ Cash/online choices and payment references are recorded in the database. The ven
 ## Verify the deployment
 
 - Open the root homepage and complete customer, vendor, and admin navigation using buttons. Check that pages, images, styles, and scripts load.
-- Confirm the database import and both migrations completed without SQL errors. The incremental sample script prints record counts for the tables listed below.
+- Confirm the database import and migrations completed without SQL errors. The incremental sample script prints record counts for the tables listed below.
 - Save an item with a customization, reload the stall, and confirm it persists after signing out and back in. Sign into a second account in the same browser and confirm it sees only its own cart.
 - Place an order, reload the customer's Orders page, and verify its items, options, and total. Confirm the assigned vendor can find the same order.
 - Complete collection with payment confirmation, then create, edit, and delete a review. Refresh the stall review list and transaction history to verify persistence.

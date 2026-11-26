@@ -22,7 +22,7 @@ Should contain:
 - `submit-order.php` accepts checkout POST requests and returns JSON. It validates the saved cart, saves the order, and empties the purchased cart in one transaction.
 - `orders.php` requires a signed-in active user and renders only that user's saved orders, items, options, and reviews.
 - `reviews.php` provides public stall review lists on GET and owner-authorized review saves/deletes on POST.
-- `cancel-order.php` handles the existing Orders page cancellation action for the owner's pending orders.
+- `cancel-order.php` handles customer cancellations of their own pending and preparing orders.
 
 ## Account CSRF protection
 
@@ -123,8 +123,18 @@ User identity and stall association always come from the server-side order.
 The Orders view loads `js/user-orders.js` and `js/reviews.js`; it no longer uses
 the sample orders/ratings/comments in the HTML prototype's `js/user.js`.
 Direct requests to `app/views/user/orders.php` redirect to its controller.
-Cancellation uses the same user/CSRF checks and an atomic update restricted to
-pending orders. A paid payment stays paid; cancelling does not claim a refund.
+
+## Customer order cancellations
+
+Apply the migration before deploying the Orders page and cancellation controller.
+The Orders page queries `user_order_cancellations` to calculate the customer's
+weekly allowance. [Customer cancellation migration](../database/add_user_order_cancellations.sql)
+
+The cancellation endpoint checks account status, order ownership, and the CSRF
+token. Pending cancellations do not use the allowance. Customers can cancel up
+to three preparing orders per Monday–Sunday week in Asia/Manila. The order
+update and the cancellation record commit together. Any recorded payment
+stays paid.
 
 ## Local verification
 
