@@ -1,6 +1,9 @@
 <?php
 require_once __DIR__ . '/../app/core/reviews.php';
+require_once __DIR__ . '/../app/core/user-auth.php';
 startReviewSession();
+require_once __DIR__ . '/../app/core/user-auth.php';
+
 header('Content-Type: application/json; charset=utf-8');
 
 function sendReviewResponse(int $status, array $data): void
@@ -16,7 +19,11 @@ try {
         header('Allow: GET, POST');
         throw new ReviewRequestException('Method not allowed.', 405);
     }
-    $userId = isset($_SESSION['user_id']) ? reviewPositiveId($_SESSION['user_id'], 'user') : null;
+    // GET is public. Only expose owner-specific data to a user-role session;
+    // vendors/admins/guests see reviews as anonymous readers.
+    $userId = (isset($_SESSION['user_id']) && isUserRoleAllowed($_SESSION['user_role'] ?? null))
+        ? reviewPositiveId($_SESSION['user_id'], 'user')
+        : null;
     if ($method === 'GET') {
         $stallId = reviewPositiveId($_GET['stallId'] ?? null, 'stall');
         require __DIR__ . '/../app/core/db.php';
@@ -24,9 +31,8 @@ try {
         $result['csrfToken'] = $userId !== null ? reviewCsrfToken() : null;
         sendReviewResponse(200, $result);
     }
-    if ($userId === null) {
-        throw new ReviewRequestException('Please sign in before reviewing an order.', 401);
-    }
+    // POST: require an authenticated user-role session.
+    $userId = requireUserApi();
     if (!is_string($_POST['csrfToken'] ?? null) || !isset($_SESSION['review_csrf_token'])
         || !hash_equals($_SESSION['review_csrf_token'], $_POST['csrfToken'])) {
         throw new ReviewRequestException('Your session expired. Please reload the page.', 403);

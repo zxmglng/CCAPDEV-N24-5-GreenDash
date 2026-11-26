@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . '/../app/core/orders.php';
 startReviewSession();
+require_once __DIR__ . '/../app/core/user-auth.php';
+
 header('Content-Type: application/json; charset=utf-8');
 
 // Cancellation is restricted to the signed-in user and orders still pending or preparing.
@@ -9,9 +11,9 @@ try {
         header('Allow: POST');
         throw new ReviewRequestException('Method not allowed.', 405);
     }
-    if (!isset($_SESSION['user_id'])) {
-        throw new ReviewRequestException('Please sign in again.', 401);
-    }
+    
+    requireUserApi();
+
     if (!is_string($_POST['csrfToken'] ?? null) || !isset($_SESSION['review_csrf_token'])
         || !hash_equals($_SESSION['review_csrf_token'], $_POST['csrfToken'])) {
         throw new ReviewRequestException('Your session expired. Please reload the page.', 403);

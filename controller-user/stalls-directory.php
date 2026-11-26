@@ -1,7 +1,7 @@
 <?php
 
 require_once(__DIR__ . "/../app/core/session.php");
-startGreenDashSession();
+require_once(__DIR__ . "/../app/core/user-auth.php");
 
 header('Cache-Control: no-store');
 
@@ -11,11 +11,7 @@ require_once(__DIR__ . "/../app/models/stall-model.php");
 require_once(__DIR__ . "/../app/models/stall-hours-model.php");
 require_once(__DIR__ . "/../app/models/review-model.php");
 
-// user must be logged in
-if (!isset($_SESSION['user_id'])) {
-    header('Location: ../index.php');
-    exit;
-}
+requireUserLogin();
 
 $showSavedCarts = ($_GET['carts'] ?? null) === '1';
 $savedCartStalls = array_fill_keys(getSavedCartStallIds($pdo, (int) $_SESSION['user_id']), true);

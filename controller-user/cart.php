@@ -2,6 +2,8 @@
 
 require_once __DIR__ . '/../app/core/cart.php';
 startCheckoutSession();
+require_once __DIR__ . '/../app/core/user-auth.php';
+
 header('Content-Type: application/json; charset=utf-8');
 
 function sendCartResponse(int $status, array $data): void
@@ -17,9 +19,9 @@ try {
         header('Allow: GET, POST');
         sendCartResponse(405, ['success' => false, 'message' => 'Method not allowed.']);
     }
-    if (!isset($_SESSION['user_id'])) {
-        sendCartResponse(401, ['success' => false, 'message' => 'Please sign in to access your cart.']);
-    }
+    
+    requireUserApi();
+
     if ($method === 'POST' && (!is_string($_POST['csrfToken'] ?? null)
         || !isset($_SESSION['checkout_csrf_token'])
         || !hash_equals($_SESSION['checkout_csrf_token'], $_POST['csrfToken']))) {

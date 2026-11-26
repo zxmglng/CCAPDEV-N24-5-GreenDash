@@ -2,7 +2,8 @@
 
 require_once __DIR__ . '/../app/core/session.php';
 require_once __DIR__ . '/../app/core/user-csrf.php';
-startGreenDashSession();
+require_once __DIR__ . '/../app/core/user-auth.php';
+
 header('Cache-Control: no-store');
 
 function sendProfileResponse(int $status, array $body): void
@@ -14,12 +15,10 @@ function sendProfileResponse(int $status, array $body): void
 }
 
 $isPost = $_SERVER['REQUEST_METHOD'] === 'POST';
-if (!isset($_SESSION['user_id'])) {
-    if ($isPost) {
-        sendProfileResponse(401, ['success' => false, 'message' => 'Sign in again to update your profile.']);
-    }
-    header('Location: ../index.php');
-    exit;
+if ($isPost) {
+    requireUserApi();
+} else {
+    requireUserLogin();
 }
 
 if ($isPost && !isUserCsrfTokenValid($_POST['csrfToken'] ?? null)) {

@@ -1,11 +1,9 @@
 <?php
 require_once __DIR__ . '/../app/core/checkout.php';
 startCheckoutSession();
+require_once __DIR__ . '/../app/core/user-auth.php';
 
-if (!isset($_SESSION['user_id'])) {
-    header('Location: ../app/views/user/login.php', true, 302);
-    exit;
-}
+requireUserLogin();
 
 $stallId = filter_var($_GET['stallId'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
 if (!$stallId) {

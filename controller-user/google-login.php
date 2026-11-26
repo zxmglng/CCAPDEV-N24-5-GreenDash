@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/../app/core/session.php';
 require_once __DIR__ . '/../app/core/user-csrf.php';
+require_once __DIR__ . '/../app/core/user-auth.php';
 
 function googleLoginFailure(int $status, string $message): void
 {
@@ -39,7 +40,6 @@ if (!is_string($credential) || trim($credential) === '') {
     googleLoginFailure(400, 'Missing Google credential.');
 }
 
-// for verifying the Google credentials
 try {
     require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -75,6 +75,12 @@ try {
     }
     if (!$user || $user['acc_status'] !== 'active') {
         googleLoginFailure(403, 'This account is inactive.');
+    }
+    // User door only accepts student/faculty/staff. A brand-new row has
+    // user_role = NULL and is allowed through to pick a role. A vendor or
+    // admin row is rejected here.
+    if ($user['user_role'] !== null && !isUserRoleAllowed($user['user_role'])) {
+        googleLoginFailure(403, 'This account cannot sign in here. Please use the correct sign-in page.');
     }
     if (!session_regenerate_id(true)) {
         googleLoginFailure(500, 'Unable to establish a secure session.');

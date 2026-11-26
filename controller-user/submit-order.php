@@ -2,6 +2,8 @@
 
 require_once __DIR__ . '/../app/core/checkout.php';
 startCheckoutSession();
+require_once __DIR__ . '/../app/core/user-auth.php';
+
 header('Content-Type: application/json; charset=utf-8');
 
 // Send a consistent JSON response and stop processing the request.
@@ -18,10 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     checkoutResponse(405, ['success' => false, 'message' => 'Method not allowed.']);
 }
 
-// Require an authenticated session for order placement.
-if (!isset($_SESSION['user_id'])) {
-    checkoutResponse(401, ['success' => false, 'message' => 'Please sign in before placing an order.']);
-}
+requireUserApi();
 
 // Reject submissions that did not originate from this user's checkout session.
 if (!is_string($_POST['csrfToken'] ?? null) || !isset($_SESSION['checkout_csrf_token'])

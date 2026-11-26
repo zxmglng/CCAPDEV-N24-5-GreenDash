@@ -1,11 +1,9 @@
 <?php
 require_once(__DIR__ . "/../app/core/checkout.php");
 startCheckoutSession();
+require_once __DIR__ . '/../app/core/user-auth.php';
 
-if (!isset($_SESSION['user_id'])) {
-    header('Location: ../index.php');
-    exit;
-}
+requireUserLogin();
 
 require_once(__DIR__ . "/../app/core/db.php");
 require_once(__DIR__ . "/../app/models/category-model.php");
