@@ -5,7 +5,7 @@ const passwordModal = document.getElementById('passwordModal');
 
 document.getElementById('openPasswordModal')?.addEventListener('click', () => {
     passwordModal?.classList.add('open');
-    document.getElementById('current_password')?.focus();
+    (document.getElementById('current_password') || newPassword)?.focus();
 });
 
 passwordModal?.querySelectorAll('[data-close]').forEach(button => {

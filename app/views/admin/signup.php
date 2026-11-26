@@ -30,19 +30,19 @@
                 <div class="admin-login-field">
                     <label for="firstName">First Name</label>
                     <input type="text" id="firstName" name="first_name" autocomplete="given-name" required
-                           value="<?= htmlspecialchars($old['firstName'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
+                           value="<?= htmlspecialchars($old['first_name'] ?? '', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
                 </div>
 
                 <div class="admin-login-field">
                     <label for="lastName">Last Name</label>
                     <input type="text" id="lastName" name="last_name" autocomplete="family-name" required
-                           value="<?= htmlspecialchars($old['lastName'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
+                           value="<?= htmlspecialchars($old['last_name'] ?? '', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
                 </div>
 
                 <div class="admin-login-field">
                     <label for="email">Email</label>
                     <input type="email" id="email" name="email" autocomplete="email" required
-                           value="<?= htmlspecialchars($old['email'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
+                           value="<?= htmlspecialchars($old['email'] ?? '', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
                 </div>
 
                 <div class="admin-login-field">

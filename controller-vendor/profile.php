@@ -10,21 +10,21 @@ try {
 
     /* Initialize the password change error message */
     $passwordChangeError = '';
+    $passwordHash = $vendor['password_hash'] ?? null;
+    $hasLocalPassword = is_string($passwordHash) && $passwordHash !== '';
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         requireVendorCsrfToken($_POST['csrfToken'] ?? null);    /* check the CSRF token */
         $currentPassword = is_string($_POST['current_password'] ?? null) ? $_POST['current_password'] : ''; /* get the current password from the POST data */
         $newPassword = is_string($_POST['new_password'] ?? null) ? $_POST['new_password'] : ''; /* get the new password from the POST data */
         $confirmPassword = is_string($_POST['confirm_password'] ?? null) ? $_POST['confirm_password'] : ''; /* get the confirm password from the POST data */
-        $passwordHash = $vendor['password_hash'] ?? null;   /* get the current password hash from the vendor data */
 
         /* Validate the current password, new password, and confirm password */
 
         /* Accept old plain-text records only for a matching current password; the new password is always stored hashed below. */
-        $currentPasswordIsValid = is_string($passwordHash)
-            && $passwordHash !== ''
-            && (password_verify($currentPassword, $passwordHash) || hash_equals($passwordHash, $currentPassword));
+        $currentPasswordIsValid = !$hasLocalPassword
+            || (password_verify($currentPassword, $passwordHash)
+                || hash_equals($passwordHash, $currentPassword));
 
-        /* Check if the current password is correct */
         if (!$currentPasswordIsValid) {
             $passwordChangeError = 'Current password is incorrect.';
             http_response_code(422);
@@ -43,7 +43,8 @@ try {
         } 
         
         /* Check if the new password is different from the current password */
-        elseif ($newPassword === $currentPassword || password_verify($newPassword, $passwordHash)) {
+        elseif ($hasLocalPassword
+            && ($newPassword === $currentPassword || password_verify($newPassword, $passwordHash))) {
             $passwordChangeError = 'Choose a new password that differs from your current password.';
             http_response_code(422);
         } 

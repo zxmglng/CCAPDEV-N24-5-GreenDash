@@ -92,11 +92,11 @@ $vendorHeaderLocation = count($vendorStalls) === 1
                 <hr> 
                 <!-- change password section -->
                 <section class="password-section" aria-labelledby="passwordSectionTitle">
-                    <h1 class="page-title" id="passwordSectionTitle">Change password</h2>
+                    <h2 class="page-title" id="passwordSectionTitle"><?= $hasLocalPassword ? 'Change password' : 'Set local password' ?></h2>
                     <?php if (!empty($_GET['password_changed'])): ?>    <!-- Password changed successfully -->
-                        <p class="password-feedback success" role="status">Password changed successfully.</p>
+                        <p class="password-feedback success" role="status">Password saved successfully.</p>
                     <?php endif; ?>
-                    <button class="vendor-btn secondary" type="button" id="openPasswordModal">Change password</button>
+                    <button class="vendor-btn secondary" type="button" id="openPasswordModal"><?= $hasLocalPassword ? 'Change password' : 'Set password' ?></button>
                 </section>
 
                 <form method="post" action="logout.php">
@@ -112,16 +112,25 @@ $vendorHeaderLocation = count($vendorStalls) === 1
             <button type="button" class="vmodal-backdrop" data-close aria-label="Close"></button>
             <form method="post" action="profile.php" class="vmodal-box password-form">
                 <div class="vmodal-head">
-                    <h2 class="page-title" id="passwordModalTitle">Change password</h2>
+                    <h2 class="page-title" id="passwordModalTitle"><?= $hasLocalPassword ? 'Change password' : 'Set local password' ?></h2>
                     <button type="button" class="vmodal-close" data-close aria-label="Close"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
                 </div>
                 <div class="vmodal-body">
+                    <!-- Display error message if password change fails -->
                     <?php if ($passwordChangeError !== ''): ?>
                         <p class="password-feedback error" role="alert"><?= htmlspecialchars($passwordChangeError, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
                     <?php endif; ?>
+
+                    <!-- CSRF token for security -->
                     <input type="hidden" name="csrfToken" value="<?= htmlspecialchars(vendorCsrfToken(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
-                    <label class="form-label" for="current_password">Current password</label>
-                    <input class="form-control" id="current_password" name="current_password" type="password" autocomplete="current-password" required maxlength="128">
+
+                    <!-- Require current password -->
+                    <?php if ($hasLocalPassword): ?>
+                        <label class="form-label" for="current_password">Current password</label>
+                        <input class="form-control" id="current_password" name="current_password" type="password" autocomplete="current-password" required maxlength="128">
+                    <?php else: ?>
+                        <p class="modal-hint">This account uses Google sign-in and does not have a local password yet.</p>
+                    <?php endif; ?>
                     <label class="form-label" for="new_password">New password</label>
                     <input class="form-control" id="new_password" name="new_password" type="password" autocomplete="new-password" required minlength="8" maxlength="128">
                     <label class="form-label" for="confirm_password">Confirm new password</label>
@@ -129,7 +138,7 @@ $vendorHeaderLocation = count($vendorStalls) === 1
                 </div>
                 <div class="vmodal-foot">
                     <button class="vendor-btn secondary" type="button" data-close>Cancel</button>
-                    <button class="vendor-btn primary" type="submit">Update password</button>
+                    <button class="vendor-btn primary" type="submit"><?= $hasLocalPassword ? 'Update password' : 'Set password' ?></button>
                 </div>
             </form>
         </div>
