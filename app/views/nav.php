@@ -12,6 +12,7 @@ $profilePage = $isUserController
 $stallsDirectoryPage = $isUserController
     ? 'stalls-directory.php'
     : '../../../controller-user/stalls-directory.php';
+$hasCartDrawer = $isUserController && isset($stallData['stall']);
 ?>
         <header>
             <div class="main-header">
@@ -38,12 +39,20 @@ $stallsDirectoryPage = $isUserController
             <nav>
                 <div class="nav-links">
                     <a href="<?= htmlspecialchars($profilePage, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"<?= $currentPage === 'profile.php' ? ' aria-current="page"' : '' ?>>Profile</a>
-                    <a href="<?= htmlspecialchars($stallsDirectoryPage, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"<?= $currentPage === 'stalls-directory.php' ? ' aria-current="page"' : '' ?>>Stalls Directory</a>
+                    <a href="<?= htmlspecialchars($stallsDirectoryPage, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"<?= $currentPage === 'stalls-directory.php' && empty($showSavedCarts) ? ' aria-current="page"' : '' ?>>Stalls Directory</a>
                     <a href="<?= htmlspecialchars($userPageBase . 'orders.php', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">Orders</a>
                 </div>
 
-                <button class="icon-button" id="cart" aria-label="View cart">
-                    <i data-lucide="shopping-cart"></i>
-                </button>
+                <?php if ($hasCartDrawer): ?>
+                    <button type="button" class="icon-button" id="cart" aria-label="View cart">
+                        <i data-lucide="shopping-cart"></i>
+                    </button>
+                <?php else: ?>
+                    <a class="icon-button" id="cart"
+                        href="<?= htmlspecialchars($stallsDirectoryPage . '?carts=1', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
+                        aria-label="View saved carts"<?= !empty($showSavedCarts) ? ' aria-current="page"' : '' ?>>
+                        <i data-lucide="shopping-cart"></i>
+                    </a>
+                <?php endif; ?>
             </nav>
         </header>

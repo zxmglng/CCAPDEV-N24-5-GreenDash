@@ -17,8 +17,18 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-$stalls = getAllStalls($pdo);
+$showSavedCarts = ($_GET['carts'] ?? null) === '1';
 $savedCartStalls = array_fill_keys(getSavedCartStallIds($pdo, (int) $_SESSION['user_id']), true);
+if ($showSavedCarts && count($savedCartStalls) === 1) {
+    // Open the existing drawer directly when there is only one saved cart.
+    header('Location: stall-info.php?stall=' . array_key_first($savedCartStalls) . '&cart=1');
+    exit;
+}
+
+$stalls = getAllStalls($pdo);
+if ($showSavedCarts) {
+    $stalls = array_filter($stalls, static fn (array $stall): bool => isset($savedCartStalls[(int) $stall['id']]));
+}
 $ratingSummaries = getStallRatingSummaries($pdo);
 $stallLocations = [];
 $stallTypes = [];

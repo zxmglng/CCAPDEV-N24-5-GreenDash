@@ -50,12 +50,3 @@ if (locationSelect) {
         localStorage.setItem(locationStorageKey, locationSelect.value);
     });
 }
-
-// Cart functionality
-const cartButton = document.querySelector('.icon-button');
-
-if (cartButton) {
-    cartButton.addEventListener('click', () => {
-        // Handle cart button click
-    });
-}
