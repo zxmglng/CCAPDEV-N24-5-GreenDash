@@ -12,6 +12,10 @@ try {
     $passwordChangeError = '';
     $passwordHash = $vendor['password_hash'] ?? null;
     $hasLocalPassword = is_string($passwordHash) && $passwordHash !== '';
+    $passwordAuthenticatedAt = (int) ($_SESSION['vendor_password_authenticated_at'] ?? 0);
+    $hasRecentPasswordAuthentication = $passwordAuthenticatedAt > 0
+        && time() - $passwordAuthenticatedAt <= 300;
+    $requiresCurrentPassword = $hasLocalPassword && !$hasRecentPasswordAuthentication;
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         requireVendorCsrfToken($_POST['csrfToken'] ?? null);    /* check the CSRF token */
         $currentPassword = is_string($_POST['current_password'] ?? null) ? $_POST['current_password'] : ''; /* get the current password from the POST data */
@@ -21,19 +25,12 @@ try {
         /* Validate the current password, new password, and confirm password */
 
         /* Accept old plain-text records only for a matching current password; the new password is always stored hashed below. */
-        $currentPasswordIsValid = !$hasLocalPassword
+        $currentPasswordIsValid = !$requiresCurrentPassword
             || (password_verify($currentPassword, $passwordHash)
                 || hash_equals($passwordHash, $currentPassword));
 
         if (!$currentPasswordIsValid) {
-            $loginHash = $_SESSION['vendor_login_password_hash'] ?? null;
-            $matchesLoginHash = is_string($loginHash)
-                && $loginHash !== ''
-                && password_verify($currentPassword, $loginHash);
-
-            $passwordChangeError = $matchesLoginHash
-                ? 'The account password changed after you signed in. Sign in again and retry.'
-                : 'The current password entered does not match the password used at sign-in.';
+            $passwordChangeError = 'Current password is incorrect.';
             http_response_code(422);
         } 
         
@@ -65,7 +62,7 @@ try {
             if (!session_regenerate_id(true)) {    /* Refresh the secure session if the session ID could not be regenerated */
                 throw new RuntimeException('Unable to refresh the secure session.');
             }
-            unset($_SESSION['vendor_login_password_hash']);
+            unset($_SESSION['vendor_password_authenticated_at']);
             header('Location: profile.php?password_changed=1', true, 303);
             exit;
         }

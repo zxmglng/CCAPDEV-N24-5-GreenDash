@@ -9,6 +9,41 @@ header('Cache-Control: no-store');
 $error = '';
 $emailValue = '';
 
+const VENDOR_LOGIN_MAX_ATTEMPTS = 5;
+const VENDOR_LOGIN_LOCKOUT_SEC = 300;
+
+/* vendor login lockout and attempt tracking */
+function vendorLoginLockoutRemaining(): int
+{
+    $lockedUntil = (int) ($_SESSION['vendor_login_locked_until'] ?? 0); /* get the timestamp until which the vendor login is locked */
+    $remaining = $lockedUntil - time();
+    if ($remaining <= 0) {
+        vendorLoginResetAttempts();
+        return 0;
+    }
+    return $remaining;
+}
+
+/*
+ * Record a failed vendor login attempt and lock the account if the maximum attempts are reached.
+ */
+function vendorLoginRecordFailure(): void
+{
+    $attempts = (int) ($_SESSION['vendor_login_attempts'] ?? 0) + 1;
+    $_SESSION['vendor_login_attempts'] = $attempts;
+    if ($attempts >= VENDOR_LOGIN_MAX_ATTEMPTS) {
+        $_SESSION['vendor_login_locked_until'] = time() + VENDOR_LOGIN_LOCKOUT_SEC;
+    }
+}
+
+/*
+ * Reset the vendor login attempts and lockout status.
+ */
+function vendorLoginResetAttempts(): void
+{
+    unset($_SESSION['vendor_login_attempts'], $_SESSION['vendor_login_locked_until']);
+}
+
 // check if the request method is either GET or POST
 if (!in_array($_SERVER['REQUEST_METHOD'], ['GET', 'POST'], true)) {
     header('Allow: GET, POST');
@@ -29,7 +64,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $emailValue = strtolower(trim((string) ($_POST['email'] ?? '')));
         $password = (string) ($_POST['password'] ?? '');
 
-        try {
+        /* check if the vendor account is currently locked due to too many failed login attempts */
+        $lockoutRemaining = vendorLoginLockoutRemaining();
+        if ($lockoutRemaining > 0) {
+            $minutes = (int) ceil($lockoutRemaining / 60); /* this means: the remaining lockout time in minutes */
+            header('Retry-After: ' . $lockoutRemaining);
+            http_response_code(429);
+            $error = 'Too many failed attempts. Try again in '
+                . $minutes . ' minute' . ($minutes === 1 ? '' : 's') . '.';
+        } else {
+            try {
             require_once __DIR__ . '/../app/core/db.php';
             require_once __DIR__ . '/../app/models/user-model.php';
             
@@ -58,6 +102,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new InvalidArgumentException('This account cannot sign in.');
             }
 
+            /* reset the vendor login attempts and lockout status upon successful login */
+            vendorLoginResetAttempts();
+
             // regenerate the session ID to prevent session fixation attacks
             if (!session_regenerate_id(true)) {
                 throw new RuntimeException('Unable to establish a secure session.');
@@ -70,7 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['user_email'] = $user['email_add'];
             $_SESSION['user_role'] = 'vendor';
             $_SESSION['user_last_activity'] = time();
-            $_SESSION['vendor_login_password_hash'] = $passwordHash;
+            $_SESSION['vendor_password_authenticated_at'] = time();
 
             $destination = 'profile.php';
 
@@ -91,10 +138,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         
         // catch any exceptions thrown during the login process and handle them appropriately
-        } catch (InvalidArgumentException $exception) {
-            http_response_code(422);
-            $error = $exception->getMessage();
-
+            } catch (InvalidArgumentException $exception) {
+                vendorLoginRecordFailure();
+                $attempts = (int) ($_SESSION['vendor_login_attempts'] ?? 0);
+                $remainingAttempts = VENDOR_LOGIN_MAX_ATTEMPTS - $attempts;
+                $error = $exception->getMessage();
+                if ($remainingAttempts > 0) {
+                    $error .= ' ' . $remainingAttempts . ' attempt'
+                        . ($remainingAttempts === 1 ? '' : 's')
+                        . ' remaining before a temporary lockout.';
+                } else {
+                    $error = 'Too many failed attempts. Try again in 5 minutes.';
+                    header('Retry-After: ' . VENDOR_LOGIN_LOCKOUT_SEC);
+                    http_response_code(429);
+                }
+                if ($attempts < VENDOR_LOGIN_MAX_ATTEMPTS) {
+                    http_response_code(422);
+                }
+            }
         }
     }
 }

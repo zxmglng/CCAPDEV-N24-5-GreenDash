@@ -125,9 +125,11 @@ $vendorHeaderLocation = count($vendorStalls) === 1
                     <input type="hidden" name="csrfToken" value="<?= htmlspecialchars(vendorCsrfToken(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
 
                     <!-- Require current password -->
-                    <?php if ($hasLocalPassword): ?>
+                    <?php if ($requiresCurrentPassword): ?>
                         <label class="form-label" for="current_password">Current password</label>
                         <input class="form-control" id="current_password" name="current_password" type="password" autocomplete="current-password" required maxlength="128">
+                    <?php elseif ($hasRecentPasswordAuthentication): ?>
+                        <p class="modal-hint">Your recent password sign-in has verified your identity.</p>
                     <?php else: ?>
                         <p class="modal-hint">This account uses Google sign-in and does not have a local password yet.</p>
                     <?php endif; ?>
