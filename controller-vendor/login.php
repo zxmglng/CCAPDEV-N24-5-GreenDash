@@ -15,13 +15,9 @@ const VENDOR_LOGIN_LOCKOUT_SEC = 300;
 /* vendor login lockout and attempt tracking */
 function vendorLoginLockoutRemaining(): int
 {
-    $lockedUntil = (int) ($_SESSION['vendor_login_locked_until'] ?? 0); /* get the timestamp until which the vendor login is locked */
+    $lockedUntil = (int) ($_SESSION['vendor_login_locked_until'] ?? 0);
     $remaining = $lockedUntil - time();
-    if ($remaining <= 0) {
-        vendorLoginResetAttempts();
-        return 0;
-    }
-    return $remaining;
+    return $remaining > 0 ? $remaining : 0;
 }
 
 /*
@@ -65,10 +61,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $password = (string) ($_POST['password'] ?? '');
 
         /* check if the vendor account is currently locked due to too many failed login attempts */
-        $lockoutRemaining = vendorLoginLockoutRemaining();
-        if ($lockoutRemaining > 0) {
-            $minutes = (int) ceil($lockoutRemaining / 60); /* this means: the remaining lockout time in minutes */
-            header('Retry-After: ' . $lockoutRemaining);
+        if (vendorLoginLockoutRemaining() > 0) {
+            $minutes = (int) ceil(vendorLoginLockoutRemaining() / 60);
             http_response_code(429);
             $error = 'Too many failed attempts. Try again in '
                 . $minutes . ' minute' . ($minutes === 1 ? '' : 's') . '.';
@@ -149,7 +143,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         . ' remaining before a temporary lockout.';
                 } else {
                     $error = 'Too many failed attempts. Try again in 5 minutes.';
-                    header('Retry-After: ' . VENDOR_LOGIN_LOCKOUT_SEC);
                     http_response_code(429);
                 }
                 if ($attempts < VENDOR_LOGIN_MAX_ATTEMPTS) {
