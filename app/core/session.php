@@ -25,8 +25,7 @@ function clearGreenDashUserSessionData(): void
 {
     unset($_SESSION['user_id'], $_SESSION['user_email'], $_SESSION['user_role'], $_SESSION['user_last_activity'],
         $_SESSION['vendor_csrf_token'], $_SESSION['checkout_csrf_token'], $_SESSION['checkout_receipts'],
-        $_SESSION['review_csrf_token'], $_SESSION['user_csrf_token'], $_SESSION['google_login_csrf_token'],
-        $_SESSION['vendor_password_authenticated_at']); // clear the timestamp of the last successful vendor password authentication
+        $_SESSION['review_csrf_token'], $_SESSION['user_csrf_token'], $_SESSION['google_login_csrf_token']); // clear the timestamp of the last successful vendor password authentication
 }
 
 // enforce role-based session inactivity timeouts

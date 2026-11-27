@@ -111,7 +111,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['user_email'] = $user['email_add'];
             $_SESSION['user_role'] = 'vendor';
             $_SESSION['user_last_activity'] = time();
-            $_SESSION['vendor_password_authenticated_at'] = time();
 
             $destination = 'profile.php';
 
